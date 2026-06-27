@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 0.9
+
+開始内容:
+
+- InputAnalyzerクラス追加
+- ユーザー入力をinput_type、task_type、URL有無などに構造化
+- InputAnalyzerをPersonalAI内部に接続
+- 解析結果をself.last_input_analysisに保存
+- まだWebやYouTubeの実読み取りは行わない方針を維持
+
 ## Version 0.8
 
 開始内容:

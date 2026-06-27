@@ -63,6 +63,8 @@ InputAnalyzerは、ユーザー入力を構造化する。
 
 ユーザーの入力が通常のテキストなのか、URLなのか、PDFなのか、画像なのか、YouTubeなのか、Word文書の作成依頼なのかを判定する。これにより、後続のPlannerやRouterが適切な処理を選びやすくなる。
 
+Version 0.9では、InputAnalyzerの初期実装がPersonalAI本体に接続された。現時点では、入力の種類やURL有無を判定するだけで、WebやYouTubeを実際に読み取りには行かない。
+
 例:
 
 - 通常会話
@@ -212,6 +214,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 
 現在、以下が実装済みである。
 
+- InputAnalyzer
 - CapabilityManager
 - Planner
 - Router

@@ -71,6 +71,19 @@ Version 0.8では、ExecutorがPersonalAI内部で実際に使われるように
 これにより、PersonalAI本体はLLMを直接呼び出すのではなく、Executorに実行を任せる構造になった。
 現時点では通常のtargetは `qwen` のままであり、既存の会話機能と記憶機能は維持する。
 
+## Version 0.9のInputAnalyzer接続
+
+Version 0.9では、InputAnalyzerがPersonalAI内部に接続された。
+
+現在の会話処理では、ユーザー発言を保存したあと、InputAnalyzerが入力を簡単に構造化する。
+
+```text
+ユーザー入力 → 入力保存 → input_analysis作成 → capability取得 → plan作成 → route作成 → Executor → Qwen
+```
+
+input_analysisには、入力の種類、依頼の種類、URL有無、外部読み取りやファイル作成が必要そうか、といった情報を保存する。
+現時点ではWebやYouTubeを実際に読みに行かず、将来のPlanner、Router、Executor拡張に向けた土台として扱う。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
@@ -84,6 +97,7 @@ Version 0.8では、ExecutorがPersonalAI内部で実際に使われるように
 今後のエージェント化に向けて、以下の要素を追加予定である。
 
 - `CapabilityManager`: PersonalAIが使える能力を管理する。Version 0.5でPersonalAI内部に接続済み
+- `InputAnalyzer`: ユーザー入力を構造化する。Version 0.9でPersonalAI内部に接続済み
 - `Planner`: ユーザーの目的に対して実行計画を立てる。Version 0.5でPersonalAI内部に接続済み
 - `Router`: 用途に応じて使う道具や処理系を選ぶ。Version 0.5でPersonalAI内部に接続済み
 - `Executor`: 選ばれた行動やツールを実行する。Version 0.8でPersonalAI内部に接続済み
