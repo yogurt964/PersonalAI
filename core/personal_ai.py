@@ -1,7 +1,7 @@
-from ai.llm import ask_llm
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
 from core.capability_manager import CapabilityManager
+from core.executor import Executor
 from core.planner import Planner
 from core.router import Router
 from database.chat_history import get_recent_messages, save_message
@@ -20,11 +20,13 @@ class PersonalAI:
         self.capability_manager = CapabilityManager()
         self.planner = Planner()
         self.router = Router()
+        self.executor = Executor()
 
         # 直近の判断結果を保存しておく場所です。将来のデバッグやExecutor連携で使えます。
         self.last_capabilities = None
         self.last_plan = None
         self.last_route = None
+        self.last_response = None
 
     def run(self):
         """ユーザー入力を受け取り続けるメインループです。"""
@@ -46,7 +48,7 @@ class PersonalAI:
         self.extract_and_save_memories(user_input)
 
         # ここで利用可能な能力、計画、処理先を作ります。
-        # 現時点では実行分岐には使わず、従来通りQwenへmessagesを渡します。
+        # routeはExecutorへ渡し、Executorが実際のQwen呼び出しを担当します。
         capabilities = self.capability_manager.get_available_capabilities(user_input)
         plan = self.planner.create_plan(
             user_input,
@@ -60,7 +62,8 @@ class PersonalAI:
         self.last_route = route
 
         messages = self.build_messages()
-        ai_response = ask_llm(messages)
+        ai_response = self.executor.execute(plan, route, messages)
+        self.last_response = ai_response
 
         self.save_assistant_message(ai_response)
 

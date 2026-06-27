@@ -17,8 +17,10 @@ Executorは、その結果を受け取って実際の処理を呼び出す。
 - `openai_candidate`: `_execute_openai_candidate()` を呼び、未実装メッセージを返す
 - その他: 未対応の実行先であることを返す
 
-まだPersonalAI本体には統合しない。
-そのため、既存の会話処理や記憶処理は変更されない。
+Version 0.8で、ExecutorはPersonalAI本体に接続された。
+PersonalAIは直接 `ask_llm(messages)` を呼ばず、`executor.execute(plan, route, messages)` に実行を任せる。
+
+現時点では通常のrouteは `qwen` なので、既存の会話処理や記憶処理は維持される。
 
 ## 将来追加予定
 

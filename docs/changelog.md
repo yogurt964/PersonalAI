@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.8
+
+開始内容:
+
+- ExecutorをPersonalAI内部に接続
+- PersonalAIからの直接 ask_llm 呼び出しを廃止
+- planとrouteをExecutorへ渡し、ExecutorがQwen実行を担当する形へ変更
+- 既存の会話履歴保存・記憶抽出・記憶保存フローを維持
+
 ## Version 0.7
 
 開始内容:

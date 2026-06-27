@@ -58,6 +58,19 @@ Version 0.6では、モジュール間で使うデータ構造を明確にする
 
 これにより、Executor、Evaluator、OpenAI、Vision、PDF Readerなどを追加するときに、受け渡す情報の形をそろえやすくする。
 
+## Version 0.8のExecutor接続
+
+Version 0.8では、ExecutorがPersonalAI内部で実際に使われるようになった。
+
+現在の会話処理では、Routerが作ったrouteをExecutorへ渡し、ExecutorがQwenを実行する。
+
+```text
+ユーザー入力 → capability取得 → plan作成 → route作成 → messages作成 → Executor → Qwen → 履歴保存
+```
+
+これにより、PersonalAI本体はLLMを直接呼び出すのではなく、Executorに実行を任せる構造になった。
+現時点では通常のtargetは `qwen` のままであり、既存の会話機能と記憶機能は維持する。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
@@ -73,5 +86,5 @@ Version 0.6では、モジュール間で使うデータ構造を明確にする
 - `CapabilityManager`: PersonalAIが使える能力を管理する。Version 0.5でPersonalAI内部に接続済み
 - `Planner`: ユーザーの目的に対して実行計画を立てる。Version 0.5でPersonalAI内部に接続済み
 - `Router`: 用途に応じて使う道具や処理系を選ぶ。Version 0.5でPersonalAI内部に接続済み
-- `Executor`: 選ばれた行動やツールを実行する
+- `Executor`: 選ばれた行動やツールを実行する。Version 0.8でPersonalAI内部に接続済み
 - `Evaluator`: 出力や行動結果を評価する
