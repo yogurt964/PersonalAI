@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.7
+
+開始内容:
+
+- Executorクラス追加
+- Executor設計書追加
+- target=qwen のとき Qwen を実行する土台を追加
+- target=openai_candidate のとき未実装メッセージを返す方針を追加
+
 ## Version 0.6
 
 開始内容:
