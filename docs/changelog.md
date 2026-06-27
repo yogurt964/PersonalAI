@@ -1,5 +1,12 @@
 # Changelog
 
+## Version 0.3
+
+開始内容:
+
+- Planner設計書追加
+- Plannerクラス追加
+
 ## Version 0.2
 
 開始内容:
