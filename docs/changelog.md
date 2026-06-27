@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.4
+
+開始内容:
+
+- Router設計書追加
+- Routerクラス追加
+- ModelRouterではなく、道具選択全体を扱うRouter方針を採用
+
 ## Version 0.3
 
 開始内容:
