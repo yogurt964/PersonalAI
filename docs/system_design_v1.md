@@ -1,0 +1,238 @@
+# PersonalAI システム設計書 Ver1.0
+
+## 1. PersonalAIとは何か
+
+PersonalAIは、Pythonで実装された統括システムである。
+
+Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではなく、PersonalAIが目的に応じて使う道具である。PersonalAI自身は、ユーザーの入力を理解し、必要な道具を選び、組み合わせ、実行結果を評価する役割を持つ。
+
+たとえば、Qwenは回答生成や記憶抽出に使うモデルであり、Memoryはユーザーについて覚えておくための仕組みである。将来的には、Web、YouTube Reader、PDF Reader、Vision、Word作成ツールなども、PersonalAIが選んで使う道具になる。
+
+PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
+
+## 2. 基本優先順位
+
+PersonalAIは、以下の優先順位で判断する。
+
+1. 精度
+2. 安全性
+3. コスト
+4. 速度
+
+速度は大切だが、最優先ではない。まず正確であること、次に安全であることを重視する。そのうえで、無駄なコストを避け、必要十分な速度で応答する。
+
+この優先順位は、Planner、Router、Executor、Evaluatorなど、すべての中核モジュールに共通する判断基準である。
+
+## 3. 全体処理フロー
+
+PersonalAIの将来的な全体フローは以下の通りである。
+
+```text
+入力
+↓
+InputAnalyzer
+↓
+Context Builder / Memory
+↓
+Goal推定
+↓
+Confidence判定
+↓
+Planner
+↓
+Clarification生成
+↓
+Router
+↓
+Executor
+↓
+Evaluator
+↓
+Memory保存
+↓
+出力
+```
+
+この流れは、すべての処理を毎回重く実行するという意味ではない。単純な会話では短い経路で応答し、複雑な依頼では多くのモジュールを使う。重要なのは、責務を分けておくことで、将来的な拡張を安全に行えるようにすることである。
+
+## 4. 各モジュールの役割
+
+### InputAnalyzer
+
+InputAnalyzerは、ユーザー入力を構造化する。
+
+ユーザーの入力が通常のテキストなのか、URLなのか、PDFなのか、画像なのか、YouTubeなのか、Word文書の作成依頼なのかを判定する。これにより、後続のPlannerやRouterが適切な処理を選びやすくなる。
+
+例:
+
+- 通常会話
+- URLの要約依頼
+- PDFの読み取り依頼
+- 画像の解析依頼
+- YouTube動画の要約依頼
+- Word文書やレポートの作成依頼
+
+### Context Builder / Memory
+
+Context Builder / Memoryは、判断に必要な文脈を集める。
+
+具体的には、会話履歴、長期記憶、ユーザーの好み、価値観、過去のプロジェクト、関連する知識などを取得する。PersonalAIがユーザーに合わせた回答をするためには、この文脈が重要になる。
+
+現在は、会話履歴と長期記憶の基礎が実装されている。今後は、知識ベースやプロジェクト単位の記憶なども扱えるようにする。
+
+### Goal Manager
+
+Goal Managerは、ユーザーの本当の目的を推定する。
+
+ユーザーの発言は、表面的な依頼だけでは目的が分からない場合がある。たとえば「YouTubeをWordにまとめて」という依頼でも、目的は複数考えられる。
+
+例:
+
+- 学校や仕事に提出するレポートを作りたい
+- チームに共有するための要点メモが欲しい
+- 自分の勉強用に復習しやすくまとめたい
+- ブログやSNS投稿の下書きにしたい
+
+Goal Managerは、このような目的の違いを推定し、出力形式や詳しさ、言葉遣い、必要な確認質問に影響を与える。
+
+### Confidence Estimator
+
+Confidence Estimatorは、現在の情報だけで判断してよいかを判定する。
+
+情報が十分であれば、そのままPlannerへ進む。情報が不足している場合は、追加質問が必要だと判断する。
+
+例:
+
+- PDFが添付されていないのに「このPDFを要約して」と言われた
+- 「いい感じにまとめて」と言われたが、用途や形式が分からない
+- 高リスクな判断なのに根拠情報が少ない
+
+Confidence Estimatorは、答えを作るモジュールではない。「今の情報で進んでよいか」を見るモジュールである。
+
+### Planner
+
+Plannerは、何をするかを決める。
+
+ユーザー入力、文脈、利用可能なcapabilityをもとに、PersonalAIの行動計画であるPlanを作成する。現在はルールベースの簡易Plannerが実装されており、通常会話、記憶読み取り、記憶書き込みなどを判定する。
+
+将来的には、QwenやOpenAIを使って、より複雑な計画を立てられるようにする。
+
+### Clarification Manager
+
+Clarification Managerは、情報が足りない場合に、ユーザーへ何を質問すべきかを作る。
+
+Confidence Estimatorが「このまま進むには情報が足りない」と判断したとき、Clarification Managerが具体的な質問文を生成する。
+
+例:
+
+- 「このWord文書は提出用ですか、共有用ですか？」
+- 「PDFファイルをアップロードしてください」
+- 「要約は短め、詳しめ、箇条書きのどれがよいですか？」
+
+質問は多すぎるとユーザーの負担になるため、必要最小限にする。
+
+### Router
+
+Routerは、Planをもとに、使うモデル・API・ツールを選ぶ。
+
+たとえば、通常会話や記憶を使う回答はQwenへ渡す。将来的には、画像ならVision、PDFならPDF Reader、Web調査ならBrowser、高リスクな推論ならOpenAI候補、というように処理先を選べるようにする。
+
+Routerは「どの道具を使うか」を決めるが、実行そのものは行わない。
+
+### Executor
+
+Executorは、Routerが選んだ処理を実行する。
+
+現在は、targetがQwenの場合に `ask_llm(messages)` を呼び出す土台がある。OpenAI候補は、まだ実行せず未実装メッセージを返す。
+
+将来的には、OpenAI、Browser、PDF Reader、Vision、YouTube Reader、Tool実行などをここに追加していく。
+
+### Evaluator
+
+Evaluatorは、出力や実行結果が妥当か確認する。
+
+回答がユーザーの目的に合っているか、根拠が不足していないか、危険な内容になっていないか、形式が要求通りかを確認する。必要であれば、再実行や追加質問につなげる。
+
+Evaluatorは、PersonalAIの品質を安定させるための重要なモジュールである。
+
+### Memory
+
+Memoryは、今後も役立つ情報を保存・更新する。
+
+ユーザーの名前、好きな食べ物、好み、目標、現在取り組んでいるプロジェクトなどを長期記憶として扱う。現在は、自動記憶抽出、複数記憶抽出、categoryによる記憶更新の基礎が実装されている。
+
+将来的には、MemoryManagerとしてより明確に責務を分け、記憶の重要度、期限、信頼度、ユーザー確認なども扱えるようにする。
+
+## 5. Confidence Estimator と Clarification Manager の違い
+
+Confidence EstimatorとClarification Managerは似ているが、役割が違う。
+
+Confidence Estimatorは、「情報が足りているか」を判定する。
+
+Clarification Managerは、「足りない場合に何を聞くか」を作る。
+
+例:
+
+```text
+ユーザー: YouTubeをWordにまとめて
+```
+
+このとき、Confidence Estimatorは以下を判断する。
+
+- YouTubeのURLはあるか
+- Word文書の用途は分かるか
+- 要約の詳しさは分かるか
+- このまま進めてよいか
+
+情報が足りない場合、Clarification Managerが以下のような質問を作る。
+
+```text
+YouTubeのURLを送ってください。提出用・共有用・勉強用のどれに近いですか？
+```
+
+初期実装では、Confidence EstimatorとClarification ManagerはPlanner周辺に統合してよい。最初から細かく分けすぎると、コードが複雑になりすぎるためである。処理が大きくなり、独立した責務として扱う必要が出てきた段階で、別クラスとして分離する。
+
+## 6. 複雑性への対応方針
+
+PersonalAIは、将来的に多くの能力を持つ可能性がある。そのため、設計上は役割を分ける。
+
+ただし、初期実装では、すべてを最初から独立クラスにしない。まだ処理が小さい段階では、統合できるものは統合し、実装をシンプルに保つ。
+
+方針は以下の通り。
+
+- 設計上は責務を明確に分ける
+- 初期実装では小さく始める
+- 同じ責務の処理が増えたら独立クラスに分離する
+- 既存機能を壊さず、少しずつ接続する
+- OpenAIや外部ツールは、必要な段階で安全に追加する
+
+この方針により、理解しやすさと拡張性の両方を保つ。
+
+## 7. 現在実装済みのもの
+
+現在、以下が実装済みである。
+
+- CapabilityManager
+- Planner
+- Router
+- Executor
+- Plan
+- Route
+- Memory基礎
+- Qwen接続
+
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新が含まれる。
+
+## 8. 今後実装予定
+
+今後、以下を追加予定である。
+
+- InputAnalyzer
+- GoalManager
+- ConfidenceEstimator
+- ClarificationManager
+- Evaluator
+- OpenAI連携
+- Web / YouTube / PDF / Word / Vision などのTool
+
+まずは現在のQwen、Memory、Planner、Router、Executorの流れを安定させる。その後、入力の種類やユーザーの目的に応じて、必要なモジュールを少しずつ追加していく。
