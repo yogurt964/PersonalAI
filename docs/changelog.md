@@ -1,5 +1,14 @@
 # Changelog
 
+## Version 0.6
+
+開始内容:
+
+- Plan / Route データモデル追加
+- PlannerがdictではなくPlanを返すように変更
+- RouterがdictではなくRouteを返すように変更
+- Routerは既存のdict形式planにも最低限対応
+
 ## Version 0.5
 
 開始内容:

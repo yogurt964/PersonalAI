@@ -49,6 +49,15 @@ Version 0.5では、CapabilityManager、Planner、RouterがPersonalAI内部で�
 現時点では、planとrouteは将来のExecutor連携に向けて生成・保持するだけである。
 まだplanやrouteによる処理分岐は行わず、既存のQwenを使った回答生成フローを維持する。
 
+## Version 0.6のデータモデル
+
+Version 0.6では、モジュール間で使うデータ構造を明確にするため、`Plan` と `Route` を追加した。
+
+- `Plan`: Plannerが作る行動計画を表す
+- `Route`: Routerが作る処理先情報を表す
+
+これにより、Executor、Evaluator、OpenAI、Vision、PDF Readerなどを追加するときに、受け渡す情報の形をそろえやすくする。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

@@ -1,3 +1,6 @@
+from core.models.plan import Plan
+
+
 class Planner:
     """PersonalAIが次に何をするかを決める簡易Plannerです。"""
 
@@ -47,29 +50,29 @@ class Planner:
         return "chat"
 
     def _build_plan(self, action):
-        """action名から、Executorへ渡しやすいdict形式のplanを作ります。"""
+        """action名から、Executorへ渡しやすいPlanを作ります。"""
         plans = {
-            "chat": {
-                "action": "chat",
-                "reason": "通常の会話として処理できるため",
-                "required_capabilities": ["chat", "llm_qwen"],
-                "requires_permission": False,
-                "risk": "low",
-            },
-            "memory_read": {
-                "action": "memory_read",
-                "reason": "過去に保存した情報を参照する質問のため",
-                "required_capabilities": ["memory_read", "llm_qwen"],
-                "requires_permission": False,
-                "risk": "low",
-            },
-            "memory_write": {
-                "action": "memory_write",
-                "reason": "今後も使える情報として記憶する必要があるため",
-                "required_capabilities": ["memory_write", "llm_qwen"],
-                "requires_permission": False,
-                "risk": "medium",
-            },
+            "chat": Plan(
+                action="chat",
+                reason="通常の会話として処理できるため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "memory_read": Plan(
+                action="memory_read",
+                reason="過去に保存した情報を参照する質問のため",
+                required_capabilities=["memory_read", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "memory_write": Plan(
+                action="memory_write",
+                reason="今後も使える情報として記憶する必要があるため",
+                required_capabilities=["memory_write", "llm_qwen"],
+                requires_permission=False,
+                risk="medium",
+            ),
         }
 
-        return plans.get(action, plans["chat"]).copy()
+        return plans.get(action, plans["chat"])

@@ -10,7 +10,7 @@ Plannerが作ったplanを受け取り、そのplanをどのモデル、API、�
 
 Routerは主に以下の情報を使う。
 
-- Plannerが返したplan
+- Plannerが返した `Plan`
 - planに含まれるaction
 - planに含まれるrisk
 - 必要なモデルやツールの候補
@@ -41,18 +41,22 @@ Routerは主に以下の情報を使う。
 
 ## Routerが返すroute
 
+Version 0.6以降、Routerはdictではなく `Route` クラスのインスタンスを返す。
+
 routeの例:
 
 ```python
-{
-    "target": "qwen",
-    "reason": "通常の会話はQwenで対応できるため",
-    "model": "qwen3:8b",
-    "tool": None,
-    "requires_permission": False,
-    "risk": "low",
-}
+Route(
+    target="qwen",
+    reason="通常の会話はQwenで対応できるため",
+    model="qwen3:8b",
+    tool=None,
+    requires_permission=False,
+    risk="low",
+)
 ```
+
+従来のdict形式が必要な場合は、`route.to_dict()` で変換できる。
 
 ## 今後の予定
 

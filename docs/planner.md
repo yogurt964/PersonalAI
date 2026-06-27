@@ -20,18 +20,21 @@ Plannerは将来的に、主に以下の情報を使う。
 ## 返す計画
 
 Plannerは最終的に、Executorへ渡せる計画を返す。
+Version 0.6以降、この計画はdictではなく `Plan` クラスのインスタンスとして扱う。
 
 計画の例:
 
 ```python
-{
-    "action": "chat",
-    "reason": "通常の会話として処理できるため",
-    "required_capabilities": ["chat", "llm_qwen"],
-    "requires_permission": False,
-    "risk": "low",
-}
+Plan(
+    action="chat",
+    reason="通常の会話として処理できるため",
+    required_capabilities=["chat", "llm_qwen"],
+    requires_permission=False,
+    risk="low",
+)
 ```
+
+従来のdict形式が必要な場合は、`plan.to_dict()` で変換できる。
 
 ## 現在の実装
 
