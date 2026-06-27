@@ -36,6 +36,19 @@ PersonalAIの判断では、以下の優先順位を重視する。
 - 実行・出力: 必要な処理を実行し、回答する
 - 記憶: 今後も役立つ情報を保存・更新する
 
+## Version 0.5の内部接続
+
+Version 0.5では、CapabilityManager、Planner、RouterがPersonalAI内部で接続された。
+
+現在の会話処理では、ユーザー入力を受け取ったあと、以下の順番で内部情報を作る。
+
+```text
+ユーザー入力 → capability取得 → plan作成 → route作成 → messages作成 → Qwen呼び出し → 履歴保存
+```
+
+現時点では、planとrouteは将来のExecutor連携に向けて生成・保持するだけである。
+まだplanやrouteによる処理分岐は行わず、既存のQwenを使った回答生成フローを維持する。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
@@ -48,8 +61,8 @@ PersonalAIの判断では、以下の優先順位を重視する。
 
 今後のエージェント化に向けて、以下の要素を追加予定である。
 
-- `CapabilityManager`: PersonalAIが使える能力を管理する
-- `Planner`: ユーザーの目的に対して実行計画を立てる
-- `ModelRouter`: 用途に応じて使うモデルを選ぶ
+- `CapabilityManager`: PersonalAIが使える能力を管理する。Version 0.5でPersonalAI内部に接続済み
+- `Planner`: ユーザーの目的に対して実行計画を立てる。Version 0.5でPersonalAI内部に接続済み
+- `Router`: 用途に応じて使う道具や処理系を選ぶ。Version 0.5でPersonalAI内部に接続済み
 - `Executor`: 選ばれた行動やツールを実行する
 - `Evaluator`: 出力や行動結果を評価する

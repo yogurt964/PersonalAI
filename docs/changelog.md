@@ -1,5 +1,13 @@
 # Changelog
 
+## Version 0.5
+
+開始内容:
+
+- CapabilityManager、Planner、RouterをPersonalAI内部に接続
+- planとrouteを生成しつつ、既存のQwen回答生成フローを維持
+- まだExecutorやOpenAI呼び出しは行わない方針を維持
+
 ## Version 0.4
 
 開始内容:

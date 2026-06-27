@@ -1,6 +1,9 @@
 from ai.llm import ask_llm
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
+from core.capability_manager import CapabilityManager
+from core.planner import Planner
+from core.router import Router
 from database.chat_history import get_recent_messages, save_message
 from database.memory_manager import get_memories, save_memory
 from database.models import create_database
@@ -12,6 +15,16 @@ class PersonalAI:
     def __init__(self):
         # 起動時にデータベースとテーブルを用意します。
         create_database()
+
+        # PersonalAIが使える能力、行動計画、道具選択を担当する部品です。
+        self.capability_manager = CapabilityManager()
+        self.planner = Planner()
+        self.router = Router()
+
+        # 直近の判断結果を保存しておく場所です。将来のデバッグやExecutor連携で使えます。
+        self.last_capabilities = None
+        self.last_plan = None
+        self.last_route = None
 
     def run(self):
         """ユーザー入力を受け取り続けるメインループです。"""
@@ -31,6 +44,20 @@ class PersonalAI:
         """ユーザーの1回分の発言を処理して、AIの返答を返します。"""
         self.save_user_message(user_input)
         self.extract_and_save_memories(user_input)
+
+        # ここで利用可能な能力、計画、処理先を作ります。
+        # 現時点では実行分岐には使わず、従来通りQwenへmessagesを渡します。
+        capabilities = self.capability_manager.get_available_capabilities(user_input)
+        plan = self.planner.create_plan(
+            user_input,
+            context=None,
+            capabilities=capabilities,
+        )
+        route = self.router.route(plan)
+
+        self.last_capabilities = capabilities
+        self.last_plan = plan
+        self.last_route = route
 
         messages = self.build_messages()
         ai_response = ask_llm(messages)
