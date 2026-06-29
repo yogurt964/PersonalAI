@@ -1,6 +1,7 @@
 from ai.llm import SYSTEM_PROMPT
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
+from ai.preference_memory import save_preference_memories
 from core.capability_manager import CapabilityManager
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
@@ -111,6 +112,14 @@ class PersonalAI:
 
     def extract_and_save_memories(self, user_input):
         """ユーザー発言から長期記憶を抽出し、保存します。"""
+        # 明確な「好き・好きじゃない・嫌い」は、専用のPreference記憶として先に扱います。
+        # 同じ対象はmemory_keyで更新されるため、好き嫌いの現在状態を保ちやすくなります。
+        if "覚えて" in user_input:
+            preference_results = save_preference_memories(user_input)
+
+            if preference_results:
+                return
+
         extracted_memories = extract_memories(user_input)
 
         for extracted_memory in extracted_memories:

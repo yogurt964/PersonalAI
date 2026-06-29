@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 0.19
+
+開始内容:
+
+- Preference記憶・矛盾記憶の最小実装を追加
+- `ai/preference_memory.py` を追加し、明確な「好き」「好きじゃない」「嫌い」を抽出できるように変更
+- `extract_preference_memories()` と `save_preference_memories()` を追加
+- `memory_key=preference:food:<target>` により、同じ対象の現在Preferenceを更新できるように変更
+- 好きな対象が複数ある場合は、別memory_keyとして複数保持できる方針を追加
+- `core/personal_ai.py` にPreference記憶の最小接続を追加
+- `scripts/check_ver019.py` を追加し、like / not_like / dislike の抽出・保存・更新を確認
+- `docs/preference_memory.md` を追加し、記憶確認をしすぎない方針を整理
+- 完全な自然言語理解、複雑なPreference抽出、自動忘却、OpenAI接続、ベクトルDB、Embedding検索は今後の課題として維持
+
 ## Version 0.18
 
 開始内容:

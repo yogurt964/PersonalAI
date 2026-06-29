@@ -305,6 +305,35 @@ Ver1.0テスト計画では、以下を重点項目として扱う。
 
 Preference記憶、矛盾記憶、自動忘却、Knowledge DB、ベクトルDB、Embedding検索、Web/PDF/YouTube読み取り、OpenAI接続は、Ver1.0時点では未完成でもよいが、テスト計画上の重要項目として扱う。
 
+## Version 0.19のPreference記憶
+
+Version 0.19では、Preference記憶の最小実装を追加した。
+
+`ai/preference_memory.py` は、明確な好き嫌い表現からPreference候補を抽出する。
+
+```text
+ラーメンが好き → like
+ラーメンは好きじゃない → not_like
+寿司は嫌い → dislike
+```
+
+Preference記憶は、以下の形式の `memory_key` を使う。
+
+```text
+preference:food:<target>
+```
+
+これにより、同じ対象について好き、好きじゃない、嫌いが変わった場合は、同じmemory_keyの現在状態を更新できる。
+一方で、ラーメンと寿司のように対象が違う場合は、別々のPreferenceとして保持できる。
+
+PersonalAI本体では、「覚えて」を含む入力からPreferenceが抽出できた場合、Preference記憶として先に保存する。
+これは、好き嫌いの単純文が汎用Memory抽出と重複保存されにくくするためである。
+
+記憶確認については、毎回聞きすぎない方針とする。
+好きなものが増えたように見える場合は基本的に追加記憶とし、「一番好き」「今は」「前は」など更新意図がありそうな場合だけ確認を検討する。
+
+現時点では、food以外のdomain、複雑な自然言語理解、自動忘却、Embedding検索は未実装である。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

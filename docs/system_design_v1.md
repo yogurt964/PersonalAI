@@ -225,6 +225,18 @@ Ver1.0は完成版ではなく、最低限の会話、記憶、安全確認、�
 
 Ver1.0テスト計画では、Preference記憶、矛盾する記憶、記憶確認頻度、自動忘却、Capability判定、ユーザー応答調整、PC上での軽量性評価を今後の重要項目として扱う。
 
+Version 0.19では、Preference記憶の最小実装を追加した。
+`ai/preference_memory.py` は、明確な「好き」「好きじゃない」「嫌い」を抽出し、`memory_key=preference:food:<target>` で保存する。
+
+同じ対象について状態が変わった場合は、同じmemory_keyを更新する。
+別の対象について好きなものが増えた場合は、別memory_keyとして複数保持する。
+
+PersonalAI本体では、「覚えて」を含む入力からPreferenceが抽出できた場合、Preference記憶として先に保存する。
+これにより、好き嫌いの単純文が二重保存されにくくなる。
+
+記憶確認はしすぎない方針とし、曖昧な場合や矛盾が強い場合にだけ確認を検討する。
+food以外のdomain、複雑なPreference抽出、自動忘却は今後の課題である。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -297,9 +309,10 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Memory手動無効化・復元
 - 無効化MemoryのContext反映確認
 - Ver1.0テスト計画
+- Preference記憶の最小実装
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。
