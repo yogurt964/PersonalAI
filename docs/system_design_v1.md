@@ -237,6 +237,13 @@ PersonalAI本体では、「覚えて」を含む入力からPreferenceが抽出
 記憶確認はしすぎない方針とし、曖昧な場合や矛盾が強い場合にだけ確認を検討する。
 food以外のdomain、複雑なPreference抽出、自動忘却は今後の課題である。
 
+Version 0.20では、Preference保存前の確認質問判定を追加した。
+`ai/preference_confirmation.py` は、好きなものの単純追加や明確な否定では確認せず、`一番好き`、`今は / 前は`、`変更` のような更新意図がありそうな入力だけ確認候補にする。
+
+PersonalAI本体では、`should_ask=True` の場合にPreferenceを保存せず確認質問を返す。
+これにより、確認しすぎを避けつつ、曖昧なPreference更新だけユーザーに確認できる。
+確認頻度は将来的にユーザーとの会話から調整する予定である。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -310,9 +317,10 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - 無効化MemoryのContext反映確認
 - Ver1.0テスト計画
 - Preference記憶の最小実装
+- Preference確認質問の最小実装
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存、Preference確認質問の最小判定が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

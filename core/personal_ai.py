@@ -1,6 +1,7 @@
 from ai.llm import SYSTEM_PROMPT
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
+from ai.preference_confirmation import analyze_preference_confirmation
 from ai.preference_memory import save_preference_memories
 from core.capability_manager import CapabilityManager
 from core.executor import Executor
@@ -34,6 +35,7 @@ class PersonalAI:
         self.last_plan = None
         self.last_route = None
         self.last_permission_decision = None
+        self.last_preference_confirmation = None
         self.last_response = None
 
     def run(self):
@@ -59,7 +61,12 @@ class PersonalAI:
         input_analysis = self.input_analyzer.analyze(user_input)
         self.last_input_analysis = input_analysis
 
-        self.extract_and_save_memories(user_input)
+        memory_response = self.extract_and_save_memories(user_input)
+
+        if memory_response:
+            self.last_response = memory_response
+            self.save_assistant_message(memory_response)
+            return memory_response
 
         # ここで利用可能な能力、計画、処理先を作ります。
         # routeはExecutorへ渡し、Executorが実際のQwen呼び出しを担当します。
@@ -112,9 +119,17 @@ class PersonalAI:
 
     def extract_and_save_memories(self, user_input):
         """ユーザー発言から長期記憶を抽出し、保存します。"""
+        self.last_preference_confirmation = None
+
         # 明確な「好き・好きじゃない・嫌い」は、専用のPreference記憶として先に扱います。
         # 同じ対象はmemory_keyで更新されるため、好き嫌いの現在状態を保ちやすくなります。
         if "覚えて" in user_input:
+            preference_confirmation = analyze_preference_confirmation(user_input)
+            self.last_preference_confirmation = preference_confirmation
+
+            if preference_confirmation.get("should_ask"):
+                return preference_confirmation.get("question")
+
             preference_results = save_preference_memories(user_input)
 
             if preference_results:

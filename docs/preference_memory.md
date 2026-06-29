@@ -124,6 +124,22 @@ PersonalAI本体では、ユーザー入力に「覚えて」が含まれ、か�
 
 毎回「追加ですか、変更ですか」と聞くと使いにくいため、確認しすぎない。
 
+## Version 0.20の確認質問判定
+
+Version 0.20では、Preference保存前に確認質問が必要かを判定する `ai/preference_confirmation.py` を追加した。
+
+基本方針は以下である。
+
+- 好きなものの単純追加では確認しない
+- 明確な「好きじゃない」「嫌い」は確認せず更新してよい
+- 「一番好き」「今は / 前は」「変更」は確認候補にする
+
+PersonalAI本体では、Preference保存前に `analyze_preference_confirmation()` を呼ぶ。
+`should_ask=True` の場合は、Preferenceを保存せず、固定の確認質問を返す。
+`should_ask=False` の場合は、Ver0.19と同じようにPreference記憶を保存する。
+
+詳細は `docs/preference_confirmation.md` にまとめる。
+
 ## 確認してもよいケース
 
 以下の場合は、追加確認してよい。

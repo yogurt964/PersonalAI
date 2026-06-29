@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 0.20
+
+開始内容:
+
+- Preference矛盾時の確認質問設計を追加
+- `ai/preference_confirmation.py` を追加し、Preference保存前に確認質問が必要か判定できるように変更
+- `analyze_preference_confirmation()` を追加
+- 好きなものの単純追加では確認しない方針を追加
+- 明確な「好きじゃない」「嫌い」は確認せず更新してよい方針を追加
+- 「一番好き」「今は / 前は」「変更」は確認候補にする方針を追加
+- `core/personal_ai.py` にPreference保存前の確認判定を接続
+- `scripts/check_ver020.py` を追加し、確認不要/確認必要の判定とVer0.19抽出維持を確認
+- `docs/preference_confirmation.md` を追加し、確認しすぎない方針を整理
+- 完全な自然言語理解、LLMによる高度な矛盾判定、自動忘却、OpenAI接続、ベクトルDB、Embedding検索は今後の課題として維持
+
 ## Version 0.19
 
 開始内容:

@@ -334,6 +334,35 @@ PersonalAI本体では、「覚えて」を含む入力からPreferenceが抽出
 
 現時点では、food以外のdomain、複雑な自然言語理解、自動忘却、Embedding検索は未実装である。
 
+## Version 0.20のPreference確認質問
+
+Version 0.20では、Preference記憶を保存する前に、確認質問が必要か判断する補助モジュールを追加した。
+
+`ai/preference_confirmation.py` は、ユーザー入力を見て、以下を判定する。
+
+```text
+確認不要 → Preferenceを保存
+確認必要 → 保存せず確認質問を返す
+```
+
+確認しないケース:
+
+- 好きなものの単純追加
+- 明確な `not_like`
+- 明確な `dislike`
+
+確認候補にするケース:
+
+- 一番好き
+- 今は / 前は
+- 変更
+
+PersonalAI本体では、Preference保存前に `analyze_preference_confirmation()` を呼ぶ。
+`should_ask=True` の場合は、Preferenceを保存せず固定の確認質問を返す。
+`should_ask=False` の場合は、Ver0.19と同じように保存する。
+
+これは確認しすぎを避けるための最小実装であり、LLMによる高度な矛盾判定や完全な自然言語理解はまだ行わない。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
