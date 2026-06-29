@@ -14,6 +14,9 @@ class Executor:
         action = self._get_plan_value(plan, "action", "chat")
 
         if target == "qwen":
+            if action == "ask_clarification":
+                return self._execute_ask_clarification(plan)
+
             if action == "summarize_youtube":
                 return self._execute_summarize_youtube()
 
@@ -39,6 +42,36 @@ class Executor:
     def _execute_qwen(self, messages):
         """Qwenを使って回答を生成します。"""
         return ask_llm(messages)
+
+    def _execute_ask_clarification(self, plan):
+        """情報不足のときに、必要最小限の質問を返します。"""
+        reason = self._get_plan_value(plan, "reason", "")
+
+        if "YouTube" in reason or "動画" in reason:
+            return (
+                "YouTubeまたは動画の内容を扱うには、対象のURLが必要です。\n"
+                "動画のURLを送ってください。\n"
+                "必要なら、要約用・実装参考用・レポート用のどれに近いかも教えてください。"
+            )
+
+        if "PDF" in reason or "画像" in reason or "資料" in reason:
+            return (
+                "PDF・画像・資料の内容を扱うには、対象ファイルまたはURLが必要です。\n"
+                "読み取りたいファイルやURLを送ってください。\n"
+                "何をしたいか、要約・説明・レポート化などの目的も教えてください。"
+            )
+
+        if "Web" in reason or "URL" in reason:
+            return (
+                "Webページの内容を扱うには、対象のURLが必要です。\n"
+                "要約したいページのURLを送ってください。\n"
+                "必要なら、短く要約するか、詳しく整理するかも教えてください。"
+            )
+
+        return (
+            "その作業を進めるには、もう少し情報が必要です。\n"
+            "対象となるURL・ファイル・内容、または目的を教えてください。"
+        )
 
     def _execute_summarize_youtube(self):
         """YouTube読み取りが未実装であることを正直に返します。"""

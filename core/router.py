@@ -39,6 +39,7 @@ class Router:
             "answer_question",
             "unsupported_external_reading",
             "unsupported_file_creation",
+            "ask_clarification",
             "unknown",
         ]
 
@@ -92,6 +93,7 @@ class Router:
             "answer_question": "質問への回答はQwenで対応できるため",
             "unsupported_external_reading": "外部読み取りは未実装のため、Qwenで未対応説明を行うため",
             "unsupported_file_creation": "実ファイル作成は未実装のため、Qwenで未対応説明を行うため",
+            "ask_clarification": "情報不足のため、追加質問を返す",
         }
 
         return reasons.get(action, "現時点ではQwenを標準の処理系として使うため")

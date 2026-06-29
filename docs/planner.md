@@ -59,6 +59,17 @@ Version 0.10では、InputAnalyzer結果を使って以下のactionも作る。
 ただし、Web、YouTube、PDF、画像の実読み取りや、Word / PDFなどの実ファイル作成はまだ行わない。
 未実装の機能は、Executorで読んだふり・作ったふりをしないように扱う。
 
+Version 0.11では、明らかに情報が足りない場合に `ask_clarification` を返す。
+
+例:
+
+- YouTube / 動画の要約依頼だがURLがない
+- Webページ / URLの要約依頼だがURLがない
+- PDF / 画像 / 資料の読み取り依頼だが対象ファイルやURLがない
+
+既存の `memory_read` / `memory_write` 判定は優先して維持する。
+ClarificationManagerとしての本格分離はまだ行わず、Planner内の最小ルールとして扱う。
+
 ## 今後の予定
 
 将来的には、QwenやOpenAIを使って、より高度な計画を作る。

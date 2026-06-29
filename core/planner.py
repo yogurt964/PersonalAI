@@ -16,6 +16,11 @@ class Planner:
         if action in ["memory_read", "memory_write"]:
             return self._build_plan(action)
 
+        clarification_action = self._detect_clarification_action(user_input, context)
+
+        if clarification_action is not None:
+            return self._build_plan(clarification_action)
+
         context_action = self._detect_action_from_context(context)
 
         if context_action is not None:
@@ -58,6 +63,61 @@ class Planner:
             return "memory_write"
 
         return "chat"
+
+    def _detect_clarification_action(self, user_input, context):
+        """明らかに情報が足りない入力なら、追加質問のactionにします。"""
+        text = str(user_input)
+        task_type = self._get_context_value(context, "task_type")
+        has_url = self._get_context_value(context, "has_url", False)
+
+        if has_url:
+            return None
+
+        clarification_task_types = [
+            "summarize",
+            "create_document",
+            "question",
+        ]
+
+        youtube_keywords = [
+            "youtube",
+            "YouTube",
+            "動画",
+        ]
+
+        if (
+            task_type in clarification_task_types
+            and self._contains_any(text, youtube_keywords)
+        ):
+            return "ask_clarification_youtube"
+
+        web_keywords = [
+            "URL",
+            "url",
+            "サイト",
+            "Web",
+            "web",
+            "ページ",
+        ]
+
+        if (
+            task_type in clarification_task_types
+            and self._contains_any(text, web_keywords)
+        ):
+            return "ask_clarification_web"
+
+        file_read_keywords = [
+            "PDF",
+            "pdf",
+            "画像",
+            "写真",
+            "資料",
+        ]
+
+        if self._contains_any(text, file_read_keywords):
+            return "ask_clarification_file"
+
+        return None
 
     def _detect_action_from_context(self, context):
         """InputAnalyzerの結果から、より具体的なactionを判定します。"""
@@ -181,6 +241,34 @@ class Planner:
                 requires_permission=False,
                 risk="medium",
             ),
+            "ask_clarification": Plan(
+                action="ask_clarification",
+                reason="その作業を進めるには追加情報が必要なため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "ask_clarification_youtube": Plan(
+                action="ask_clarification",
+                reason="YouTubeまたは動画に関する依頼だが、URLが不足しているため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "ask_clarification_web": Plan(
+                action="ask_clarification",
+                reason="WebページまたはURLに関する依頼だが、URLが不足しているため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "ask_clarification_file": Plan(
+                action="ask_clarification",
+                reason="PDFまたは画像の読み取り依頼だが、対象ファイルやURLが不足しているため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
         }
 
         return plans.get(action, plans["chat"])
@@ -194,3 +282,7 @@ class Planner:
             return context.get(key, default)
 
         return getattr(context, key, default)
+
+    def _contains_any(self, text, keywords):
+        """入力文に候補キーワードが1つでも含まれているかを調べます。"""
+        return any(keyword in text for keyword in keywords)

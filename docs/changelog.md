@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.11
+
+開始内容:
+
+- Clarification基礎を追加
+- 情報不足時に `ask_clarification` action を返すようにPlannerを更新
+- YouTube / Web / PDF / 画像などの対象が不足している場合に追加質問するように変更
+- Routerが `ask_clarification` を安全にQwenへルーティングするように更新
+- Executorが必要最小限の固定質問文を返すように更新
+- Ver0.11確認用スクリプト `scripts/check_ver011.py` を追加
+- ClarificationManagerとしての本格分離は今後の課題として維持
+
 ## Version 0.10
 
 開始内容:

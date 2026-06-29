@@ -199,6 +199,9 @@ YouTubeのURLを送ってください。提出用・共有用・勉強用のど�
 
 初期実装では、Confidence EstimatorとClarification ManagerはPlanner周辺に統合してよい。最初から細かく分けすぎると、コードが複雑になりすぎるためである。処理が大きくなり、独立した責務として扱う必要が出てきた段階で、別クラスとして分離する。
 
+Version 0.11では、ClarificationManagerを独立させず、Planner / Router / Executorの中に最小実装として追加した。
+対象URLや対象ファイルが不足している場合、`ask_clarification` actionを作り、Executorが必要最小限の質問文を返す。
+
 ## 6. 複雑性への対応方針
 
 PersonalAIは、将来的に多くの能力を持つ可能性がある。そのため、設計上は役割を分ける。

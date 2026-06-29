@@ -40,6 +40,7 @@ Routerは主に以下の情報を使う。
 - `answer_question`: `qwen`
 - `unsupported_external_reading`: `qwen`
 - `unsupported_file_creation`: `qwen`
+- `ask_clarification`: `qwen`
 - 未定義のaction: `qwen`
 - `risk` が `high`: `openai_candidate`
 
@@ -49,6 +50,9 @@ Routerは主に以下の情報を使う。
 
 Version 0.10では、外部読み取りや実ファイル作成が必要なactionも、現時点ではQwenにルーティングする。
 ただし、実行時にはExecutorが未実装であることを説明し、読んだふり・作ったふりを避ける。
+
+Version 0.11では、情報不足を表す `ask_clarification` もQwenにルーティングする。
+Executor側で固定質問文を返すため、Qwenに自由生成させすぎない。
 
 ## Routerが返すroute
 

@@ -33,6 +33,16 @@ Version 0.10では、以下のactionに対して固定メッセージを返し�
 
 通常会話、記憶読み取り、記憶書き込み、おすすめ依頼、質問は従来通りQwenに渡す。
 
+Version 0.11では、`ask_clarification` に対して必要最小限の質問文を返す。
+
+例:
+
+- YouTube / 動画URL不足: 動画URLを求める
+- Web / URL不足: 対象ページのURLを求める
+- PDF / 画像 / 資料不足: 対象ファイルまたはURLを求める
+
+現時点では、複数ターンのClarification状態管理やClarificationManagerの本格分離は行わない。
+
 ## 将来追加予定
 
 将来的には、以下のような実行処理を追加する予定である。

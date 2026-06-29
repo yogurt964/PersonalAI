@@ -124,6 +124,21 @@ Executorは、YouTube読み取り、Web読み取り、実ファイル作成が�
 
 デバッグ時は、`PersonalAI.last_input_analysis`、`PersonalAI.last_plan`、`PersonalAI.last_route`、`PersonalAI.last_response` を確認する。
 
+## Version 0.11のClarification基礎
+
+Version 0.11では、情報不足時に必要最小限の追加質問を返すClarification基礎を追加した。
+
+現在は、以下のような入力で `ask_clarification` を返す。
+
+- YouTube / 動画に関する依頼だがURLがない
+- Webページ / URLに関する依頼だがURLがない
+- PDF / 画像 / 資料の読み取り依頼だが対象ファイルやURLがない
+
+Routerは `ask_clarification` をQwenへルーティングし、Executorは固定質問文を返す。
+ただし、ClarificationManagerとしての本格分離、複数ターンの状態管理、外部読み取り、実ファイル作成はまだ未実装である。
+
+確認用スクリプトとして `scripts/check_ver011.py` を追加した。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

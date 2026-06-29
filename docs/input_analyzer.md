@@ -81,6 +81,9 @@ Version 0.10では、Plannerが `input_analysis` を使ってactionをより具�
 ただし、InputAnalyzerは引き続き判定だけを行う。
 WebやYouTubeの実読み取り、PDF読み取り、画像認識、実ファイル作成はまだ行わない。
 
+Version 0.11では、Plannerが `input_analysis` とユーザー入力文を使い、対象URLや対象ファイルが不足している場合に `ask_clarification` を返すようになった。
+InputAnalyzer自体は引き続き構造化だけを担当する。
+
 ## Version 0.9.1で追加した判定語彙
 
 以下のような語彙を追加した。
