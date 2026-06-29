@@ -43,6 +43,9 @@ Version 0.11では、`ask_clarification` に対して必要最小限の質問文
 
 現時点では、複数ターンのClarification状態管理やClarificationManagerの本格分離は行わない。
 
+Version 0.12では、Executorの前にPermissionManagerの判断が入る。
+`blocked=True` の操作はExecutorへ進まず、PersonalAI本体が安全確認が必要であることを返す。
+
 ## 将来追加予定
 
 将来的には、以下のような実行処理を追加する予定である。

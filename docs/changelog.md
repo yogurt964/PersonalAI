@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 0.12
+
+開始内容:
+
+- Permission / Risk基礎を追加
+- `core/permission_manager.py` を追加
+- PersonalAI本体にPermissionManagerを接続
+- Executor実行前にPermissionManagerの判断を通すように変更
+- `self.last_permission_decision` を保存
+- 許可が必要な操作は現時点では実行せず `blocked=True` とする方針を追加
+- Ver0.12確認用スクリプト `scripts/check_ver012.py` を追加
+- 実際の許可取得・許可後の再実行は今後の課題として維持
+
 ## Version 0.11
 
 開始内容:

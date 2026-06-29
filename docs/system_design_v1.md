@@ -202,6 +202,10 @@ YouTubeのURLを送ってください。提出用・共有用・勉強用のど�
 Version 0.11では、ClarificationManagerを独立させず、Planner / Router / Executorの中に最小実装として追加した。
 対象URLや対象ファイルが不足している場合、`ask_clarification` actionを作り、Executorが必要最小限の質問文を返す。
 
+Version 0.12では、PermissionManagerを追加し、Executor実行前に許可要否とriskを確認する土台を作った。
+現時点では、許可が必要な操作は実行せず `blocked=True` として止める。
+実際の許可取得や許可後の再実行は今後の課題である。
+
 ## 6. 複雑性への対応方針
 
 PersonalAIは、将来的に多くの能力を持つ可能性がある。そのため、設計上は役割を分ける。
@@ -227,6 +231,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Planner
 - Router
 - Executor
+- PermissionManager
 - Plan
 - Route
 - Memory基礎

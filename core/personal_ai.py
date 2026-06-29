@@ -4,6 +4,7 @@ from ai.memory_extract import extract_memories
 from core.capability_manager import CapabilityManager
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
+from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
 from database.chat_history import get_recent_messages, save_message
@@ -23,6 +24,7 @@ class PersonalAI:
         self.capability_manager = CapabilityManager()
         self.planner = Planner()
         self.router = Router()
+        self.permission_manager = PermissionManager()
         self.executor = Executor()
 
         # 直近の判断結果を保存しておく場所です。将来のデバッグやExecutor連携で使えます。
@@ -30,6 +32,7 @@ class PersonalAI:
         self.last_capabilities = None
         self.last_plan = None
         self.last_route = None
+        self.last_permission_decision = None
         self.last_response = None
 
     def run(self):
@@ -71,6 +74,15 @@ class PersonalAI:
         self.last_plan = plan
         self.last_route = route
 
+        permission_decision = self.permission_manager.evaluate(plan, route)
+        self.last_permission_decision = permission_decision
+
+        if permission_decision.get("blocked"):
+            ai_response = self.build_permission_blocked_response(permission_decision)
+            self.last_response = ai_response
+            self.save_assistant_message(ai_response)
+            return ai_response
+
         messages = self.build_messages()
         ai_response = self.executor.execute(plan, route, messages)
         self.last_response = ai_response
@@ -78,6 +90,16 @@ class PersonalAI:
         self.save_assistant_message(ai_response)
 
         return ai_response
+
+    def build_permission_blocked_response(self, permission_decision):
+        """許可が必要な操作を、現時点では安全に止めるための返答を作ります。"""
+        reason = permission_decision.get("reason", "安全確認が必要な操作です")
+
+        return (
+            "この操作は安全確認が必要です。\n"
+            f"理由: {reason}\n"
+            "現時点では、許可後にこの操作を続行する仕組みは未実装です。"
+        )
 
     def save_user_message(self, user_input):
         """ユーザー発言を会話履歴に保存します。"""

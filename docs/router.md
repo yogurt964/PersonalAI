@@ -54,6 +54,9 @@ Version 0.10では、外部読み取りや実ファイル作成が必要なactio
 Version 0.11では、情報不足を表す `ask_clarification` もQwenにルーティングする。
 Executor側で固定質問文を返すため、Qwenに自由生成させすぎない。
 
+Version 0.12では、Routerの後にPermissionManagerの判断が入る。
+Route自体は従来通り作成し、最終的に実行してよいかはPermissionManagerが判定する。
+
 ## Routerが返すroute
 
 Version 0.6以降、Routerはdictではなく `Route` クラスのインスタンスを返す。

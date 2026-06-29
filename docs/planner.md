@@ -70,6 +70,9 @@ Version 0.11では、明らかに情報が足りない場合に `ask_clarificati
 既存の `memory_read` / `memory_write` 判定は優先して維持する。
 ClarificationManagerとしての本格分離はまだ行わず、Planner内の最小ルールとして扱う。
 
+Version 0.12では、Plannerが作ったPlanをPermissionManagerが確認する。
+Planner側の分類は維持し、許可要否やblocked判断はPermissionManager側で扱う。
+
 ## 今後の予定
 
 将来的には、QwenやOpenAIを使って、より高度な計画を作る。

@@ -139,6 +139,23 @@ Routerは `ask_clarification` をQwenへルーティングし、Executorは固�
 
 確認用スクリプトとして `scripts/check_ver011.py` を追加した。
 
+## Version 0.12のPermission / Risk基礎
+
+Version 0.12では、PermissionManagerを追加し、Executor実行前に安全確認の判断を通すようにした。
+
+現在の流れは以下である。
+
+```text
+ユーザー入力 → InputAnalyzer → 記憶抽出・保存 → CapabilityManager → Planner → Router → PermissionManager → Executor → 応答保存
+```
+
+PermissionManagerは、PlanやRouteのactionを見て、許可が必要か、riskはどの程度か、現時点でblockedにすべきかを判断する。
+
+現在実装済みの通常会話、質問、おすすめ、記憶、Clarification、未実装説明だけを返すactionは `blocked=False` とする。
+将来のファイル操作、Web読み取り、Git操作、PC操作、外部送信などは許可が必要な操作として `blocked=True` とする。
+
+現時点では、実際の許可取得、許可待ち状態の管理、許可後の再実行は未実装である。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
