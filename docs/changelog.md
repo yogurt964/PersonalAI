@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 0.17
+
+開始内容:
+
+- Memoryの手動無効化・復元機能を追加
+- `database.memory_manager` に `get_memory_by_id()` と `set_memory_active()` を追加
+- `scripts/manage_memory_status.py` を追加し、ID指定でMemoryを無効化・復元できるように変更
+- `manage_memory_status.py` はデフォルトdry-runとし、実際に変更する場合は `--apply` を必須にした
+- 無効化は `is_active=False`、復元は `is_active=True` とし、Memoryの物理削除は行わない
+- 実行前に対象Memoryの内容を表示する安全確認を追加
+- `scripts/check_ver017.py` を追加し、dry-run、無効化apply、復元applyを確認できるように変更
+- Memory内容の編集、物理削除、自動無効化、短期記憶、Knowledge DB、ベクトルDB、Embedding検索の本格実装は今後の課題として維持
+
 ## Version 0.16
 
 開始内容:

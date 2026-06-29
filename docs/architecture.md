@@ -241,6 +241,30 @@ Version 0.16では、DB内の長期記憶そのものを人間が確認しやす
 
 また、`scripts/check_ver016.py` で、一覧表示スクリプトの存在、基本実行、絞り込み、検索がエラーなく動くことを確認できる。
 
+## Version 0.17のMemory手動無効化・復元
+
+Version 0.17では、Memoryを物理削除せず、`is_active` を切り替える手動無効化・復元機能を追加した。
+
+`scripts/manage_memory_status.py` は、IDで対象Memoryを指定し、無効化または復元を行う。
+
+```text
+対象ID → Memory内容表示 → dry-run確認 → --apply時だけis_active変更
+```
+
+デフォルトはdry-runであり、DBは変更しない。
+実際に変更する場合は `--apply` が必要である。
+
+- 無効化: `is_active=False`
+- 復元: `is_active=True`
+
+この機能は、Memoryの内容編集や物理削除を行わない。
+無効化済みのMemoryは、`scripts/list_memories.py --include-inactive` で確認できる。
+
+`scripts/check_ver017.py` では、テスト用Memoryだけを作成し、dry-run、無効化apply、復元applyを確認する。
+テスト後は `source="ver017_test"` または `tags="ver017_test"` のデータだけを削除し、ユーザーの既存記憶には触れない。
+
+記憶内容の編集、物理削除、一括無効化、自動無効化、短期記憶、Knowledge DB、ベクトルDB、Embedding検索はまだ未実装である。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

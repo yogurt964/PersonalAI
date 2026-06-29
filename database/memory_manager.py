@@ -236,3 +236,47 @@ def get_memories(
         return memories
     finally:
         db.close()
+
+
+def get_memory_by_id(memory_id, include_inactive=True):
+    """IDでMemoryを1件取得します。見つからない場合はNoneを返します。"""
+    db = SessionLocal()
+
+    try:
+        query = db.query(Memory).filter(Memory.id == memory_id)
+
+        if not include_inactive:
+            query = query.filter(Memory.is_active == True)
+
+        memory = query.first()
+
+        if memory is None:
+            return None
+
+        # 呼び出し元で安全に表示できるよう、セッションから切り離して返します。
+        db.expunge(memory)
+        return memory
+    finally:
+        db.close()
+
+
+def set_memory_active(memory_id, is_active):
+    """Memoryを削除せず、is_activeだけを変更します。"""
+    db = SessionLocal()
+
+    try:
+        memory = db.query(Memory).filter(Memory.id == memory_id).first()
+
+        if memory is None:
+            return None
+
+        memory.is_active = bool(is_active)
+        memory.updated_at = datetime.now().isoformat()
+        db.commit()
+        db.refresh(memory)
+
+        # commit後に属性が期限切れにならないよう、返す前に切り離します。
+        db.expunge(memory)
+        return memory
+    finally:
+        db.close()

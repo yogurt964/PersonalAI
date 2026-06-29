@@ -226,15 +226,71 @@ venv\Scripts\python.exe -B scripts\list_memories.py --search PersonalAI
 確認用スクリプトとして `scripts/check_ver016.py` も追加した。
 これは `list_memories.py` の存在、基本実行、category絞り込み、inactive表示、search実行を確認する。
 
+## Version 0.17の手動無効化・復元
+
+Version 0.17では、間違った記憶や古い記憶を物理削除せず、手動で無効化・復元できるようにした。
+
+無効化は `is_active=False` にすることで行う。
+復元は `is_active=True` に戻すことで行う。
+Memoryの `content`、`category`、`memory_key` などは変更しない。
+
+追加した主な関数:
+
+- `get_memory_by_id(memory_id, include_inactive=True)`
+- `set_memory_active(memory_id, is_active)`
+
+手動操作用スクリプトとして `scripts/manage_memory_status.py` を追加した。
+このスクリプトは、対象Memoryの内容を表示してから、状態変更のpreviewまたはapplyを行う。
+
+無効化のdry-run:
+
+```powershell
+venv\Scripts\python.exe -B scripts\manage_memory_status.py --id 1 --deactivate
+```
+
+無効化を実際に適用:
+
+```powershell
+venv\Scripts\python.exe -B scripts\manage_memory_status.py --id 1 --deactivate --apply
+```
+
+復元のdry-run:
+
+```powershell
+venv\Scripts\python.exe -B scripts\manage_memory_status.py --id 1 --restore
+```
+
+復元を実際に適用:
+
+```powershell
+venv\Scripts\python.exe -B scripts\manage_memory_status.py --id 1 --restore --apply
+```
+
+安全性のため、`--apply` がない場合は必ずdry-runになり、DBは変更しない。
+実際にDBを書き換えるには `--apply` が必要である。
+
+無効化済みのMemoryは、以下で確認できる。
+
+```powershell
+venv\Scripts\python.exe -B scripts\list_memories.py --include-inactive
+```
+
+この機能は読み取りと状態変更だけを扱う。
+Memoryの物理削除、内容編集、一括無効化、自動無効化はまだ未実装である。
+
+確認用スクリプトとして `scripts/check_ver017.py` も追加した。
+このスクリプトは `ver017_test` のテストMemoryだけを作成し、dry-run、無効化apply、復元applyを確認したあと、テストデータだけを削除する。
+
 ## 現時点でまだ行わないこと
 
-Version 0.16では、保存済みの長期記憶を一覧で確認できるようにする段階である。
+Version 0.17では、保存済みの長期記憶を削除せずに無効化・復元できるようにする段階である。
 
 まだ以下は行わない。
 
 - 記憶の編集
 - 記憶の削除
-- 記憶の無効化
+- 一括無効化
+- 自動無効化
 - 短期記憶、長期記憶、知識の完全な分離
 - ベクトルDBの導入
 - embedding検索
