@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.9.2
+
+整理内容:
+
+- docs/vision.mdを追加
+- PersonalAIの完成形を「ユーザーが使う唯一のAI・作業入口」として明文化
+- 短期記憶・長期記憶・知識の3層構造を整理
+- 自律性と許可制の方針を整理
+- 将来的にPersonalAI自身がコード実装・動作確認・Git管理まで行う方針を整理
+- 開発中はChatGPT/Codex/Gitなどを使い、完成まではPersonalAIを普段使いしない方針を明記
+
 ## Version 0.9.1
 
 整理内容:
