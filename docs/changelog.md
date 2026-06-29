@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.16
+
+開始内容:
+
+- Memory一覧・手動確認用スクリプトを追加
+- `scripts/list_memories.py` を追加し、現在DBの長期記憶をブロック形式で一覧表示できるように変更
+- `--limit`、`--memory-type`、`--category`、`--scope`、`--active-only`、`--include-inactive`、`--search` の簡易オプションを追加
+- `scripts/check_ver016.py` を追加し、Memory一覧表示スクリプトの基本動作とフィルタ動作を確認できるように変更
+- 一覧表示スクリプトは読み取り専用で、記憶の削除・更新・無効化は行わない方針を維持
+- 記憶編集、無効化、削除、短期記憶、Knowledge DB、ベクトルDB、Embedding検索の本格実装は今後の課題として維持
+
 ## Version 0.15
 
 開始内容:

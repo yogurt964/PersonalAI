@@ -196,6 +196,14 @@ Version 0.15では、MemoryContextの実用確認用スクリプトを追加し�
 `scripts/check_ver015.py` では、現在DBの記憶からMemoryContextを生成できることと、プレビュー用スクリプトが動くことを確認する。
 これはデバッグ補助であり、短期記憶、Knowledge DB、Embedding検索の本格実装ではない。
 
+Version 0.16では、Memory一覧・手動確認用スクリプトを追加した。
+`scripts/list_memories.py` を使うと、現在DBに保存されている長期記憶を、`content`、`memory_type`、`category`、`scope`、`memory_key`、`confidence`、`is_active` などの項目と一緒に一覧確認できる。
+
+この一覧スクリプトは読み取り専用であり、記憶の削除・更新・無効化は行わない。
+`--limit`、`--category`、`--scope`、`--include-inactive`、`--search` などで確認範囲を絞れる。
+`scripts/check_ver016.py` では、一覧表示スクリプトの基本実行と絞り込みが動くことを確認する。
+記憶編集、記憶削除、短期記憶、Knowledge DB、Embedding検索はまだ未実装である。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -264,9 +272,10 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Memory追加項目
 - MemoryContext分類
 - MemoryContext確認スクリプト
+- Memory一覧表示スクリプト
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビューが含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

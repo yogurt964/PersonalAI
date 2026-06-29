@@ -221,6 +221,26 @@ Version 0.15では、MemoryContextが実際にどのようなsystem messageと�
 また、`scripts/check_ver015.py` で、MemoryContext生成とプレビュー用スクリプトの基本動作を確認できる。
 これはデバッグ補助であり、短期記憶、Knowledge DB、ベクトルDB、Embedding検索はまだ未実装である。
 
+## Version 0.16のMemory一覧表示
+
+Version 0.16では、DB内の長期記憶そのものを人間が確認しやすくするために、`scripts/list_memories.py` を追加した。
+
+このスクリプトは、現在DBに保存されている `memories` を読み取り、1件ごとのブロック形式で表示する。
+
+```text
+現在DBの記憶 → get_memories() → list_memories.py → 一覧表示
+```
+
+表示対象には、`content` だけでなく、`memory_type`、`category`、`subcategory`、`scope`、`memory_key`、`importance`、`confidence`、`is_active`、`source`、`tags`、作成日時、更新日時などを含める。
+
+`--limit`、`--memory-type`、`--category`、`--scope`、`--include-inactive`、`--search` で確認範囲を絞り込める。
+既定では有効な記憶だけを表示し、`--include-inactive` が指定された場合だけ無効な記憶も表示する。
+
+このスクリプトは読み取り専用であり、記憶の削除、更新、無効化、DBリセットは行わない。
+記憶編集、無効化、削除、短期記憶、Knowledge DB、ベクトルDB、Embedding検索はまだ未実装である。
+
+また、`scripts/check_ver016.py` で、一覧表示スクリプトの存在、基本実行、絞り込み、検索がエラーなく動くことを確認できる。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

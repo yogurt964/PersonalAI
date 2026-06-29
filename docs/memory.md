@@ -177,12 +177,64 @@ MemoryContextの表示内容を確認するためのデバッグ補助である�
 - 現在DBの記憶からMemoryContext文字列を作れること
 - `show_memory_context.py --limit 5` が実行できること
 
+## Version 0.16のMemory一覧表示
+
+Version 0.16では、現在DBに保存されている長期記憶そのものを、人間が一覧で確認しやすくするために `scripts/list_memories.py` を追加した。
+
+このスクリプトは、記憶を1件ごとのブロック形式で表示する。
+表示する主な項目は以下である。
+
+- `id`
+- `content`
+- `memory_type`
+- `category`
+- `subcategory`
+- `scope`
+- `memory_key`
+- `importance`
+- `confidence`
+- `is_active`
+- `source`
+- `tags`
+- `created_at`
+- `updated_at`
+- `expires_at`
+
+基本的な使い方:
+
+```powershell
+venv\Scripts\python.exe -B scripts\list_memories.py
+```
+
+絞り込みの例:
+
+```powershell
+venv\Scripts\python.exe -B scripts\list_memories.py --limit 20
+venv\Scripts\python.exe -B scripts\list_memories.py --category project
+venv\Scripts\python.exe -B scripts\list_memories.py --scope user
+venv\Scripts\python.exe -B scripts\list_memories.py --include-inactive
+venv\Scripts\python.exe -B scripts\list_memories.py --search PersonalAI
+```
+
+既定では有効な記憶だけを表示する。
+`--include-inactive` を指定した場合だけ、無効な記憶も表示する。
+`--search` は、`content`、`category`、`subcategory`、`scope`、`memory_key`、`source`、`tags` を対象にした簡易検索である。
+
+このスクリプトは読み取り専用であり、記憶の削除、更新、無効化、DBリセットは行わない。
+記憶の編集・削除・無効化はまだ未実装である。
+
+確認用スクリプトとして `scripts/check_ver016.py` も追加した。
+これは `list_memories.py` の存在、基本実行、category絞り込み、inactive表示、search実行を確認する。
+
 ## 現時点でまだ行わないこと
 
-Version 0.15では、保存済みの長期記憶をLLMへ渡しやすく整理し、その表示を確認する段階である。
+Version 0.16では、保存済みの長期記憶を一覧で確認できるようにする段階である。
 
 まだ以下は行わない。
 
+- 記憶の編集
+- 記憶の削除
+- 記憶の無効化
 - 短期記憶、長期記憶、知識の完全な分離
 - ベクトルDBの導入
 - embedding検索
