@@ -38,6 +38,7 @@ Routerは主に以下の情報を使う。
 
 `openai_candidate` は、まだOpenAIを実行するという意味ではない。
 高リスクな処理では、将来的にOpenAIを候補にできるようにするための目印である。
+現時点ではOpenAI接続は未実装であり、Routerは候補を返すだけで実行しない。
 
 ## Routerが返すroute
 

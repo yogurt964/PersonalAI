@@ -1,3 +1,4 @@
+from ai.llm import SYSTEM_PROMPT
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
 from core.capability_manager import CapabilityManager
@@ -110,12 +111,7 @@ class PersonalAI:
         messages = [
             {
                 "role": "system",
-                "content": """
-            あなたはPersonalAIです。
-
-            ユーザーを支援してください。
-            分からないことは分からないと言ってください。
-            """,
+                "content": SYSTEM_PROMPT,
             },
             {
                 "role": "system",

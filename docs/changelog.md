@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.9.1
+
+整理内容:
+
+- docsを現在のVer0.9状態に合わせて更新
+- app_buckup.pyを旧テスト用コードとしてlegacy/app_buckup.pyへ移動
+- .agentsフォルダは現時点ではPersonalAI本体で未使用であり、削除しない方針を明記
+- system promptを整理し、記憶にないことを断定しない方針と未実装の外部読み取りを読んだふりしない方針を追加
+- DBリセット手順をdocs/db_reset.mdに追加
+- InputAnalyzerの判定語彙を少し追加
+- 既存の会話、記憶、Qwen実行機能を壊さない安定化回として整理
+
 ## Version 0.9
 
 開始内容:

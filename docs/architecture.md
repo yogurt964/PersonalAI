@@ -84,6 +84,27 @@ Version 0.9では、InputAnalyzerがPersonalAI内部に接続された。
 input_analysisには、入力の種類、依頼の種類、URL有無、外部読み取りやファイル作成が必要そうか、といった情報を保存する。
 現時点ではWebやYouTubeを実際に読みに行かず、将来のPlanner、Router、Executor拡張に向けた土台として扱う。
 
+## Version 0.9.1の安定化
+
+Version 0.9.1では、新機能を大きく追加せず、現在状態の整理と安定化を行った。
+
+現在の実行フローは以下である。
+
+```text
+ユーザー入力 → 入力保存 → InputAnalyzer → 記憶抽出・保存 → CapabilityManager → Planner → Router → messages作成 → Executor → Qwen → 応答保存
+```
+
+PersonalAI本体はQwenを直接呼び出さず、Executor経由でQwenを実行する。
+
+現時点では、OpenAI、Web読み取り、YouTube読み取り、PDF読み取り、画像読み取り、PC画面読み取り、Word/PDFなどの実ファイル作成は未実装である。
+InputAnalyzerは、それらが必要そうかを判定するだけで、実際の読み取りや作成は行わない。
+
+`.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
+ただし、今後Codexやエージェント設定で使う可能性があるため削除しない。
+
+`legacy/app_buckup.py` は、category導入前の旧テスト用コードであり、現在の実行対象ではない。
+現在の起動ファイルは `app.py` である。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
@@ -91,6 +112,8 @@ input_analysisには、入力の種類、依頼の種類、URL有無、外部読
 - `ai`: LLM呼び出し、記憶抽出、記憶コンテキスト作成
 - `database`: 会話履歴と長期記憶の保存・取得
 - `core`: PersonalAI本体と、今後の中核機能
+- `docs`: 設計書、変更履歴、DBリセット手順
+- `legacy`: 現在は実行対象外の旧テスト用コード
 
 ## 今後追加予定の構成
 

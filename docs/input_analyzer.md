@@ -64,7 +64,18 @@ InputAnalyzerは「これは外部読み取りが必要そうだ」と判定す�
 ## PersonalAIとの接続
 
 Version 0.9で、InputAnalyzerはPersonalAI本体に接続された。
+Version 0.9.1では、ルールベースの判定語彙を少し追加した。
 
 `handle_user_input()` では、ユーザー発言を保存したあとに `input_analyzer.analyze(user_input)` を呼び、結果を `self.last_input_analysis` に保存する。
 
 また、Plannerの `context` に `input_analysis` を渡す。ただし、現時点ではPlannerの大きな分岐変更は行わない。
+
+## Version 0.9.1で追加した判定語彙
+
+以下のような語彙を追加した。
+
+- summarize: `要約`, `まとめて`, `まとめ`, `内容を教えて`, `簡単に説明`
+- create_document: `Word`, `ワード`, `文書`, `レポート`, `資料`, `PDFにして`, `文章にして`
+- recommend: `おすすめ`, `オススメ`, `候補`, `どれがいい`, `提案`
+- remember: `覚えて`, `記憶して`, `忘れないで`
+- question: `？`, `?`, `どうすれば`, `なぜ`, `なんで`, `方法`, `教えて`

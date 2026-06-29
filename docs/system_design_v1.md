@@ -10,6 +10,9 @@ Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではな�
 
 PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
 
+現在のVer0.9.1では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+OpenAI、Web、YouTube、PDF、画像、PC画面などの実読み取りや実行はまだ未実装である。
+
 ## 2. 基本優先順位
 
 PersonalAIは、以下の優先順位で判断する。
@@ -64,6 +67,7 @@ InputAnalyzerは、ユーザー入力を構造化する。
 ユーザーの入力が通常のテキストなのか、URLなのか、PDFなのか、画像なのか、YouTubeなのか、Word文書の作成依頼なのかを判定する。これにより、後続のPlannerやRouterが適切な処理を選びやすくなる。
 
 Version 0.9では、InputAnalyzerの初期実装がPersonalAI本体に接続された。現時点では、入力の種類やURL有無を判定するだけで、WebやYouTubeを実際に読み取りには行かない。
+Version 0.9.1では、要約、文書作成、おすすめ、記憶、質問を判定するキーワードを少し追加した。
 
 例:
 
@@ -146,6 +150,7 @@ Routerは「どの道具を使うか」を決めるが、実行そのものは�
 Executorは、Routerが選んだ処理を実行する。
 
 現在は、targetがQwenの場合に `ask_llm(messages)` を呼び出す土台がある。OpenAI候補は、まだ実行せず未実装メッセージを返す。
+PersonalAI本体は `ask_llm()` を直接呼ばず、Executorに実行を任せる。
 
 将来的には、OpenAI、Browser、PDF Reader、Vision、YouTube Reader、Tool実行などをここに追加していく。
 
@@ -226,11 +231,15 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 
 Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新が含まれる。
 
+`.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
+今後、Codexやエージェント設定で使う可能性があるため削除しない。
+
+`legacy/app_buckup.py` は旧テスト用コードであり、現在の実行対象ではない。
+
 ## 8. 今後実装予定
 
 今後、以下を追加予定である。
 
-- InputAnalyzer
 - GoalManager
 - ConfidenceEstimator
 - ClarificationManager

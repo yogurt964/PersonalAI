@@ -1,3 +1,6 @@
+# 旧テスト用コードです。
+# category導入前のsave_memory()仕様で書かれているため、現在は実行対象外です。
+
 from database.models import create_database
 from database.memory_manager import save_memory, get_memories
 

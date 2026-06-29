@@ -21,6 +21,7 @@ Version 0.8で、ExecutorはPersonalAI本体に接続された。
 PersonalAIは直接 `ask_llm(messages)` を呼ばず、`executor.execute(plan, route, messages)` に実行を任せる。
 
 現時点では通常のrouteは `qwen` なので、既存の会話処理や記憶処理は維持される。
+OpenAI、Browser、Vision、PDF Reader、YouTube Readerはまだ接続されていない。
 
 ## 将来追加予定
 

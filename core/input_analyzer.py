@@ -72,23 +72,67 @@ class InputAnalyzer:
         if requires_file_creation:
             return "create_document"
 
-        if "要約" in text:
+        summarize_keywords = [
+            "要約",
+            "まとめて",
+            "まとめ",
+            "内容を教えて",
+            "簡単に説明",
+        ]
+
+        if self._contains_any(text, summarize_keywords):
             return "summarize"
 
-        if "おすすめ" in text:
+        recommend_keywords = [
+            "おすすめ",
+            "オススメ",
+            "候補",
+            "どれがいい",
+            "提案",
+        ]
+
+        if self._contains_any(text, recommend_keywords):
             return "recommend"
 
-        if "覚えて" in text or "記憶して" in text:
+        remember_keywords = [
+            "覚えて",
+            "記憶して",
+            "忘れないで",
+        ]
+
+        if self._contains_any(text, remember_keywords):
             return "remember"
 
-        if "？" in text or "?" in text:
+        question_keywords = [
+            "？",
+            "?",
+            "どうすれば",
+            "なぜ",
+            "なんで",
+            "方法",
+            "教えて",
+        ]
+
+        if self._contains_any(text, question_keywords):
             return "question"
 
         return "chat"
 
     def _requires_file_creation(self, text):
         """Wordや文書作成が必要そうな入力かどうかを判定します。"""
-        return "Word" in text or "ワード" in text or "文書" in text
+        create_document_keywords = [
+            "Word",
+            "word",
+            "ワード",
+            "文書",
+            "レポート",
+            "資料",
+            "PDFにして",
+            "pdfにして",
+            "文章にして",
+        ]
+
+        return self._contains_any(text, create_document_keywords)
 
     def _build_notes(self, input_type, task_type):
         """解析結果を人が読みやすい短いメモにします。"""
@@ -101,16 +145,26 @@ class InputAnalyzer:
         if input_type == "url" and task_type == "summarize":
             return "URLの要約依頼"
 
-        if input_type == "url":
-            return "URLを含む入力"
+        if task_type == "summarize":
+            return "要約依頼"
 
         if task_type == "create_document":
             return "文書作成が必要な可能性があります"
 
+        if task_type == "recommend":
+            return "おすすめ・提案依頼"
+
         if task_type == "remember":
-            return "記憶したい内容を含む入力"
+            return "記憶依頼"
 
         if task_type == "question":
-            return "質問として扱える入力"
+            return "質問"
+
+        if input_type == "url":
+            return "URLを含む入力"
 
         return "通常のテキスト入力"
+
+    def _contains_any(self, text, keywords):
+        """入力文に候補キーワードが1つでも含まれているかを調べます。"""
+        return any(keyword in text for keyword in keywords)
