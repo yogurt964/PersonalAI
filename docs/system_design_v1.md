@@ -180,6 +180,15 @@ Version 0.13では、長期記憶の保存構造を強化した。
 現時点では、短期記憶・長期記憶・知識の完全分離、ベクトルDB、embedding検索はまだ行わない。
 まずは既存の記憶機能を壊さず、将来のMemoryManager強化へ進める状態にする。
 
+Version 0.14では、保存された長期記憶をLLMへ渡す `MemoryContext` を強化した。
+MemoryContextは、記憶をただの箇条書きにするのではなく、ユーザー情報、好み・方針、プロジェクト、現在の作業、知識、その他に整理する。
+
+LLMへ渡す文脈には、`importance`、`confidence`、`scope`、`memory_key` も必要に応じて含める。
+`is_active=False` の記憶は渡さず、`confidence` が50未満の記憶は `低確信` と表示する。
+これにより、PersonalAIが記憶を使うときに、重要な情報と不確かな情報を区別しやすくなる。
+
+短期記憶テーブル、知識DB、ベクトルDB、Embedding検索はまだ未実装であり、今回は長期記憶をLLMへ渡す文章の整理に集中している。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -246,9 +255,10 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Route
 - Memory基礎
 - Memory追加項目
+- MemoryContext分類
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 0.14
+
+開始内容:
+
+- MemoryContextを強化
+- 長期記憶をカテゴリ別に整理してLLMへ渡すように変更
+- `category` と `scope` を使い、ユーザー情報、好み・方針、プロジェクト、現在の作業、知識、その他へ分類
+- `importance`、`confidence`、`scope`、`memory_key` をsystem message上で確認できるように変更
+- `is_active=False` の記憶をLLMへ渡さないように変更
+- `confidence < 50` の記憶に `低確信` 表示を追加
+- MemoryContextの長さが伸びすぎないよう、全体件数と分類ごとの件数に上限を追加
+- Ver0.14確認用スクリプト `scripts/check_ver014.py` を追加
+- 短期記憶、知識DB、ベクトルDB、Embedding検索の本格実装は今後の課題として維持
+
 ## Version 0.13
 
 開始内容:

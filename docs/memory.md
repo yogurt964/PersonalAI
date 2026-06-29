@@ -93,15 +93,69 @@ Version 0.13では、今後のMemory強化に備えて、保存する情報の�
 現時点では基本値として `global` を使う。
 将来的に、プロジェクト単位の記憶や知識ベースを分けるときに活用する。
 
+## Version 0.14のMemoryContext
+
+Version 0.14では、保存済みの長期記憶をLLMへ渡す `MemoryContext` を強化した。
+
+以前は、主に `memory.content` だけを箇条書きで渡していた。
+現在は、記憶をカテゴリ別に整理し、重要度や確信度も一緒に渡す。
+
+MemoryContextは以下のような見出しへ記憶を分類する。
+
+- ユーザー情報
+- 好み・方針
+- プロジェクト
+- 現在の作業
+- 知識
+- その他
+
+分類には、主に `category` と `scope` を使う。
+
+例:
+
+| category / scope | 分類 |
+|---|---|
+| `name` | ユーザー情報 |
+| `favorite_food` | ユーザー情報 |
+| `preference` | 好み・方針 |
+| `personality` | 好み・方針 |
+| `goal` | 好み・方針 |
+| `project` | プロジェクト |
+| `current_activity` | 現在の作業 |
+| `knowledge` | 知識 |
+| `scope=user` | ユーザー情報 |
+| `scope=project` | プロジェクト |
+| `scope=knowledge` | 知識 |
+
+LLMへ渡すときは、各記憶に `importance` と `confidence` を表示する。
+`scope` が `global` 以外の場合は、どの範囲の記憶かも表示する。
+`memory_key` がある場合は、デバッグしやすいようにkeyも表示する。
+
+例:
+
+```text
+【ユーザー情報】
+- ユーザーの名前は巧弥。重要度:10 / 確信度:90 / key:user_name
+```
+
+`is_active` が `False` の記憶は、LLMへ渡さない。
+ただし、古いDBやテスト用オブジェクトで `is_active` が存在しない場合や `None` の場合は、有効な記憶として扱う。
+
+`confidence` が50未満の記憶は、完全には除外しない。
+ただし、`低確信` と表示して、LLMが確定情報として扱いすぎないようにする。
+
+MemoryContextが長くなりすぎると回答品質が下がるため、現在は全体で最大20件、各分類で最大5件程度に制限する。
+
 ## 現時点でまだ行わないこと
 
-Version 0.13では、Memoryの土台を強化するだけである。
+Version 0.14では、保存済みの長期記憶をLLMへ渡しやすく整理する段階である。
 
 まだ以下は行わない。
 
 - 短期記憶、長期記憶、知識の完全な分離
 - ベクトルDBの導入
 - embedding検索
+- 外部資料の知識化
 - 記憶のユーザー確認フロー
 - 期限切れ記憶の自動無効化
 - MemoryManagerの本格的な独立クラス化
