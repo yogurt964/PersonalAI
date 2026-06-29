@@ -265,6 +265,46 @@ Version 0.17では、Memoryを物理削除せず、`is_active` を切り替え�
 
 記憶内容の編集、物理削除、一括無効化、自動無効化、短期記憶、Knowledge DB、ベクトルDB、Embedding検索はまだ未実装である。
 
+## Version 0.18のMemoryContext反映確認
+
+Version 0.18では、`is_active` による無効化・復元がMemoryContextへ正しく反映されることを確認した。
+
+`scripts/check_ver018.py` は、テスト用Memoryを作成し、以下の流れを確認する。
+
+```text
+active Memory作成 → MemoryContextに出る
+↓
+is_active=Falseへ変更 → MemoryContextから消える
+↓
+is_active=Trueへ復元 → MemoryContextに戻る
+```
+
+また、inactiveなMemoryを直接 `build_memory_context([memory])` に渡した場合でも出力されないことを確認する。
+これにより、DB取得側とMemoryContext側の両方で、無効化MemoryがLLMへ渡らないことを確認できる。
+
+## Version 1.0テスト計画
+
+Version 0.18では、`docs/version_1_0_test_plan.md` を追加した。
+
+Ver1.0は完成版ではなく、最低限の会話・記憶・安全確認をテストできる最初の実用テスト版とする。
+
+Ver1.0テスト計画では、以下を重点項目として扱う。
+
+- 会話安定性
+- 記憶保存と記憶利用
+- Memoryの無効化・復元
+- Preference記憶
+- 矛盾する記憶の扱い
+- 記憶確認のしすぎを防ぐ方針
+- Capability判定と未実装機能をできたふりしない方針
+- PermissionManagerによる安全性
+- 記憶の重要度判定
+- 自動忘却のdry-run方針
+- ユーザーとの会話による応答調整
+- PC上で軽量に動くかの評価
+
+Preference記憶、矛盾記憶、自動忘却、Knowledge DB、ベクトルDB、Embedding検索、Web/PDF/YouTube読み取り、OpenAI接続は、Ver1.0時点では未完成でもよいが、テスト計画上の重要項目として扱う。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

@@ -215,6 +215,16 @@ Version 0.17では、Memoryの手動無効化・復元機能を追加した。
 無効化済みMemoryは `scripts/list_memories.py --include-inactive` で確認できる。
 Memory内容の編集、物理削除、一括無効化、自動無効化はまだ未実装である。
 
+Version 0.18では、無効化したMemoryがMemoryContextから除外され、復元するとMemoryContextに戻ることを確認するスクリプトを追加した。
+`scripts/check_ver018.py` は、テスト用Memoryを作成し、active、inactive、restoreの各状態でMemoryContextへの反映を確認する。
+
+この確認により、`is_active=False` のMemoryがLLMへ渡されないことを、DB取得側とMemoryContext側の両方で検証できる。
+
+また、`docs/version_1_0_test_plan.md` を追加し、Ver1.0の位置づけとテスト計画を整理した。
+Ver1.0は完成版ではなく、最低限の会話、記憶、安全確認、未実装機能の正直な扱い、軽量性を実用に近い形でテストする版である。
+
+Ver1.0テスト計画では、Preference記憶、矛盾する記憶、記憶確認頻度、自動忘却、Capability判定、ユーザー応答調整、PC上での軽量性評価を今後の重要項目として扱う。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -285,9 +295,11 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - MemoryContext確認スクリプト
 - Memory一覧表示スクリプト
 - Memory手動無効化・復元
+- 無効化MemoryのContext反映確認
+- Ver1.0テスト計画
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.18
+
+開始内容:
+
+- 無効化MemoryのMemoryContext反映確認を追加
+- `scripts/check_ver018.py` を追加し、activeなMemoryがContextに出ること、無効化後に出ないこと、復元後に戻ることを確認
+- inactiveなMemoryを直接 `build_memory_context()` に渡しても出力されないことを確認
+- `docs/version_1_0_test_plan.md` を追加し、Ver1.0の位置づけとテスト計画を整理
+- Ver1.0は完成版ではなく、最低限の会話・記憶・安全確認をテストできる実用テスト版と定義
+- Preference記憶、矛盾記憶、記憶確認頻度、自動忘却、Capability判定、ユーザー応答調整、軽量性評価を今後の重要項目として整理
+- Memory内容の編集、物理削除、自動忘却、OpenAI接続、Web/PDF/YouTube読み取り、Ver1.0本体への昇格は今後の課題として維持
+
 ## Version 0.17
 
 開始内容:

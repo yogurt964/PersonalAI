@@ -281,9 +281,30 @@ Memoryの物理削除、内容編集、一括無効化、自動無効化はま�
 確認用スクリプトとして `scripts/check_ver017.py` も追加した。
 このスクリプトは `ver017_test` のテストMemoryだけを作成し、dry-run、無効化apply、復元applyを確認したあと、テストデータだけを削除する。
 
+## Version 0.18の無効化MemoryとMemoryContext確認
+
+Version 0.18では、`is_active=False` のMemoryが本当にMemoryContextから除外されることを確認するスクリプトを追加した。
+
+確認用スクリプトは `scripts/check_ver018.py` である。
+
+このスクリプトでは、テスト用Memoryを作成し、以下を確認する。
+
+- active状態では `get_memories(active_only=True)` で取得される
+- active状態では `build_memory_context(memories)` に表示される
+- `set_memory_active(test_id, False)` 後は `is_active=False` になる
+- 無効化後は `get_memories(active_only=True)` に出ない
+- 無効化後はMemoryContextにも出ない
+- inactiveなMemoryを直接 `build_memory_context([memory])` に渡しても出ない
+- `set_memory_active(test_id, True)` 後はMemoryContextに戻る
+
+これにより、Ver0.17で追加した手動無効化・復元が、Ver0.14のMemoryContextに正しく反映されることを確認できる。
+
+テストデータは `source="ver018_test"`、`tags="ver018_test"`、`memory_key="ver018_memory_context_active_test"` のものだけを対象にクリーンアップする。
+ユーザーの既存記憶には触れない。
+
 ## 現時点でまだ行わないこと
 
-Version 0.17では、保存済みの長期記憶を削除せずに無効化・復元できるようにする段階である。
+Version 0.18では、無効化・復元がMemoryContextに正しく反映されることを確認し、Ver1.0テスト計画を整理する段階である。
 
 まだ以下は行わない。
 
@@ -291,6 +312,8 @@ Version 0.17では、保存済みの長期記憶を削除せずに無効化・�
 - 記憶の削除
 - 一括無効化
 - 自動無効化
+- Preference記憶の本格実装
+- 好き嫌い矛盾処理の本格実装
 - 短期記憶、長期記憶、知識の完全な分離
 - ベクトルDBの導入
 - embedding検索
