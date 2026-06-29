@@ -189,6 +189,13 @@ LLMへ渡す文脈には、`importance`、`confidence`、`scope`、`memory_key` 
 
 短期記憶テーブル、知識DB、ベクトルDB、Embedding検索はまだ未実装であり、今回は長期記憶をLLMへ渡す文章の整理に集中している。
 
+Version 0.15では、MemoryContextの実用確認用スクリプトを追加した。
+`scripts/show_memory_context.py` を使うと、現在DBに保存されている長期記憶が、どのようなsystem messageとしてLLMへ渡されるかを確認できる。
+
+この確認スクリプトは読み取り専用であり、既存記憶を削除・更新しない。
+`scripts/check_ver015.py` では、現在DBの記憶からMemoryContextを生成できることと、プレビュー用スクリプトが動くことを確認する。
+これはデバッグ補助であり、短期記憶、Knowledge DB、Embedding検索の本格実装ではない。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -256,9 +263,10 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Memory基礎
 - Memory追加項目
 - MemoryContext分類
+- MemoryContext確認スクリプト
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビューが含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

@@ -146,9 +146,40 @@ LLMへ渡すときは、各記憶に `importance` と `confidence` を表示す�
 
 MemoryContextが長くなりすぎると回答品質が下がるため、現在は全体で最大20件、各分類で最大5件程度に制限する。
 
+## Version 0.15のMemoryContext確認
+
+Version 0.15では、現在DBに保存されている長期記憶が、実際にどのようなMemoryContextとしてLLMへ渡されるかを確認しやすくした。
+
+確認用スクリプトとして `scripts/show_memory_context.py` を追加した。
+このスクリプトは、`get_memories()` で現在DBの長期記憶を取得し、`build_memory_context(memories)` の結果を表示する。
+
+基本的な使い方:
+
+```powershell
+venv\Scripts\python.exe -B scripts\show_memory_context.py
+```
+
+件数や分類を絞る場合:
+
+```powershell
+venv\Scripts\python.exe -B scripts\show_memory_context.py --limit 10
+venv\Scripts\python.exe -B scripts\show_memory_context.py --category project
+venv\Scripts\python.exe -B scripts\show_memory_context.py --scope user
+```
+
+このスクリプトは読み取り専用であり、既存記憶を削除・更新しない。
+MemoryContextの表示内容を確認するためのデバッグ補助である。
+
+また、`scripts/check_ver015.py` を追加し、以下を確認できるようにした。
+
+- `build_memory_context` と `get_memories` のimport
+- `show_memory_context.py` の存在
+- 現在DBの記憶からMemoryContext文字列を作れること
+- `show_memory_context.py --limit 5` が実行できること
+
 ## 現時点でまだ行わないこと
 
-Version 0.14では、保存済みの長期記憶をLLMへ渡しやすく整理する段階である。
+Version 0.15では、保存済みの長期記憶をLLMへ渡しやすく整理し、その表示を確認する段階である。
 
 まだ以下は行わない。
 

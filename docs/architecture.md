@@ -205,6 +205,22 @@ MemoryContextでは、重要度の高い記憶を優先する。
 MemoryContextが長くなりすぎないよう、全体件数と分類ごとの件数に簡単な上限を設ける。
 短期記憶テーブル、知識DB、ベクトルDB、Embedding検索はまだ未実装である。
 
+## Version 0.15のMemoryContext確認
+
+Version 0.15では、MemoryContextが実際にどのようなsystem messageとしてLLMへ渡されるかを確認するためのデバッグ補助を追加した。
+
+`scripts/show_memory_context.py` は、現在DBに保存されている長期記憶を `get_memories()` で取得し、`build_memory_context(memories)` の結果を表示する。
+
+```text
+現在DBの記憶 → get_memories() → build_memory_context() → Preview表示
+```
+
+このスクリプトは読み取り専用であり、既存記憶を削除・更新しない。
+`--limit`、`--category`、`--scope` の簡易オプションで、確認したい記憶を絞り込める。
+
+また、`scripts/check_ver015.py` で、MemoryContext生成とプレビュー用スクリプトの基本動作を確認できる。
+これはデバッグ補助であり、短期記憶、Knowledge DB、ベクトルDB、Embedding検索はまだ未実装である。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.15
+
+開始内容:
+
+- MemoryContextの実用確認・デバッグ機能を追加
+- `scripts/show_memory_context.py` を追加し、現在DBの長期記憶からMemoryContextを表示できるように変更
+- `show_memory_context.py` に `--limit`、`--category`、`--scope` の簡易オプションを追加
+- `scripts/check_ver015.py` を追加し、MemoryContext生成とプレビュー用スクリプトの基本動作を確認できるように変更
+- 既存記憶を削除・更新しない読み取り専用の確認スクリプトとして実装
+- 短期記憶、Knowledge DB、ベクトルDB、Embedding検索の本格実装は今後の課題として維持
+
 ## Version 0.14
 
 開始内容:
