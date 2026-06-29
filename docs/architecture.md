@@ -156,6 +156,29 @@ PermissionManagerは、PlanやRouteのactionを見て、許可が必要か、ris
 
 現時点では、実際の許可取得、許可待ち状態の管理、許可後の再実行は未実装である。
 
+## Version 0.13のMemory強化
+
+Version 0.13では、長期記憶を将来拡張しやすくするために、`memories` テーブルの構造を強化した。
+
+追加した主な項目は以下である。
+
+- `memory_key`: 同じ記憶を安全に更新するためのキー
+- `subcategory`: categoryより細かい分類
+- `scope`: `global`、`user`、`project`、`knowledge` などの記憶範囲
+- `confidence`: 記憶の確からしさ
+- `updated_at`: 最終更新日時
+- `expires_at`: 期限付き記憶の期限
+- `is_active`: 有効な記憶かどうか
+
+既存の `data/personal_ai.db` は削除せず、`create_database()` 実行時に足りない列だけを追加する。
+これにより、既存の会話履歴や長期記憶を残したまま、保存構造を更新できる。
+
+また、`project`、`preference`、`goal`、`personality`、`other`、`knowledge` のように複数持てるcategoryは、memory_keyがない場合にcategoryだけで上書きしない。
+一方で、`name`、`favorite_food`、`current_activity` のように1つにまとまりやすいcategoryは、従来通りcategory単位で更新する。
+
+現時点では、短期記憶・長期記憶・知識の完全分離、ベクトルDB、embedding検索はまだ導入しない。
+まずは既存機能を壊さず、MemoryManagerを強化するための土台を作る。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
@@ -163,7 +186,7 @@ PermissionManagerは、PlanやRouteのactionを見て、許可が必要か、ris
 - `ai`: LLM呼び出し、記憶抽出、記憶コンテキスト作成
 - `database`: 会話履歴と長期記憶の保存・取得
 - `core`: PersonalAI本体と、今後の中核機能
-- `docs`: 設計書、変更履歴、DBリセット手順
+- `docs`: 設計書、変更履歴、Memory設計、DBリセット手順
 - `legacy`: 現在は実行対象外の旧テスト用コード
 
 ## 今後追加予定の構成

@@ -44,12 +44,22 @@ category例:
 - personality
 - other
 
+任意項目:
+- memory_key: 同じ記憶を更新するための短いキー。例: user_name, favorite_food
+- subcategory: categoryをさらに細かく分けたい場合の分類
+- scope: 記憶の範囲。基本は global。必要なら user, project, knowledge
+- confidence: 記憶の確からしさ。0〜100の整数。迷う場合は80
+
 形式:
 [
   {{
     "content": "ユーザーの名前は巧弥で、読み方はたくや",
     "memory_type": "user_profile",
     "category": "name",
+    "memory_key": "user_name",
+    "subcategory": null,
+    "scope": "global",
+    "confidence": 90,
     "importance": 10,
     "source": "user",
     "tags": "名前"
@@ -58,6 +68,10 @@ category例:
     "content": "ユーザーの好きな食べ物はカレー",
     "memory_type": "user_profile",
     "category": "favorite_food",
+    "memory_key": "favorite_food",
+    "subcategory": "food",
+    "scope": "global",
+    "confidence": 90,
     "importance": 8,
     "source": "user",
     "tags": "好み,食事"

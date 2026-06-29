@@ -122,6 +122,11 @@ class PersonalAI:
                     extracted_memory.get("importance", 5),
                     extracted_memory.get("source", "user"),
                     extracted_memory.get("tags", ""),
+                    extracted_memory.get("memory_key"),
+                    extracted_memory.get("subcategory"),
+                    extracted_memory.get("scope", "global"),
+                    extracted_memory.get("confidence", 80),
+                    extracted_memory.get("expires_at"),
                 )
 
     def build_messages(self):

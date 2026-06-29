@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 0.13
+
+開始内容:
+
+- Memory設計を強化
+- `memories` テーブルに `memory_key`、`subcategory`、`scope`、`confidence`、`updated_at`、`expires_at`、`is_active` を追加
+- 既存DBを削除せず、足りない列だけを追加する安全なマイグレーションを追加
+- `save_memory()` が `memory_key` による更新に対応
+- `project`、`preference`、`goal`、`personality`、`other`、`knowledge` は、memory_keyがない場合にcategoryだけで上書きしない方針へ変更
+- `get_memories()` に `memory_type`、`category`、`scope`、`active_only` の絞り込みを追加
+- 記憶抽出プロンプトに任意項目として `memory_key`、`subcategory`、`scope`、`confidence` を追加
+- Memory設計書 `docs/memory.md` を追加
+- Ver0.13確認用スクリプト `scripts/check_ver013.py` を追加
+- 短期記憶、知識、ベクトルDB、embedding検索の本格分離は今後の課題として維持
+
 ## Version 0.12
 
 開始内容:

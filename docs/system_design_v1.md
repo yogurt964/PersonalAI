@@ -170,6 +170,16 @@ Memoryは、今後も役立つ情報を保存・更新する。
 
 将来的には、MemoryManagerとしてより明確に責務を分け、記憶の重要度、期限、信頼度、ユーザー確認なども扱えるようにする。
 
+Version 0.13では、長期記憶の保存構造を強化した。
+`memory_key`、`subcategory`、`scope`、`confidence`、`updated_at`、`expires_at`、`is_active` を追加し、同じ記憶を安全に更新したり、複数持てる記憶を上書きせず保存したりできる土台を作った。
+
+`memory_key` がある場合は、`memory_type + scope + memory_key` が同じ記憶を更新する。
+`project`、`preference`、`goal`、`personality`、`other`、`knowledge` のように複数持てるcategoryは、memory_keyがない場合にcategoryだけで上書きしない。
+一方で、`name`、`favorite_food`、`current_activity` のように1つにまとまりやすいcategoryは、従来通りcategory単位で更新する。
+
+現時点では、短期記憶・長期記憶・知識の完全分離、ベクトルDB、embedding検索はまだ行わない。
+まずは既存の記憶機能を壊さず、将来のMemoryManager強化へ進める状態にする。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -235,9 +245,10 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Plan
 - Route
 - Memory基礎
+- Memory追加項目
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。
