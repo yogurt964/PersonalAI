@@ -7,10 +7,20 @@ class Planner:
     def create_plan(self, user_input, context=None, capabilities=None):
         """ユーザー入力から、実行したい行動の計画を作ります。
 
-        contextとcapabilitiesは将来の拡張用です。
+        contextにはInputAnalyzerの解析結果が入ります。
         現時点ではルールベースでactionを決めます。
         """
         action = self._detect_action(user_input)
+
+        # 名前や好きな食べ物など、既存の記憶系判定は優先して維持します。
+        if action in ["memory_read", "memory_write"]:
+            return self._build_plan(action)
+
+        context_action = self._detect_action_from_context(context)
+
+        if context_action is not None:
+            action = context_action
+
         return self._build_plan(action)
 
     def _detect_action(self, user_input):
@@ -49,6 +59,55 @@ class Planner:
 
         return "chat"
 
+    def _detect_action_from_context(self, context):
+        """InputAnalyzerの結果から、より具体的なactionを判定します。"""
+        input_type = self._get_context_value(context, "input_type")
+        task_type = self._get_context_value(context, "task_type")
+        requires_external_reading = self._get_context_value(
+            context,
+            "requires_external_reading",
+            False,
+        )
+        requires_file_creation = self._get_context_value(
+            context,
+            "requires_file_creation",
+            False,
+        )
+
+        if task_type == "remember":
+            return "memory_write"
+
+        if (
+            input_type == "youtube"
+            and task_type == "summarize"
+            and requires_external_reading
+        ):
+            return "summarize_youtube"
+
+        if (
+            input_type == "url"
+            and task_type == "summarize"
+            and requires_external_reading
+        ):
+            return "summarize_url"
+
+        if task_type == "create_document" and requires_file_creation:
+            return "create_document"
+
+        if requires_external_reading:
+            return "unsupported_external_reading"
+
+        if requires_file_creation:
+            return "unsupported_file_creation"
+
+        if task_type == "recommend":
+            return "recommend"
+
+        if task_type == "question":
+            return "answer_question"
+
+        return None
+
     def _build_plan(self, action):
         """action名から、Executorへ渡しやすいPlanを作ります。"""
         plans = {
@@ -73,6 +132,65 @@ class Planner:
                 requires_permission=False,
                 risk="medium",
             ),
+            "summarize_youtube": Plan(
+                action="summarize_youtube",
+                reason="YouTube URLの要約依頼だが、YouTube実読み取りはまだ未実装のため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "summarize_url": Plan(
+                action="summarize_url",
+                reason="URLの要約依頼だが、Web読み取りはまだ未実装のため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "create_document": Plan(
+                action="create_document",
+                reason="文書作成依頼だが、実ファイル作成はまだ未実装のため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="medium",
+            ),
+            "recommend": Plan(
+                action="recommend",
+                reason="おすすめ・提案依頼として処理します",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "answer_question": Plan(
+                action="answer_question",
+                reason="質問として回答します",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "unsupported_external_reading": Plan(
+                action="unsupported_external_reading",
+                reason="外部情報の読み取りが必要だが、実読み取り機能はまだ未実装のため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="low",
+            ),
+            "unsupported_file_creation": Plan(
+                action="unsupported_file_creation",
+                reason="ファイル作成が必要だが、実ファイル作成機能はまだ未実装のため",
+                required_capabilities=["chat", "llm_qwen"],
+                requires_permission=False,
+                risk="medium",
+            ),
         }
 
         return plans.get(action, plans["chat"])
+
+    def _get_context_value(self, context, key, default=None):
+        """InputAnalyzerのdictから値を取り出します。"""
+        if context is None:
+            return default
+
+        if isinstance(context, dict):
+            return context.get(key, default)
+
+        return getattr(context, key, default)

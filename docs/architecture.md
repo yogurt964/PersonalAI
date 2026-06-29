@@ -105,6 +105,25 @@ InputAnalyzerは、それらが必要そうかを判定するだけで、実際�
 `legacy/app_buckup.py` は、category導入前の旧テスト用コードであり、現在の実行対象ではない。
 現在の起動ファイルは `app.py` である。
 
+## Version 0.10のPlan反映
+
+Version 0.10では、InputAnalyzerの解析結果をPlannerのaction判定に反映した。
+
+現在は、以下のような分類を行う。
+
+- YouTube URL + 要約: `summarize_youtube`
+- URL + 要約: `summarize_url`
+- 文書作成依頼: `create_document`
+- おすすめ・提案依頼: `recommend`
+- 質問: `answer_question`
+- 記憶参照: `memory_read`
+- 記憶保存・更新: `memory_write`
+
+Routerはこれらのactionを安全にQwenへルーティングする。
+Executorは、YouTube読み取り、Web読み取り、実ファイル作成が未実装である場合、固定メッセージで正直に説明し、読んだふり・作ったふりをしない。
+
+デバッグ時は、`PersonalAI.last_input_analysis`、`PersonalAI.last_plan`、`PersonalAI.last_route`、`PersonalAI.last_response` を確認する。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

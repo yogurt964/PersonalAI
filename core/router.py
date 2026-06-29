@@ -32,6 +32,13 @@ class Router:
             "chat",
             "memory_read",
             "memory_write",
+            "summarize_youtube",
+            "summarize_url",
+            "create_document",
+            "recommend",
+            "answer_question",
+            "unsupported_external_reading",
+            "unsupported_file_creation",
             "unknown",
         ]
 
@@ -78,6 +85,13 @@ class Router:
             "chat": "通常の会話はQwenで対応できるため",
             "memory_read": "長期記憶を使った回答はQwenで対応できるため",
             "memory_write": "記憶抽出や記憶に関する処理はQwenで対応できるため",
+            "summarize_youtube": "YouTube読み取りは未実装のため、Qwenで未対応説明を行うため",
+            "summarize_url": "Web読み取りは未実装のため、Qwenで未対応説明を行うため",
+            "create_document": "実ファイル作成は未実装のため、Qwenで文書案または未対応説明を行うため",
+            "recommend": "おすすめ・提案依頼はQwenで対応できるため",
+            "answer_question": "質問への回答はQwenで対応できるため",
+            "unsupported_external_reading": "外部読み取りは未実装のため、Qwenで未対応説明を行うため",
+            "unsupported_file_creation": "実ファイル作成は未実装のため、Qwenで未対応説明を行うため",
         }
 
         return reasons.get(action, "現時点ではQwenを標準の処理系として使うため")

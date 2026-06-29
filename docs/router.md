@@ -33,12 +33,22 @@ Routerは主に以下の情報を使う。
 - `chat`: `qwen`
 - `memory_read`: `qwen`
 - `memory_write`: `qwen`
+- `summarize_youtube`: `qwen`
+- `summarize_url`: `qwen`
+- `create_document`: `qwen`
+- `recommend`: `qwen`
+- `answer_question`: `qwen`
+- `unsupported_external_reading`: `qwen`
+- `unsupported_file_creation`: `qwen`
 - 未定義のaction: `qwen`
 - `risk` が `high`: `openai_candidate`
 
 `openai_candidate` は、まだOpenAIを実行するという意味ではない。
 高リスクな処理では、将来的にOpenAIを候補にできるようにするための目印である。
 現時点ではOpenAI接続は未実装であり、Routerは候補を返すだけで実行しない。
+
+Version 0.10では、外部読み取りや実ファイル作成が必要なactionも、現時点ではQwenにルーティングする。
+ただし、実行時にはExecutorが未実装であることを説明し、読んだふり・作ったふりを避ける。
 
 ## Routerが返すroute
 

@@ -70,6 +70,17 @@ Version 0.9.1では、ルールベースの判定語彙を少し追加した。
 
 また、Plannerの `context` に `input_analysis` を渡す。ただし、現時点ではPlannerの大きな分岐変更は行わない。
 
+Version 0.10では、Plannerが `input_analysis` を使ってactionをより具体的に分類するようになった。
+
+- YouTube URL + 要約: `summarize_youtube`
+- URL + 要約: `summarize_url`
+- 文書作成依頼: `create_document`
+- おすすめ・提案依頼: `recommend`
+- 質問: `answer_question`
+
+ただし、InputAnalyzerは引き続き判定だけを行う。
+WebやYouTubeの実読み取り、PDF読み取り、画像認識、実ファイル作成はまだ行わない。
+
 ## Version 0.9.1で追加した判定語彙
 
 以下のような語彙を追加した。

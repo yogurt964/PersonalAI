@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.10
+
+開始内容:
+
+- InputAnalyzer結果をPlannerのaction判定に反映
+- YouTube URL + 要約を `summarize_youtube` に分類
+- URL + 要約を `summarize_url` に分類
+- 文書作成依頼を `create_document` に分類
+- おすすめ依頼を `recommend`、質問を `answer_question` に分類
+- Routerが新しいactionを安全にQwenへルーティングするように更新
+- Executorが未実装の外部読み取り・実ファイル作成で読んだふり、作ったふりをしない固定メッセージを返すように更新
+
 ## Version 0.9.2
 
 整理内容:

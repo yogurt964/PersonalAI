@@ -40,11 +40,24 @@ Plan(
 
 現時点では、ルールベースの簡易Plannerとして実装する。
 
-ユーザー入力に含まれる言葉を見て、以下のように大まかな行動を選ぶ。
+ユーザー入力に含まれる言葉と、InputAnalyzerが作った `input_analysis` を見て、以下のように大まかな行動を選ぶ。
 
 - 通常会話: `chat`
 - 長期記憶の保存・更新: `memory_write`
 - 長期記憶の参照: `memory_read`
+
+Version 0.10では、InputAnalyzer結果を使って以下のactionも作る。
+
+- YouTube URL + 要約: `summarize_youtube`
+- URL + 要約: `summarize_url`
+- 文書作成依頼: `create_document`
+- おすすめ・提案依頼: `recommend`
+- 質問: `answer_question`
+- その他の外部読み取りが必要な入力: `unsupported_external_reading`
+- その他のファイル作成が必要な入力: `unsupported_file_creation`
+
+ただし、Web、YouTube、PDF、画像の実読み取りや、Word / PDFなどの実ファイル作成はまだ行わない。
+未実装の機能は、Executorで読んだふり・作ったふりをしないように扱う。
 
 ## 今後の予定
 

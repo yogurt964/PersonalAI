@@ -23,6 +23,16 @@ PersonalAIは直接 `ask_llm(messages)` を呼ばず、`executor.execute(plan, r
 現時点では通常のrouteは `qwen` なので、既存の会話処理や記憶処理は維持される。
 OpenAI、Browser、Vision、PDF Reader、YouTube Readerはまだ接続されていない。
 
+Version 0.10では、以下のactionに対して固定メッセージを返し、読んだふり・作ったふりを避ける。
+
+- `summarize_youtube`: YouTube動画の直接読み取りは未実装であることを返す
+- `summarize_url`: Webページの直接読み取りは未実装であることを返す
+- `create_document`: Word / PDFなどの実ファイル作成は未実装であることを返す
+- `unsupported_external_reading`: 外部情報読み取りは未実装であることを返す
+- `unsupported_file_creation`: 実ファイル作成は未実装であることを返す
+
+通常会話、記憶読み取り、記憶書き込み、おすすめ依頼、質問は従来通りQwenに渡す。
+
 ## 将来追加予定
 
 将来的には、以下のような実行処理を追加する予定である。
