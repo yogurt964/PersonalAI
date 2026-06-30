@@ -72,6 +72,7 @@ Integrated Daily AI機能の追加・改善段階
 ### Ver2.0: Reader / Knowledge Assistant
 
 情報を読み取り、理解・要約・比較・記憶できる段階。
+Ver2.0はReader方面の最初の実用テスト版であり、少なくとも1つのReaderが実際に動く状態を目安にする。
 
 主な対象:
 

@@ -130,3 +130,5 @@ Ver1.7では、dry-runやToolRequestの結果を `ToolExecutionRecord` として
 ただし、Ver1.7でも実際のTool実行はまだ行わない。
 Ver1.8では、Reader実装前の手動テストケースを整理した。
 Ver2.0 Reader実装時には、このテストケースを基準に実装前後の挙動を比較する。
+Ver1.9では、Reader実装順序とVer2.0条件を整理した。
+Web Readerが最初の実装候補である。

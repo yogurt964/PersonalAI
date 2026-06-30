@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver1.8
+現在バージョン: Ver1.9
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver1.8時点では、以下が実装済みである。
+Ver1.9時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -99,6 +99,7 @@ Ver1.5: PermissionManagerとTool実行前確認の接続準備
 Ver1.6: Reader実装前のInputAnalyzer / Capability / Tool連携確認
 Ver1.7: Tool実行ログと結果記録の設計
 Ver1.8: Reader実装前の手動テストケース整理
+Ver1.9: Ver2.0 Reader実装計画
 ```
 
 ## 現在の主要ファイル
@@ -139,6 +140,7 @@ docs/tool_permission_design.md: Tool Permission設計方針
 docs/tool_input_integration.md: InputAnalyzer / Capability / Tool連携方針
 docs/tool_execution_log_design.md: Tool実行ログ設計方針
 docs/reader_pre_implementation_test_cases.md: Reader実装前の手動テストケース
+docs/reader_implementation_plan_v2.md: Ver2.0 Reader実装計画
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 database/models.py: DBモデル
@@ -179,6 +181,7 @@ scripts/check_ver150.py
 scripts/check_ver160.py
 scripts/check_ver170.py
 scripts/check_ver180.py
+scripts/check_ver190.py
 scripts/run_ver1_checks.py
 ```
 
@@ -210,12 +213,12 @@ GUI
 
 ## 次にやること
 
-Ver1.8後の候補:
+Ver1.9後の候補:
 
 ```text
-Ver1.9: Ver2.0 Reader実装計画
 Ver1.10: Ver1.x総仕上げ確認
-Ver2.0方面: Web / PDF / Image / YouTube Reader
+Ver2.0: Web Reader最小実用版
+Ver2.x: PDF / File / Image / YouTube Reader
 Ver1.x継続改善: 会話品質、Memory利用バランス、チェック運用の微調整
 ```
 

@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 1.9
+
+開始内容:
+
+- Ver2.0 Reader実装計画を整理
+- Ver2.0を付ける条件をdocs化
+- Readerの実装順序を整理
+- Web Readerを最初の実装候補として整理
+- PDF / Image / YouTube / File Reader の段階的追加方針を整理
+- Reader共通の ToolRequest / ToolResult / Permission / ToolExecutionLog 方針を整理
+- `docs/reader_implementation_plan_v2.md` を追加
+- `scripts/check_ver190.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver190.py` を追加
+
 ## Version 1.8
 
 開始内容:
