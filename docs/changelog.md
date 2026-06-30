@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.27
+
+開始内容:
+
+- `docs/version_1_0_final_check.md` を追加
+- `scripts/run_pre_v1_checks.py` を追加
+- `scripts/check_ver027.py` を追加
+- Ver1.0前の自動チェック、ベンチマーク、手動テスト、Git確認の順番を整理
+- Ver1.0へ進める判定基準を整理
+- `run_pre_v1_checks.py` はVer0.11〜Ver0.26のcheckと軽量性ベンチマークを順番に実行し、最後に結果を集計する
+- 今回はコード機能本体を変更せず、docs整備と確認スクリプト追加として実施
+
 ## Version 0.26
 
 開始内容:

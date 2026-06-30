@@ -467,6 +467,16 @@ PersonalAI本体に個別アプリ連携を詰め込むのではなく、Reader�
 インストール、購入、外部投稿、配信開始、ファイル削除、Git push、個人情報入力などは必ずPermission方針に従う。
 今回もコード機能本体は変更しない。
 
+## Version 0.27のVer1.0前総合チェック
+
+Version 0.27では、Ver1.0へ進む前の総合チェック手順を整理した。
+
+`docs/version_1_0_final_check.md` では、Git状態確認、import確認、app.py起動確認、自動check、軽量性ベンチマーク、手動テスト、未実装機能の扱い、Memory / Preference / Forgetting安全確認、引き継ぎ・復旧確認、Ver1.0判定基準を順番にまとめる。
+
+`scripts/run_pre_v1_checks.py` は、Ver0.11〜Ver0.26のcheckと軽量性ベンチマークを順番に実行し、途中で失敗しても最後に成功数・失敗数を表示する。
+
+今回もコード機能本体は変更しない。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
