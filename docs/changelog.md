@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.3
+
+開始内容:
+
+- 会話品質方針を追加
+- 通常会話では短めで自然に返す方針を追加
+- 相談では結論、理由、選択肢を整理する方針を追加
+- 開発補助では手順、変更対象、確認コマンド、注意点を明確にする方針を追加
+- 不明点を断定しない方針を追加
+- `ai/conversation_quality_policy.py` を追加
+- `scripts/check_ver130.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver130.py` を追加
+
 ## Version 1.2
 
 開始内容:

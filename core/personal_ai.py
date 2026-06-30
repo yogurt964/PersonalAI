@@ -1,4 +1,8 @@
 from ai.llm import SYSTEM_PROMPT
+from ai.conversation_quality_policy import (
+    build_conversation_quality_guidance,
+    classify_conversation_mode,
+)
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
 from ai.memory_usage_policy import decide_memory_usage
@@ -43,6 +47,8 @@ class PersonalAI:
         self.last_permission_decision = None
         self.last_preference_confirmation = None
         self.last_memory_usage = None
+        self.last_conversation_mode = None
+        self.last_conversation_quality_guidance = None
         self.pending_preference_confirmation = None
         self.last_response = None
 
@@ -79,6 +85,14 @@ class PersonalAI:
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
         self.last_memory_usage = memory_usage
+        conversation_quality_guidance = build_conversation_quality_guidance(
+            user_input,
+            memory_usage=memory_usage,
+            input_analysis=input_analysis,
+        )
+        conversation_mode = classify_conversation_mode(user_input)
+        self.last_conversation_mode = conversation_mode
+        self.last_conversation_quality_guidance = conversation_quality_guidance
 
         # 今のPersonalAIで対応できる入力かを先に判定します。
         # WebやPDFなど未実装の読み取りが必要な場合は、読んだふりをせずここで返答します。
@@ -121,7 +135,11 @@ class PersonalAI:
             self.save_assistant_message(ai_response)
             return ai_response
 
-        messages = self.build_messages(memory_usage)
+        messages = self.build_messages(
+            memory_usage,
+            conversation_quality_guidance,
+            conversation_mode,
+        )
         ai_response = self.executor.execute(plan, route, messages)
         self.last_response = ai_response
 
@@ -231,15 +249,26 @@ class PersonalAI:
             "question": preference_confirmation.get("question", ""),
         }
 
-    def build_messages(self, memory_usage=None):
+    def build_messages(
+        self,
+        memory_usage=None,
+        conversation_quality_guidance=None,
+        conversation_mode=None,
+    ):
         """長期記憶と会話履歴を使って、LLMに渡すmessagesを作ります。"""
         if memory_usage is None:
             memory_usage = self.last_memory_usage or "normal"
 
+        if conversation_quality_guidance is None:
+            conversation_quality_guidance = self.last_conversation_quality_guidance
+
+        if conversation_mode is None:
+            conversation_mode = self.last_conversation_mode or "unknown"
+
         memories = get_memories()
         memory_context = build_memory_context(memories, memory_usage=memory_usage)
-        # minimalでは直近履歴に残ったPreference情報も出しすぎないよう、現在入力中心にします。
-        recent_limit = 1 if memory_usage == "minimal" else 20
+        # 通常会話や開発相談では、古いPreference混入を避けるため現在入力中心にします。
+        recent_limit = self.get_recent_message_limit(memory_usage, conversation_mode)
         recent_messages = get_recent_messages(recent_limit)
 
         messages = [
@@ -271,7 +300,28 @@ class PersonalAI:
                 }
             )
 
+        if conversation_quality_guidance:
+            messages.append(
+                {
+                    "role": "system",
+                    "content": conversation_quality_guidance,
+                }
+            )
+
         return messages
+
+    def get_recent_message_limit(self, memory_usage, conversation_mode):
+        """会話モードに応じて、LLMへ渡す直近履歴の量を調整します。"""
+        if memory_usage == "detailed":
+            return 20
+
+        if conversation_mode in ("casual", "development"):
+            return 1
+
+        if conversation_mode == "advice":
+            return 4
+
+        return 8
 
     def build_memory_usage_runtime_instruction(self, memory_usage):
         """今回の入力に対するMemory利用の強さを、最後にもう一度伝えます。"""

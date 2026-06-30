@@ -27,6 +27,7 @@ Ver1.0に向けた準備・設計・安全確認の段階
 Ver1.x:
 Core Assistantの改善段階。
 会話品質、Memory利用バランス、Preferenceの自然な扱い、Ver1.x用チェック運用を整える。
+Ver1.xではCore Assistantの会話品質改善も継続して扱う。
 quick check / standard check / full pre-release check を使い分け、通常のVer1.x確認には run_ver1_checks.py を使う。
 
 Ver2.x:

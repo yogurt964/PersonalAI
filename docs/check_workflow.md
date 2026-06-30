@@ -13,6 +13,7 @@ quick check は、小さな変更後に短時間で最低限の確認をした�
 例:
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver130.py
 venv\Scripts\python.exe -B scripts\check_ver120.py
 venv\Scripts\python.exe -B scripts\check_ver110.py
 venv\Scripts\python.exe -B -c "from core.personal_ai import PersonalAI; print('PersonalAI import OK')"
@@ -38,6 +39,7 @@ venv\Scripts\python.exe -B scripts\run_ver1_checks.py
 
 主な対象:
 
+- `scripts/check_ver130.py`
 - `scripts/check_ver120.py`
 - `scripts/check_ver110.py`
 - `scripts/check_v1_final_preparation.py`
@@ -69,10 +71,12 @@ Ver1.1以降のcheck番号は、Ver0.xと混同しないように以下の形式
 Ver1.1 -> scripts/check_ver110.py
 Ver1.2 -> scripts/check_ver120.py
 Ver1.3 -> scripts/check_ver130.py
+Ver1.4 -> scripts/check_ver140.py
 ```
 
 各version固有のcheckは、作業内容に合わせて追加する。
 たとえば、Ver1.1では `check_ver110.py` でMemory利用方針を確認し、Ver1.2では `check_ver120.py` でVer1.xチェック運用を確認する。
+Ver1.3では `check_ver130.py` で会話品質方針を確認する。
 
 ## 運用方針
 
