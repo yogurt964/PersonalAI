@@ -33,6 +33,7 @@ Ver1.xではTool実行前確認とPermission連携準備も扱う。
 Ver1.xではReader実装前のInputAnalyzer / Capability / Tool連携確認も扱う。
 Ver1.xではTool実行ログと結果記録の設計も扱う。
 Ver1.xではReader実装前のテストケース整理も扱う。
+Ver1.xはReader実装前の土台整理までを扱う。
 quick check / standard check / full pre-release check を使い分け、通常のVer1.x確認には run_ver1_checks.py を使う。
 
 Ver2.x:
@@ -73,6 +74,7 @@ Integrated Daily AI機能の追加・改善段階
 
 情報を読み取り、理解・要約・比較・記憶できる段階。
 Ver2.0はReader方面の最初の実用テスト版であり、少なくとも1つのReaderが実際に動く状態を目安にする。
+Ver2.0は、Ver1.xで整理した土台の上に最初のReader実処理を接続する段階である。
 
 主な対象:
 

@@ -13,6 +13,7 @@ quick check は、小さな変更後に短時間で最低限の確認をした�
 例:
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver1100.py
 venv\Scripts\python.exe -B scripts\check_ver190.py
 venv\Scripts\python.exe -B scripts\check_ver180.py
 venv\Scripts\python.exe -B scripts\check_ver170.py
@@ -45,6 +46,7 @@ venv\Scripts\python.exe -B scripts\run_ver1_checks.py
 
 主な対象:
 
+- `scripts/check_ver1100.py`
 - `scripts/check_ver190.py`
 - `scripts/check_ver180.py`
 - `scripts/check_ver170.py`
@@ -93,6 +95,7 @@ Ver1.10 -> scripts/check_ver1100.py
 ```
 
 各version固有のcheckは、作業内容に合わせて追加する。
+Ver1.10のcheck名は `check_ver1100.py` であり、`check_ver110.py` はVer1.1用として残す。
 たとえば、Ver1.1では `check_ver110.py` でMemory利用方針を確認し、Ver1.2では `check_ver120.py` でVer1.xチェック運用を確認する。
 Ver1.3では `check_ver130.py` で会話品質方針を確認する。
 Ver1.4では `check_ver140.py` でTool / Adapter受け口を確認する。
@@ -101,6 +104,7 @@ Ver1.6では `check_ver160.py` でInputAnalyzer / Capability / Tool連携のdry-
 Ver1.7では `check_ver170.py` でTool実行ログと結果記録の設計を確認する。
 Ver1.8では `check_ver180.py` でReader実装前の手動テストケースとdry-run代表ケースを確認する。
 Ver1.9では `check_ver190.py` でVer2.0 Reader実装計画を確認する。
+Ver1.10では `check_ver1100.py` でVer1.x総仕上げ確認とVer2.0準備状態を確認する。
 
 ## 運用方針
 

@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.10
+
+開始内容:
+
+- Ver1.x総仕上げ確認を追加
+- Ver1.1からVer1.9までの実装内容を整理
+- Ver2.0 Reader実装前の準備状態を確認
+- Ver2.0でやること / やらないことを再確認
+- Web Readerを最初の実装候補として再確認
+- `docs/ver1_x_final_review.md` を追加
+- `scripts/check_ver1100.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver1100.py` を追加
+
 ## Version 1.9
 
 開始内容:

@@ -5,6 +5,7 @@ from pathlib import Path
 PROJECT_ROOT = Path(__file__).resolve().parents[1]
 
 CHECK_SCRIPTS = [
+    "scripts/check_ver1100.py",
     "scripts/check_ver190.py",
     "scripts/check_ver180.py",
     "scripts/check_ver170.py",
