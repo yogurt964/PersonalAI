@@ -71,10 +71,12 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver210.py`
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
 Ver2.0では、`check_ver200.py` でWeb Reader最小実用版を確認する。
+Ver2.1では、`check_ver210.py` でWeb Reader手動実行テストdocsと会話UI接続方針を確認する。
 自動checkではfake fetcherを使い、実Webアクセスしない。
 
 ## full pre-release check

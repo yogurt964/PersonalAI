@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.1
+
+開始内容:
+
+- Web Reader手動実行テスト手順を整理
+- Web Readerの会話UI接続方針を整理
+- `user_confirmed` と自動Webアクセス禁止方針を再確認
+- `docs/web_reader_manual_test.md` を追加
+- `docs/web_reader_ui_connection_plan.md` を追加
+- `scripts/check_ver210.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver210.py` を追加
+
 ## Version 2.0
 
 開始内容:

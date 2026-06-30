@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.0
+現在バージョン: Ver2.0.0
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver2.0時点では、以下が実装済みである。
+Ver2.0.0時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -102,6 +102,7 @@ Ver1.8: Reader実装前の手動テストケース整理
 Ver1.9: Ver2.0 Reader実装計画
 Ver1.10: Ver1.x総仕上げ確認
 Ver2.0: Web Reader最小実用版
+Ver2.1候補: Web Reader手動実行テストと会話UI接続方針整理
 ```
 
 ## 現在の主要ファイル
@@ -147,6 +148,8 @@ docs/reader_pre_implementation_test_cases.md: Reader実装前の手動テスト�
 docs/reader_implementation_plan_v2.md: Ver2.0 Reader実装計画
 docs/ver1_x_final_review.md: Ver1.x総仕上げ確認
 docs/web_reader_design.md: Web Reader設計方針
+docs/web_reader_manual_test.md: Web Reader手動実行テスト手順
+docs/web_reader_ui_connection_plan.md: Web Reader会話UI接続方針
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 scripts/run_ver2_checks.py: Ver2.x用の標準チェックまとめ実行
@@ -191,6 +194,7 @@ scripts/check_ver180.py
 scripts/check_ver190.py
 scripts/check_ver1100.py
 scripts/check_ver200.py
+scripts/check_ver210.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -208,7 +212,7 @@ scripts/run_ver2_checks.py
 OpenAI接続
 Claude / Gemini接続
 Web Readerの会話UI自動接続
-Web Readerの実Web手動テスト整理
+Web Readerの会話UI自動接続はまだ未実装
 YouTube実要約
 PDF読み取り
 画像読み取り
@@ -227,9 +231,12 @@ GUI
 現在状態:
 
 ```text
-Ver2.0でWeb Reader最小実用版に到達
+Ver2.0.0でWeb Reader最小実用版に到達
+v2.0.0 タグ作成済み
+GitHub Release PersonalAI Version 2.0.0 作成済み
+現在はVer2.1開始前
+Ver2.1候補はWeb Reader手動実行テストと会話UI接続方針整理
 ただしPDF/Image/YouTube/File Readerはまだ未実装
-ただしVer2.0タグやReleaseはまだ作成しない
 自動checkでは実Webアクセスしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```

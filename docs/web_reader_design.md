@@ -3,9 +3,21 @@
 ## 目的
 
 Ver2.0で、Web Reader最小実用版を追加した。
+Ver2.1では、手動実行テストと会話UI接続方針を整理する。
 
 Web Readerは、Reader方面の最初の実用テスト版である。
 完成版ではなく、http / https URLを安全に読み取り、ToolRequest、Permission、ToolResult、ToolExecutionLogまでつなぐための最小実装である。
+
+## Versionごとの位置づけ
+
+- Ver2.0: Web Reader最小実用版
+- Ver2.1: 手動実行テストと会話UI接続方針の整理
+
+Ver2.1では、会話UI自動接続はまだしない。
+URLを検出しただけで自動Webアクセスしない。
+自動チェックでは実Webアクセスしない。
+実Webアクセスはユーザー確認つきの手動確認でのみ行う。
+PDF Reader / Image Reader / YouTube Reader / File Reader は今後の段階追加とする。
 
 ## Web Readerの責務
 
