@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.31
+
+開始内容:
+
+- Ver0.30で保留だった通常会話2件と記憶参照1件をOKに更新
+- `docs/version_1_0_release_decision.md` の総合判定を GO候補 に更新
+- 通常会話でMemory情報を使いすぎる傾向をVer1.1以降の改善候補として記録
+- `scripts/check_ver031.py` を追加
+- 今回はまだVer1.0タグやGitHub Releaseは作成しない
+- コード機能本体、DB削除、Memory物理削除、Git commit / push は行わない
+
 ## Version 0.30
 
 開始内容:

@@ -464,6 +464,7 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver031.py
 venv\Scripts\python.exe -B scripts\check_ver030.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
 venv\Scripts\python.exe -B scripts\check_ver027.py
@@ -512,6 +513,9 @@ Ver1.0へ進めるかどうかは、GO / HOLD / NO-GO条件に沿って判断す
 
 Version 0.30では、`docs/version_1_0_manual_test.md` の結果欄を実測に基づいて更新した。
 実会話の詳細確認が未再確認の項目は無理にOKにせず、`保留` として扱う。
+
+Version 0.31では、Ver0.30で保留だった通常会話2件と記憶参照1件を実会話で確認し、OKに更新した。
+記憶情報を少し使いすぎる傾向は、Ver1.1以降の改善候補として扱う。
 
 ## 15. 再開・復旧時に読むdocs
 
