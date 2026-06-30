@@ -12,7 +12,7 @@ Ver1.0は完成版ではない。
 1. Git状態確認
 2. import確認
 3. app.py起動確認
-4. Ver0.11〜Ver0.28の自動check実行
+4. Ver0.11〜Ver0.29の自動check実行
 5. 軽量性ベンチマーク実行
 6. Ver1.0手動テスト表に沿った確認
 7. 未実装機能の扱い確認
@@ -32,7 +32,7 @@ git log --oneline -10
 
 ```text
 working tree clean であること
-最新コミットがVer0.28の作業を含んでいること
+最新コミットがVer0.29の作業を含んでいること
 ```
 
 ## 2. import確認
@@ -65,6 +65,7 @@ PowerShell上で日本語が文字化けする可能性はある。
 ## 4. 自動check実行
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver029.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
 venv\Scripts\python.exe -B scripts\check_ver027.py
 venv\Scripts\python.exe -B scripts\check_ver011.py
@@ -99,7 +100,7 @@ venv\Scripts\python.exe -B scripts\run_pre_v1_checks.py
 ```
 
 `run_pre_v1_checks.py` はVer0.11〜Ver0.26と軽量性ベンチマークをまとめて確認する。
-Ver0.27とVer0.28のcheckは、上の個別コマンドで確認する。
+Ver0.27、Ver0.28、Ver0.29のcheckは、上の個別コマンドで確認する。
 
 ## 5. 軽量性ベンチマーク
 
@@ -181,16 +182,19 @@ docs/version_1_0_test_plan.md
 docs/version_1_0_manual_test.md
 docs/version_1_0_final_check.md
 docs/version_1_0_release_decision.md
+docs/version_policy.md
 ```
 
 ## 10. Ver1.0リリース判定基準
 
 `docs/version_1_0_release_decision.md` を確認する。
+あわせて `docs/version_policy.md` を確認し、Ver1.0が整数バージョンとして「実用的に使える区切り」に当たるかを確認する。
 
 確認対象:
 
 ```text
 Ver1.0の位置づけ
+整数バージョンの考え方
 GO条件
 HOLD条件
 NO-GO条件
@@ -204,7 +208,7 @@ Ver1.0直前の推奨手順
 以下を満たす場合、Ver1.0へ進める候補とする。
 
 ```text
-Ver0.11〜Ver0.28のcheckが成功している
+Ver0.11〜Ver0.29のcheckが成功している
 app.pyが起動できる
 PersonalAI importが成功する
 軽量性ベンチマークが極端に遅くない

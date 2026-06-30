@@ -37,6 +37,7 @@ Ver1.0で大事なのは、すべての機能を完成させることではな�
 - PersonalAI import が成功
 - app.py が起動し、exitで正常終了する
 - scripts/run_pre_v1_checks.py が成功
+- scripts/check_ver029.py が成功
 - scripts/check_ver028.py が成功
 - 軽量性ベンチマークが極端に遅くない
 - docs/version_1_0_manual_test.md の重要項目が OK
@@ -45,7 +46,7 @@ Ver1.0で大事なのは、すべての機能を完成させることではな�
 - 一番好きなどの曖昧なPreferenceで確認質問できる
 - 確認回答後に保存できる
 - 忘却dry-runが候補提案のみで、削除や自動無効化をしない
-- project_handoff / recovery_guide / core_principles が最新
+- project_handoff / recovery_guide / core_principles / version_policy が最新
 
 GOは「完全に完成した」という意味ではない。
 Ver1.0の目的に対して、最低限の実用テストに進める状態という意味である。
@@ -110,6 +111,7 @@ Ver1.0へ進める直前は、以下の順番で確認する。
 
 ```powershell
 git status
+venv\Scripts\python.exe -B scripts\check_ver029.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
 venv\Scripts\python.exe -B scripts\run_pre_v1_checks.py
 venv\Scripts\python.exe -B scripts\benchmark_lightweight.py
@@ -120,6 +122,7 @@ git status
 ```
 
 その後、`docs/version_1_0_manual_test.md` の結果欄を確認する。
+Ver1.0判定前には、`docs/version_policy.md` も確認し、Ver1.0が整数バージョンとして「実用的に使える区切り」になっているか確認する。
 重要項目が `未実施` や `保留` のままなら、Ver1.0へ進める前に内容と影響を整理する。
 
 ## 判定の考え方

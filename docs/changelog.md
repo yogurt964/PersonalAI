@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.29
+
+開始内容:
+
+- `docs/version_policy.md` を追加
+- 整数バージョンを「実用的に使える区切り」として扱う方針を整理
+- Ver1.0〜Ver6.0の大まかな役割を整理
+- Ver4.0とVer5.0の違いを整理
+- GO / HOLD / NO-GO とメジャーバージョン更新の関係を整理
+- `scripts/check_ver029.py` を追加
+- 今回はコード機能本体を変更せず、長期開発に向けたバージョン管理方針をdocsとして明文化
+
 ## Version 0.28
 
 開始内容:
