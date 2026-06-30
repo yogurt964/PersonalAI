@@ -464,6 +464,7 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_v1_final_preparation.py
 venv\Scripts\python.exe -B scripts\check_ver031.py
 venv\Scripts\python.exe -B scripts\check_ver030.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
@@ -516,6 +517,9 @@ Version 0.30では、`docs/version_1_0_manual_test.md` の結果欄を実測に�
 
 Version 0.31では、Ver0.30で保留だった通常会話2件と記憶参照1件を実会話で確認し、OKに更新した。
 記憶情報を少し使いすぎる傾向は、Ver1.1以降の改善候補として扱う。
+
+Version 1.0 Final Preparationでは、`docs/version_1_0_release_decision.md` の総合判定を `GO` に更新した。
+Ver1.0タグ作成やGitHub Releaseは次の作業で行う。
 
 ## 15. 再開・復旧時に読むdocs
 

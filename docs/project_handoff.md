@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver0.31
+現在バージョン: Ver1.0 Final Preparation / Ver1.0直前
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver0.31時点では、以下が実装済みである。
+Ver1.0 Final Preparation時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -90,6 +90,7 @@ Ver0.28: Ver1.0リリース判定
 Ver0.29: バージョン管理方針
 Ver0.30: Ver1.0直前の手動テスト実測更新
 Ver0.31: Ver1.0直前 GO / HOLD / NO-GO 最終確認
+Ver1.0 Final Preparation: Ver1.0最終GO判定とリリース準備
 ```
 
 ## 現在の主要ファイル
@@ -145,6 +146,7 @@ scripts/check_ver028.py
 scripts/check_ver029.py
 scripts/check_ver030.py
 scripts/check_ver031.py
+scripts/check_v1_final_preparation.py
 ```
 
 注意:
@@ -175,11 +177,13 @@ GUI
 
 ## 次にやること
 
-Ver0.31後の候補:
+Ver1.0 Final Preparation後の候補:
 
 ```text
-Ver1.0直前: Ver0.31をcommit / pushしてGit状態をcleanにする
-Ver1.0: 最低限の会話・記憶・安全確認をテストできる実用テスト版
+Ver1.0: 最終commit / push
+Ver1.0: git tag v1.0.0 作成
+Ver1.0: tag push
+必要ならGitHub Release作成
 Ver1.1以降: Memory利用バランス調整
 Ver1.1以降: Reader / Tool / Adapter追加
 ```

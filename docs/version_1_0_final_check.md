@@ -12,7 +12,7 @@ Ver1.0は完成版ではない。
 1. Git状態確認
 2. import確認
 3. app.py起動確認
-4. Ver0.11〜Ver0.31の自動check実行
+4. Ver0.11〜Ver0.31とVer1.0 Final Preparationの自動check実行
 5. 軽量性ベンチマーク実行
 6. Ver1.0手動テスト表に沿った確認
 7. 未実装機能の扱い確認
@@ -66,6 +66,7 @@ PowerShell上で日本語が文字化けする可能性はある。
 
 ```powershell
 venv\Scripts\python.exe -B scripts\check_ver031.py
+venv\Scripts\python.exe -B scripts\check_v1_final_preparation.py
 venv\Scripts\python.exe -B scripts\check_ver030.py
 venv\Scripts\python.exe -B scripts\check_ver029.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
@@ -102,7 +103,7 @@ venv\Scripts\python.exe -B scripts\run_pre_v1_checks.py
 ```
 
 `run_pre_v1_checks.py` はVer0.11〜Ver0.26と軽量性ベンチマークをまとめて確認する。
-Ver0.27、Ver0.28、Ver0.29、Ver0.30、Ver0.31のcheckは、上の個別コマンドで確認する。
+Ver0.27、Ver0.28、Ver0.29、Ver0.30、Ver0.31、Ver1.0 Final Preparationのcheckは、上の個別コマンドで確認する。
 
 ## 5. 軽量性ベンチマーク
 
@@ -205,12 +206,42 @@ Ver1.0直前の推奨手順
 判定欄
 ```
 
-## 11. Ver1.0へ進める判定基準
+## 11. Ver1.0 Final Preparation最終GO判定手順
+
+Ver1.0タグ作成の前に、以下を確認する。
+
+```powershell
+git status
+venv\Scripts\python.exe -B scripts\check_v1_final_preparation.py
+venv\Scripts\python.exe -B scripts\check_ver031.py
+venv\Scripts\python.exe -B scripts\check_ver030.py
+venv\Scripts\python.exe -B scripts\check_ver029.py
+venv\Scripts\python.exe -B scripts\run_pre_v1_checks.py
+venv\Scripts\python.exe -B scripts\benchmark_lightweight.py
+venv\Scripts\python.exe -B -c "from core.personal_ai import PersonalAI; print('PersonalAI import OK')"
+"exit" | venv\Scripts\python.exe -B app.py
+git diff --check
+git status
+```
+
+確認観点:
+
+```text
+git status が clean である
+check_ver031.py / check_ver030.py / check_ver029.py が成功する
+run_pre_v1_checks.py が成功する
+benchmark が極端に遅くない
+app.py が終了コード0で起動確認できる
+docs/version_1_0_release_decision.md の総合判定が GO である
+Ver1.0タグ作成は次の作業で行う
+```
+
+## 12. Ver1.0へ進める判定基準
 
 以下を満たす場合、Ver1.0へ進める候補とする。
 
 ```text
-Ver0.11〜Ver0.31のcheckが成功している
+Ver0.11〜Ver0.31とVer1.0 Final Preparationのcheckが成功している
 app.pyが起動できる
 PersonalAI importが成功する
 軽量性ベンチマークが極端に遅くない

@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 1.0 Final Preparation
+
+開始内容:
+
+- `docs/version_1_0_release_decision.md` の総合判定を GO に更新
+- Git状態をOKに更新
+- Ver1.0直前の最終自動check、benchmark、app起動確認を実施
+- Ver1.0は完成版ではなく、最低限の会話・記憶・安全確認・未実装機能の正直な扱いをテストできる実用テスト版として位置づけ
+- `scripts/check_v1_final_preparation.py` を追加
+- 今回はまだVer1.0タグやGitHub Releaseは作成しない
+
 ## Version 0.31
 
 開始内容:

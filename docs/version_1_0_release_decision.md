@@ -112,6 +112,8 @@ Ver1.0へ進める直前は、以下の順番で確認する。
 
 ```powershell
 git status
+venv\Scripts\python.exe -B scripts\check_v1_final_preparation.py
+venv\Scripts\python.exe -B scripts\check_ver031.py
 venv\Scripts\python.exe -B scripts\check_ver030.py
 venv\Scripts\python.exe -B scripts\check_ver029.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
@@ -148,11 +150,11 @@ PersonalAIでは、速度よりも精度と安全性を優先するためであ�
 | 未実装機能の扱い | OK |
 | Memory安全性 | OK |
 | docs最新性 | OK |
-| Git状態 | 保留 |
-| 総合判定 | GO候補 |
+| Git状態 | OK |
+| 総合判定 | GO |
 
 総合判定は GO / HOLD / NO-GO のいずれかにする。
-Ver1.0化自体はまだ行わないため、Ver0.31時点では `GO候補` とする。
+Ver1.0化自体はまだ行わないが、Ver1.0へ進む準備状態としては `GO` とする。
 
 Ver0.30実測メモ:
 
@@ -171,6 +173,15 @@ Ver0.31最終確認メモ:
 - 記憶情報を少し使いすぎる傾向はあるが、Ver1.0を止める重大問題ではない
 - Git状態はVer0.31変更が未コミットのため一時的に保留
 - Ver0.31 commit / push後に working tree clean であれば、Ver1.0化へ進むGO判断が可能
+
+Ver1.0 Final Preparationメモ:
+
+- Ver0.31で総合判定は `GO候補` になった
+- Ver0.31 commit / push後、作業開始時の `git status` で branch main、origin/main と同期済み、working tree clean を確認した
+- 自動check、benchmark、manual test、未実装機能の扱い、Memory安全性、docs最新性、Git状態の重要項目がOKである
+- Ver1.0は完成版ではなく、最低限の会話・記憶・安全確認・未実装機能の正直な扱いをテストできる実用テスト版である
+- 通常会話でMemory情報を少し使いすぎる傾向はVer1.1以降の改善候補であり、Ver1.0ブロッカーではない
+- この状態で、次の作業でVer1.0化へ進める
 
 ## Ver1.1以降の改善候補
 
