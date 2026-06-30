@@ -2,9 +2,10 @@
 
 ## 目的
 
-このドキュメントは、PersonalAIのVer1.x開発で、どのcheckをいつ実行するかを整理するための運用メモである。
+このドキュメントは、PersonalAIのVer1.x / Ver2.x開発で、どのcheckをいつ実行するかを整理するための運用メモである。
 
 Ver1.xでは、毎回すべてのcheckを思い出して手動実行するのではなく、変更の大きさに応じて quick check / standard check / full pre-release check を使い分ける。
+Ver2.xでは、Reader実装を追加するため `scripts/run_ver2_checks.py` も使う。
 
 ## quick check
 
@@ -59,6 +60,22 @@ venv\Scripts\python.exe -B scripts\run_ver1_checks.py
 - `scripts/check_v1_final_preparation.py`
 - `scripts/check_ver031.py`
 - `scripts/run_pre_v1_checks.py`
+
+## Ver2.x standard check
+
+Ver2.xの基本確認には `scripts/run_ver2_checks.py` を使う。
+
+```powershell
+venv\Scripts\python.exe -B scripts\run_ver2_checks.py
+```
+
+`run_ver2_checks.py` は以下を実行する。
+
+- `scripts/check_ver200.py`
+- `scripts/run_ver1_checks.py`
+
+Ver2.0では、`check_ver200.py` でWeb Reader最小実用版を確認する。
+自動checkではfake fetcherを使い、実Webアクセスしない。
 
 ## full pre-release check
 

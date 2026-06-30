@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver1.10
+現在バージョン: Ver2.0
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver1.10時点では、以下が実装済みである。
+Ver2.0時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -101,6 +101,7 @@ Ver1.7: Tool実行ログと結果記録の設計
 Ver1.8: Reader実装前の手動テストケース整理
 Ver1.9: Ver2.0 Reader実装計画
 Ver1.10: Ver1.x総仕上げ確認
+Ver2.0: Web Reader最小実用版
 ```
 
 ## 現在の主要ファイル
@@ -120,6 +121,8 @@ core/tool_permission.py: ToolRequest単位の実行前Permission判定
 core/tool_request_builder.py: 入力からToolRequestを作るdry-run判定
 core/tool_flow.py: ToolRequest / Registry / Permissionのdry-runプレビュー
 core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基礎
+core/tool_runner.py: Permission確認後にToolRequestを実行する入口
+core/web_reader_adapter.py: Web Reader最小実用版
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -143,8 +146,10 @@ docs/tool_execution_log_design.md: Tool実行ログ設計方針
 docs/reader_pre_implementation_test_cases.md: Reader実装前の手動テストケース
 docs/reader_implementation_plan_v2.md: Ver2.0 Reader実装計画
 docs/ver1_x_final_review.md: Ver1.x総仕上げ確認
+docs/web_reader_design.md: Web Reader設計方針
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
+scripts/run_ver2_checks.py: Ver2.x用の標準チェックまとめ実行
 database/models.py: DBモデル
 database/memory_manager.py: Memory保存・取得・状態変更
 database/chat_history.py: 会話履歴保存・取得
@@ -185,7 +190,9 @@ scripts/check_ver170.py
 scripts/check_ver180.py
 scripts/check_ver190.py
 scripts/check_ver1100.py
+scripts/check_ver200.py
 scripts/run_ver1_checks.py
+scripts/run_ver2_checks.py
 ```
 
 注意:
@@ -200,7 +207,8 @@ scripts/run_ver1_checks.py
 ```text
 OpenAI接続
 Claude / Gemini接続
-Webページ実読み取り
+Web Readerの会話UI自動接続
+Web Readerの実Web手動テスト整理
 YouTube実要約
 PDF読み取り
 画像読み取り
@@ -219,16 +227,18 @@ GUI
 現在状態:
 
 ```text
-Ver1.xの総仕上げ確認中
-Ver2.0 Reader実装へ進む直前
+Ver2.0でWeb Reader最小実用版に到達
+ただしPDF/Image/YouTube/File Readerはまだ未実装
 ただしVer2.0タグやReleaseはまだ作成しない
+自動checkでは実Webアクセスしない
+実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver1.10後の候補:
+Ver2.0後の候補:
 
 ```text
-Ver2.0: Web Reader最小実用版
-Ver2.1: PDF Reader または File Reader
+Ver2.1: Web Readerの会話UI接続または手動実Webテスト整理
+Ver2.2: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針
 ```

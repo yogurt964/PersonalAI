@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.0
+
+開始内容:
+
+- Web Reader最小実用版を追加
+- WebReaderAdapter を追加
+- URL抽出とHTMLテキスト化の基礎を追加
+- Permission確認なしではWebアクセスしないToolRunnerを追加
+- Web Reader結果を ToolResult と ToolExecutionLog に接続
+- 自動checkではfake fetcherを使い、実Webアクセスしない方針を追加
+- `scripts/check_ver200.py` を追加
+- `scripts/run_ver2_checks.py` を追加
+- `docs/web_reader_design.md` を追加
+
 ## Version 1.10
 
 開始内容:

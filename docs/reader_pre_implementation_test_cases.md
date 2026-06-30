@@ -6,13 +6,16 @@ Version 1.8では、Ver2.0 Reader実装前の手動テストケースを整理�
 
 このドキュメントは、Web Reader、YouTube Reader、PDF Reader、Image Reader、File Reader、Document Creator、PC Operatorを実装する前に、現在のdry-run設計が期待通りに動くか確認するための基準である。
 
-今回はReaderを実装しない。
-実際のWebアクセス、YouTubeアクセス、PDF読み取り、画像解析、ローカルファイル読み取り、PC操作、Word / Excel / PDF作成はしない。
+Ver1.8時点ではReaderを実装しない。
+Ver2.0以降も、自動checkでは実際のWebアクセス、YouTubeアクセス、PDF読み取り、画像解析、ローカルファイル読み取り、PC操作、Word / Excel / PDF作成はしない。
 
 Ver2.0でReaderを実装するときは、このテストケースを実装前後の比較に使う。
 実装後も、未許可の操作や未実装Toolを実行したふりをしないことを確認する。
 Ver1.9では、Ver2.0 Reader実装計画を整理した。
 Ver2.0実装時は、この手動テストケースを基準にする。
+Ver2.0でWeb Reader最小実用版を実装したため、URLケースを重点確認対象にする。
+自動checkではfake fetcherを使い、実Webアクセスは行わない。
+実Webアクセスはユーザー確認つきの手動確認で行う。
 
 ## 基本方針
 
@@ -74,6 +77,7 @@ Ver2.0実装時は、この手動テストケースを基準にする。
 - `requires_permission=True`
 - `should_execute=False`
 - 実際にWebアクセスしない
+- Ver2.0以降は、`user_confirmed=True` かつWebReaderAdapterを明示登録した場合だけ実行できる
 
 ## YouTube Reader候補の確認
 

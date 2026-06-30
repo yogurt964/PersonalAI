@@ -7,8 +7,9 @@ Ver1.9では、Ver2.0 Reader実装計画を整理した。
 Ver2.0は、Reader方面の最初の実用テスト版である。
 完成版を目指すのではなく、少なくとも1つのReaderが実際に動き、ToolRequest、Permission、ToolResult、ToolExecutionLogまで安全につながる状態を目指す。
 
-今回はReaderを実装しない。
-Webアクセス、PDF読み取り、画像解析、YouTubeアクセス、ローカルファイル読み取り、PC操作、文書作成は行わない。
+Ver1.9ではReaderを実装せず、計画整理だけを行った。
+Ver2.0ではWeb Reader最小実用版を実装した。
+PDF / Image / YouTube / File Reader は次段階である。
 
 ## Ver2.0を付ける条件
 
@@ -192,3 +193,4 @@ Ver1.10で確認したいこと:
 
 この確認後に、Ver2.0としてWeb Reader最小実用版へ進む。
 Ver1.10後は、Ver2.0 Web Reader最小実用版の実装へ進む候補とする。
+Ver2.0ではWeb Reader最小実用版を実装し、PDF / Image / YouTube / File Reader はVer2.xで段階的に追加する。

@@ -1,0 +1,142 @@
+# Web Reader Design
+
+## 目的
+
+Ver2.0で、Web Reader最小実用版を追加した。
+
+Web Readerは、Reader方面の最初の実用テスト版である。
+完成版ではなく、http / https URLを安全に読み取り、ToolRequest、Permission、ToolResult、ToolExecutionLogまでつなぐための最小実装である。
+
+## Web Readerの責務
+
+Web Readerの責務:
+
+- http / https URLを扱う
+- ユーザー入力やToolRequestからURLを抽出する
+- URLのHTMLを取得する
+- HTMLから最低限の本文テキストを取り出す
+- 成功時も失敗時もToolResultを返す
+- 実行結果をToolExecutionLogに記録できる形にする
+- 読めなかった場合に実行したふりをしない
+
+## 対応範囲
+
+対応するもの:
+
+- `http://` URL
+- `https://` URL
+- 通常のHTMLページ
+- `<title>`、`h1`、`p` などから取れる最低限のテキスト
+
+対応しないもの:
+
+- JavaScript実行が必要なページ
+- ログインが必要なページ
+- 動的に生成される本文の完全取得
+- PDF Reader
+- Image Reader
+- YouTube Reader
+- File Reader
+- PC操作
+- 文書作成
+
+PDF Reader / Image Reader / YouTube Reader / File Reader はまだ未実装である。
+
+## URL抽出方針
+
+`extract_url_from_text` は、入力テキストから最初の http / https URLを取り出す。
+
+URLが見つからない場合、Web Readerは実行しない。
+この場合は `executed=False` とし、URLがないことをmessageとerrorで返す。
+
+## HTMLテキスト化方針
+
+`strip_html_to_text` は、HTMLから本文テキストを取り出す。
+
+方針:
+
+- 標準ライブラリの `html.parser` を使う
+- script / style / noscript の中身は本文として扱わない
+- JavaScriptは実行しない
+- 取得できたテキストは長すぎないように制限する
+
+## ToolRequestとの関係
+
+Web Readerは、以下のToolRequestを想定する。
+
+```text
+tool_name: web_reader
+action: read_url
+risk_level: medium
+requires_permission: True
+```
+
+URLは `request.input_data["url"]` を優先する。
+なければ `request.input_data["original_input"]` から抽出する。
+
+## Permissionとの関係
+
+Web Readerは外部アクセスを行うため、Permission確認が必要である。
+
+`run_tool_request` は `evaluate_tool_permission` を呼び、`user_confirmed=True` のときだけ実行へ進む。
+`user_confirmed=False` の場合は未許可なら実行しない。
+
+自動的に外部Webへアクセスしないことを重視する。
+
+## ToolResultとの関係
+
+Web Readerは必ずToolResultを返す。
+
+成功時:
+
+- `success=True`
+- `executed=True`
+- `data["url"]`
+- `data["final_url"]`
+- `data["title"]`
+- `data["text"]`
+- `data["text_preview"]`
+
+URLなしや不正URLなど、fetch前に止まった場合:
+
+- `success=False`
+- `executed=False`
+
+fetchを試みたあとに失敗した場合:
+
+- `success=False`
+- `executed=True`
+- `error` に失敗理由を入れる
+
+## ToolExecutionLogとの関係
+
+`run_tool_request` は、ToolResultからToolExecutionLog用のrecordを作る。
+
+`executed=True` は、実際にTool実行へ進んだことを表す。
+`executed=False` は、未許可、URLなし、未実装、未実行などで実行していないことを表す。
+
+successとexecutedは混同しない。
+たとえば、Webアクセスを試みたが失敗した場合は `success=False` / `executed=True` になる。
+
+## 実行したふりをしない方針
+
+Web Readerは、読めないページを読めたとは言わない。
+未許可なら実行しない。
+未実装Readerは未実装と返す。
+実行したふりをしない。
+
+## 自動check方針
+
+自動checkでは実Webアクセスしない。
+
+`WebReaderAdapter(fetcher=fake_fetcher)` のようにfake fetcherを差し込み、固定HTMLで確認する。
+実Webアクセスは、ユーザー確認つきの手動確認で行う。
+
+## 今後の課題
+
+- 会話UIからの許可確認つきWeb Reader実行
+- 実Webアクセスの手動テスト整理
+- 文字コードやContent-Typeの扱い改善
+- 取得失敗時の代替案提示
+- Reader結果のMemory保存方針
+- PDF Reader / Image Reader / YouTube Reader / File Reader の段階追加
