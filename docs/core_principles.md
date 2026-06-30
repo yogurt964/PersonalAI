@@ -31,6 +31,10 @@ PersonalAIは、会話、記憶、判断、実行、安全確認、文書作成�
 
 外部送信やファイル操作などは必ずPermissionManagerを通す。
 
+CapabilityManagerは「現在のPersonalAIでできるかどうか」を判断する。
+PermissionManagerは「その操作を実行してよいか」を判断する。
+Web ReaderやPDF Readerなどが未実装の場合は、許可確認へ進む前に未実装と返す。
+
 特に以下は勝手に実行しない。
 
 - ファイル作成
@@ -101,7 +105,9 @@ Preferenceの基本方針:
 
 読んでいないWebページ、PDF、YouTube、画像を読んだふりしない。
 
-Qwenで難しい作業は限界を説明し、OpenAI接続後の予定として扱う。
+作成していないWord / Excel / PDFファイルや、操作していないPC操作を実行したふりしない。
+
+Qwenで難しい作業や、法律・医療・論文レベルの高精度判断は限界を説明し、OpenAI接続後の予定として扱う。
 
 未実装の代表例:
 

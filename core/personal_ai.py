@@ -35,6 +35,7 @@ class PersonalAI:
 
         # 直近の判断結果を保存しておく場所です。将来のデバッグやExecutor連携で使えます。
         self.last_input_analysis = None
+        self.last_capability_analysis = None
         self.last_capabilities = None
         self.last_plan = None
         self.last_route = None
@@ -73,6 +74,17 @@ class PersonalAI:
         input_analysis = self.input_analyzer.analyze(user_input)
         self.last_input_analysis = input_analysis
 
+        # 今のPersonalAIで対応できる入力かを先に判定します。
+        # WebやPDFなど未実装の読み取りが必要な場合は、読んだふりをせずここで返答します。
+        capability_analysis = self.capability_manager.analyze(user_input, input_analysis)
+        self.last_capability_analysis = capability_analysis
+
+        if not capability_analysis.get("can_handle_now"):
+            ai_response = self.build_capability_unavailable_response(capability_analysis)
+            self.last_response = ai_response
+            self.save_assistant_message(ai_response)
+            return ai_response
+
         memory_response = self.extract_and_save_memories(user_input)
 
         if memory_response:
@@ -110,6 +122,16 @@ class PersonalAI:
         self.save_assistant_message(ai_response)
 
         return ai_response
+
+    def build_capability_unavailable_response(self, capability_analysis):
+        """必要な機能が未実装の場合に、できない理由を正直に返します。"""
+        user_message = capability_analysis.get("user_message")
+
+        if user_message:
+            return user_message
+
+        reason = capability_analysis.get("reason", "現在のPersonalAIでは対応できない入力です。")
+        return f"現時点ではこの依頼を安全に実行できません。\n理由: {reason}"
 
     def build_permission_blocked_response(self, permission_decision):
         """許可が必要な操作を、現時点では安全に止めるための返答を作ります。"""

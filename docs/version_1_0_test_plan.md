@@ -232,6 +232,14 @@ PDF Reader / Web Reader / YouTube Reader が必要
 完全に未実装
 ```
 
+Version 0.23では、CapabilityManagerがこの分類の土台を持つようになった。
+通常会話、Memory参照、Memory保存、Preference記憶は対応可能として扱う。
+Web、YouTube、PDF、画像、ファイル読み取り、文書作成、PC操作、外部API、高精度モデルが必要な判断は、未実装または不足能力として扱う。
+
+CapabilityManagerは「できるかどうか」を判断する。
+PermissionManagerは「実行してよいか」を判断する。
+Web Readerなどが未実装の間は、PermissionManagerへ進む前にCapabilityManagerで止める。
+
 ### 難しい論文・PDF要約テスト
 
 入力例:
@@ -439,6 +447,7 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver023.py
 venv\Scripts\python.exe -B scripts\check_ver022.py
 venv\Scripts\python.exe -B scripts\check_ver021.py
 venv\Scripts\python.exe -B scripts\check_ver020.py

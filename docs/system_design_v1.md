@@ -10,8 +10,9 @@ Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではな�
 
 PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
 
-現在のVer0.22では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+現在のVer0.23では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
 また、Preference確認質問後のユーザー回答を1件だけpendingとして扱い、保存・追加・変更・キャンセル・再確認を処理できる。
+さらに、CapabilityManagerが入力に必要な能力を判定し、未実装機能が必要な場合は読んだふり・実行したふりをせずに止める。
 OpenAI、Web、YouTube、PDF、画像、PC画面などの実読み取りや実行はまだ未実装である。
 
 ## 2. 基本優先順位
@@ -78,6 +79,33 @@ Version 0.9.1では、要約、文書作成、おすすめ、記憶、質問を�
 - 画像の解析依頼
 - YouTube動画の要約依頼
 - Word文書やレポートの作成依頼
+
+### CapabilityManager
+
+CapabilityManagerは、ユーザー入力に必要な能力と、現在のPersonalAIで対応できるかを判断する。
+
+Version 0.23では、以下のような能力を分類する。
+
+- 通常会話
+- Memory参照
+- Memory保存
+- Preference記憶
+- Web読み取り
+- YouTube読み取り
+- PDF読み取り
+- 画像読み取り
+- ファイル読み取り
+- 文書作成
+- PC操作
+- 外部API
+- OpenAIなど高性能モデルが必要な判断
+
+CapabilityManagerは「できるかどうか」を見る。
+PermissionManagerは「実行してよいか」を見る。
+この2つは似ているが役割が違う。
+
+たとえばWeb要約は、CapabilityManagerでは `web_reader` が未実装なので対応不可と判断する。
+将来Web Readerが実装されたあと、PermissionManagerがWebアクセスを実行してよいか確認する。
 
 ### Context Builder / Memory
 
@@ -253,6 +281,12 @@ PersonalAIは1件だけ `pending_preference_confirmation` を保持し、次の�
 pendingはDBに保存せず、PersonalAIインスタンス内だけで保持する。
 これは明確な返答パターンだけを扱う最小実装であり、完全な自然言語理解や複数pending管理は今後の課題である。
 
+Version 0.23では、Capability判定を強化した。
+通常会話、記憶参照、記憶保存、Preference記憶は対応可能とし、Web / YouTube / PDF / 画像 / ファイル読み取り / 文書作成 / PC操作 / 外部API / OpenAIが必要な高精度判断は、未実装または不足能力として扱う。
+
+未実装機能が必要な場合は、PersonalAIがCapabilityManagerの `user_message` を返し、Planner / Router / Executorへ進む前に止める。
+これにより、読んだふり・実行したふりを防ぐ。
+
 Version 0.21では、Project Handoff、Recovery Guide、Core Principlesを追加した。
 これは機能追加ではなく、PersonalAIプロジェクトを長期的に継続しやすくするための運用docsである。
 
@@ -320,6 +354,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 
 - InputAnalyzer
 - CapabilityManager
+- Capability判定強化
 - Planner
 - Router
 - Executor
@@ -341,6 +376,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Qwen接続
 
 Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存、Preference確認質問の最小判定、確認回答後の保存続行が含まれる。
+Capability基礎には、現在対応可能な入力と未実装機能が必要な入力の分類が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

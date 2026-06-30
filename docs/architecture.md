@@ -396,6 +396,27 @@ DBには保存しないため、アプリを終了すると消える一時状態
 この機能は、ユーザーに影響する大きな操作ではなく、Preference記憶の保存に限定した確認回答処理である。
 完全な自然言語理解や複数pending管理はまだ行わない。
 
+## Version 0.23のCapability判定強化
+
+Version 0.23では、CapabilityManagerがユーザー入力に必要な能力と、現在のPersonalAIで対応できるかを判定するようになった。
+
+現在の流れは以下である。
+
+```text
+ユーザー入力 → 入力保存 → pending preference確認 → InputAnalyzer → CapabilityManager → 記憶抽出・保存 → Planner → Router → PermissionManager → Executor
+```
+
+CapabilityManagerは「できるかどうか」を判断する。
+PermissionManagerは「実行してよいか」を判断する。
+
+現時点で、通常会話、記憶参照、記憶保存、Preference記憶は現在のQwenとMemoryで対応可能とする。
+一方で、Web、YouTube、PDF、画像、ファイル読み取り、Word / Excel / PDF作成、PC操作、外部API、OpenAIが必要な高精度判断は、未実装または不足能力として扱う。
+
+未実装機能が必要な場合、PersonalAIはPlanner / Router / Executorへ進む前に、CapabilityManagerの `user_message` を返す。
+これにより、読んでいないWebページやPDF、YouTube、画像を読んだふりせず、実行していないファイル作成やPC操作を実行したふりしない。
+
+将来的には、OpenAI、Web Reader、YouTube Reader、PDF Reader、Image Reader、Document Creator、PC Operatorを追加し、Capability判定結果をもとに安全に実行へ進める。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
@@ -410,7 +431,7 @@ DBには保存しないため、アプリを終了すると消える一時状態
 
 今後のエージェント化に向けて、以下の要素を追加予定である。
 
-- `CapabilityManager`: PersonalAIが使える能力を管理する。Version 0.5でPersonalAI内部に接続済み
+- `CapabilityManager`: PersonalAIが使える能力と不足機能を判定する。Version 0.23でCapability判定を強化済み
 - `InputAnalyzer`: ユーザー入力を構造化する。Version 0.9でPersonalAI内部に接続済み
 - `Planner`: ユーザーの目的に対して実行計画を立てる。Version 0.5でPersonalAI内部に接続済み
 - `Router`: 用途に応じて使う道具や処理系を選ぶ。Version 0.5でPersonalAI内部に接続済み

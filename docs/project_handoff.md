@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver0.22
+現在バージョン: Ver0.23
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver0.22時点では、以下が実装済みである。
+Ver0.23時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -81,6 +81,7 @@ Ver0.19: Preference記憶
 Ver0.20: Preference確認質問
 Ver0.21: Project Handoff / Recovery / Core Principles
 Ver0.22: 確認回答後にPreference保存を続行する仕組み
+Ver0.23: Capability判定強化
 ```
 
 ## 現在の主要ファイル
@@ -89,6 +90,7 @@ Ver0.22: 確認回答後にPreference保存を続行する仕組み
 app.py: CLI起動入口
 core/personal_ai.py: PersonalAI本体
 core/input_analyzer.py: 入力分類
+core/capability_manager.py: Capability判定
 core/planner.py: 行動計画
 core/router.py: 実行先選択
 core/executor.py: 実行・未実装応答
@@ -118,6 +120,7 @@ scripts/check_ver019.py
 scripts/check_ver020.py
 scripts/check_ver021.py
 scripts/check_ver022.py
+scripts/check_ver023.py
 ```
 
 注意:
@@ -139,7 +142,6 @@ PDF読み取り
 Word / Excel / PDF作成
 PC画面読み取り
 PC操作
-高度なCapability判定
 自動忘却のdry-run
 自動忘却の実行
 ベクトルDB
@@ -150,10 +152,9 @@ GUI
 
 ## 次にやること
 
-Ver0.22後の候補:
+Ver0.23後の候補:
 
 ```text
-Ver0.23: Capability判定強化
 Ver0.24: 自動忘却dry-run
 Ver0.25: 軽量性ベンチマーク
 Ver0.26: Ver1.0手動テスト表

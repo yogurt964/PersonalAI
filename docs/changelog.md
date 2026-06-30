@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 0.23
+
+開始内容:
+
+- Capability判定を強化
+- `CapabilityManager.analyze()` を追加し、入力に必要な能力と不足機能を判定できるように変更
+- 通常会話、記憶参照、記憶保存、Preference記憶を現在対応可能な能力として分類
+- Web / YouTube / PDF / 画像 / ファイル読み取り / 文書作成 / PC操作 / 外部API / OpenAI候補を必要能力として分類
+- 未実装機能が必要な場合は、読んだふり・実行したふりをせず、`user_message` で正直に返す方針を追加
+- PersonalAI本体にCapability判定を接続し、Planner / Router / Executorへ進む前に未実装機能を止めるように変更
+- `scripts/check_ver023.py` を追加し、Capability判定とPersonalAI統合を確認
+- CapabilityManagerは「できるかどうか」、PermissionManagerは「実行してよいか」を判断する役割として整理
+
 ## Version 0.22
 
 開始内容:
