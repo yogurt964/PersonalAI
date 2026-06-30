@@ -458,3 +458,17 @@ venv\Scripts\python.exe -B scripts\check_ver011.py
 未実装のPDF / Web / YouTubeを読んだふりしない
 危険操作を勝手に実行しない
 ```
+
+## 15. 再開・復旧時に読むdocs
+
+Ver1.0に向けた作業を再開するときは、まず以下を確認する。
+
+```text
+docs/project_handoff.md
+docs/recovery_guide.md
+docs/core_principles.md
+docs/changelog.md
+docs/version_1_0_test_plan.md
+```
+
+これにより、会話履歴や作業文脈が消えても、現在状態と次のテスト候補を把握しやすくする。

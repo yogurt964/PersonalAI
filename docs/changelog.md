@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 0.21
+
+開始内容:
+
+- `docs/project_handoff.md` を追加
+- `docs/recovery_guide.md` を追加
+- `docs/core_principles.md` を追加
+- ChatGPT / Codex / VS Code の履歴が消えても再開しやすいようにした
+- PersonalAIの最終目標、安全方針、開発方針、回答精度重視の方針を明文化した
+- `scripts/check_ver021.py` を追加し、引き継ぎ・復旧・原則docsの存在と重要語を確認できるようにした
+- 今回は機能追加ではなく、プロジェクト継続性を高めるためのドキュメント整備として実施
+
 ## Version 0.20
 
 開始内容:

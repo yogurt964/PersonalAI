@@ -363,6 +363,20 @@ PersonalAI本体では、Preference保存前に `analyze_preference_confirmation
 
 これは確認しすぎを避けるための最小実装であり、LLMによる高度な矛盾判定や完全な自然言語理解はまだ行わない。
 
+## Version 0.21のHandoff / Recovery / Core Principles
+
+Version 0.21では、機能追加ではなく、プロジェクトを安全に継続するためのドキュメント整備を行った。
+
+追加した主なdocsは以下である。
+
+- `docs/project_handoff.md`: ChatGPT / Codexへ渡せるプロジェクト引き継ぎ書
+- `docs/recovery_guide.md`: PC、VS Code、GitHub、venv、checkスクリプトの復旧手順
+- `docs/core_principles.md`: PersonalAIの最終目標、回答精度重視、安全方針、開発方針
+
+これにより、会話履歴や作業文脈が消えても、docsを読めば現在状態、未実装機能、次の作業候補、復旧手順を把握できる。
+
+Ver0.21時点では、PersonalAIの最終目標を「ユーザーの作業の中心入口」とし、回答精度、安全確認、未実装機能をできたふりしないことを最重要方針として整理した。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

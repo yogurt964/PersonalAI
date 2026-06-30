@@ -244,6 +244,15 @@ PersonalAI本体では、`should_ask=True` の場合にPreferenceを保存せず
 これにより、確認しすぎを避けつつ、曖昧なPreference更新だけユーザーに確認できる。
 確認頻度は将来的にユーザーとの会話から調整する予定である。
 
+Version 0.21では、Project Handoff、Recovery Guide、Core Principlesを追加した。
+これは機能追加ではなく、PersonalAIプロジェクトを長期的に継続しやすくするための運用docsである。
+
+`docs/project_handoff.md` は、現在状態、実装済み機能、未実装機能、主要ファイル、確認スクリプト、次の作業候補、ChatGPT / Codex再開用プロンプトをまとめる。
+`docs/recovery_guide.md` は、VS Codeで開く手順、venv確認、import確認、app起動確認、checkスクリプト、Git確認、GitHub復旧、DB注意点をまとめる。
+`docs/core_principles.md` は、PersonalAIの最終目標、回答精度重視、安全方針、開発方針、自律性、記憶方針、未実装機能の扱いをまとめる。
+
+これにより、会話履歴や作業文脈が消えても、docsから再開できる状態を目指す。
+
 ## 5. Confidence Estimator と Clarification Manager の違い
 
 Confidence EstimatorとClarification Managerは似ているが、役割が違う。
@@ -318,6 +327,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Ver1.0テスト計画
 - Preference記憶の最小実装
 - Preference確認質問の最小実装
+- Project Handoff / Recovery / Core Principles
 - Qwen接続
 
 Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存、Preference確認質問の最小判定が含まれる。
