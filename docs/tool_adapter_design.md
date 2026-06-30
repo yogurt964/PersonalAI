@@ -19,6 +19,9 @@ Version 1.4では、Reader追加前のTool / Adapter受け口を追加した。
 - `requires_permission`: 実行前に許可が必要か
 - `risk_level`: 操作の危険度
 
+`requires_permission` と `risk_level` は、Ver1.5で追加したTool Permission判定に使う。
+Toolを実行する前に、ユーザー確認が必要か、危険度がどれくらいかを判断するための情報である。
+
 将来的には、Planner / Router / Executorが作った判断をもとに `ToolRequest` を作り、Tool / Adapterへ渡す。
 
 ## ToolResult
@@ -35,6 +38,7 @@ Version 1.4では、Reader追加前のTool / Adapter受け口を追加した。
 
 `executed=False` は重要である。
 未実装Toolや許可前の処理では、実行したふりをしないために `executed=False` を返す。
+未許可、未実行、未実装を明確に分けるためにも `executed=False` を使う。
 
 ## ToolAdapter
 

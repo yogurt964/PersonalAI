@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 1.5
+
+開始内容:
+
+- PermissionManagerとTool実行前確認の接続準備を追加
+- ToolPermissionDecision を追加
+- evaluate_tool_permission を追加
+- build_permission_message を追加
+- ToolRequest の requires_permission / risk_level を使った判定方針を追加
+- 未許可ならToolを実行しない方針をdocs化
+- `docs/tool_permission_design.md` を追加
+- `scripts/check_ver150.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver150.py` を追加
+
 ## Version 1.4
 
 開始内容:

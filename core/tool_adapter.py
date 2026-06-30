@@ -9,7 +9,9 @@ class ToolRequest:
     tool_name: str
     action: str
     input_data: Dict[str, Any] = field(default_factory=dict)
+    # Ver1.5のTool Permission判定で、実行前確認が必要かを判断するために使います。
     requires_permission: bool = True
+    # none / low / medium / high / critical などの危険度を入れます。
     risk_level: str = "low"
 
 
