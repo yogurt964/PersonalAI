@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 1.8
+
+開始内容:
+
+- Reader実装前の手動テストケースを整理
+- 通常会話 / URL / YouTube / PDF / Image / File / Document / PC操作の期待挙動をdocs化
+- ToolRequest dry-run / ToolPermission / ToolExecutionLog の確認観点を整理
+- 未実装Toolを実行したふりしないためのテスト観点を追加
+- `docs/reader_pre_implementation_test_cases.md` を追加
+- `scripts/check_ver180.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver180.py` を追加
+
 ## Version 1.7
 
 開始内容:

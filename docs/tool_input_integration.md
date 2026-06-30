@@ -128,3 +128,5 @@ Ver1.6では Executor への本接続はまだ行わない。
 まずはReaderやAdapterを追加する前に、入力からToolRequest、Permission、Registryまでの流れを確認できる状態にする。
 Ver1.7では、dry-runやToolRequestの結果を `ToolExecutionRecord` として記録できる土台を追加した。
 ただし、Ver1.7でも実際のTool実行はまだ行わない。
+Ver1.8では、Reader実装前の手動テストケースを整理した。
+Ver2.0 Reader実装時には、このテストケースを基準に実装前後の挙動を比較する。
