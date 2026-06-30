@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.30
+
+開始内容:
+
+- Ver1.0直前の手動テスト表を実測に基づいて更新
+- `docs/version_1_0_release_decision.md` の判定欄を更新
+- `scripts/check_ver030.py` を追加
+- Ver1.0前の自動check、benchmark、manual test、未実装機能の扱い、Memory安全性、docs最新性を確認
+- 今回はまだVer1.0タグやGitHub Releaseは作成しない
+- コード機能本体、DB削除、Memory物理削除、Git commit / push は行わない
+
 ## Version 0.29
 
 開始内容:

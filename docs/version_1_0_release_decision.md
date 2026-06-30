@@ -37,6 +37,7 @@ Ver1.0で大事なのは、すべての機能を完成させることではな�
 - PersonalAI import が成功
 - app.py が起動し、exitで正常終了する
 - scripts/run_pre_v1_checks.py が成功
+- scripts/check_ver030.py が成功
 - scripts/check_ver029.py が成功
 - scripts/check_ver028.py が成功
 - 軽量性ベンチマークが極端に遅くない
@@ -111,6 +112,7 @@ Ver1.0へ進める直前は、以下の順番で確認する。
 
 ```powershell
 git status
+venv\Scripts\python.exe -B scripts\check_ver030.py
 venv\Scripts\python.exe -B scripts\check_ver029.py
 venv\Scripts\python.exe -B scripts\check_ver028.py
 venv\Scripts\python.exe -B scripts\run_pre_v1_checks.py
@@ -140,13 +142,22 @@ PersonalAIでは、速度よりも精度と安全性を優先するためであ�
 
 | 項目 | 判定 |
 |---|---|
-| 自動check | 未実施 |
-| benchmark | 未実施 |
-| 手動テスト | 未実施 |
-| 未実装機能の扱い | 未実施 |
-| Memory安全性 | 未実施 |
-| docs最新性 | 未実施 |
-| Git状態 | 未実施 |
-| 総合判定 | 未実施 |
+| 自動check | OK |
+| benchmark | OK |
+| 手動テスト | 保留 |
+| 未実装機能の扱い | OK |
+| Memory安全性 | OK |
+| docs最新性 | OK |
+| Git状態 | 保留 |
+| 総合判定 | HOLD |
 
 総合判定は GO / HOLD / NO-GO のいずれかにする。
+
+Ver0.30実測メモ:
+
+- `scripts/check_ver030.py`、`scripts/check_ver029.py`、`scripts/check_ver028.py` は成功
+- `scripts/run_pre_v1_checks.py` は通常実行でCodexサンドボックス由来のSQLite `disk I/O error` が発生したが、権限付き再実行で成功
+- `scripts/benchmark_lightweight.py` は total_benchmark_time 0.634 sec で成功
+- `PersonalAI import` と `app.py` のexit確認は成功
+- 手動テスト表では、実会話の詳細品質確認が未再確認の項目を `保留` とした
+- Ver0.30変更が未コミットの間はGit状態を `保留` とする

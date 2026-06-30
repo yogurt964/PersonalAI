@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver0.29
+現在バージョン: Ver0.30
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver0.29時点では、以下が実装済みである。
+Ver0.30時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -88,6 +88,7 @@ Ver0.26: Future App Integrations / Ver1.0手動テスト表
 Ver0.27: Ver1.0前の総合チェック手順
 Ver0.28: Ver1.0リリース判定
 Ver0.29: バージョン管理方針
+Ver0.30: Ver1.0直前の手動テスト実測更新
 ```
 
 ## 現在の主要ファイル
@@ -141,6 +142,7 @@ scripts/check_ver026.py
 scripts/check_ver027.py
 scripts/check_ver028.py
 scripts/check_ver029.py
+scripts/check_ver030.py
 ```
 
 注意:
@@ -171,10 +173,9 @@ GUI
 
 ## 次にやること
 
-Ver0.29後の候補:
+Ver0.30後の候補:
 
 ```text
-Ver1.0直前: 手動テスト表の実測更新
 Ver1.0直前: GO / HOLD / NO-GO判定
 Ver1.0: 最低限の会話・記憶・安全確認をテストできる実用テスト版
 Ver1.1以降: Reader / Tool / Adapter追加
