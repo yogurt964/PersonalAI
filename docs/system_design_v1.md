@@ -10,11 +10,12 @@ Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではな�
 
 PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
 
-現在のVer0.25では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+現在のVer0.26では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
 また、Preference確認質問後のユーザー回答を1件だけpendingとして扱い、保存・追加・変更・キャンセル・再確認を処理できる。
 さらに、CapabilityManagerが入力に必要な能力を判定し、未実装機能が必要な場合は読んだふり・実行したふりをせずに止める。
 自動忘却については、候補提案のdry-runだけを追加し、削除や自動無効化は行わない。
 軽量性については、主要処理時間を測れるベンチマークを追加し、まず測定できる状態にした。
+将来のアプリ・ツール連携はTool / Adapter形式で追加する方針を整理し、Ver1.0前の手動テスト表も追加した。
 OpenAI、Web、YouTube、PDF、画像、PC画面などの実読み取りや実行はまだ未実装である。
 
 ## 2. 基本優先順位
@@ -304,6 +305,12 @@ Version 0.25では、軽量性ベンチマークを追加した。
 このベンチマークは高速化そのものではなく、重さを測れる状態にするための基盤である。
 Qwen / Ollamaへの問い合わせ、外部通信、DB削除、Memory物理削除、`is_active` 変更は行わない。
 
+Version 0.26では、Future App IntegrationsとVer1.0手動テスト表を追加した。
+将来のアプリ連携は、PersonalAI本体に直接詰め込まず、Reader、Creator、Operator、ManagerなどのTool / Adapterとして追加する。
+
+Ver1.0手動テスト表では、通常会話、記憶、Preference、未実装機能、Capability、Permission、MemoryContext、忘却dry-run、軽量性、引き継ぎを人間が確認できるようにした。
+今回もコード機能本体は変更しない。
+
 Version 0.21では、Project Handoff、Recovery Guide、Core Principlesを追加した。
 これは機能追加ではなく、PersonalAIプロジェクトを長期的に継続しやすくするための運用docsである。
 
@@ -387,6 +394,8 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - 無効化MemoryのContext反映確認
 - 自動忘却dry-run
 - 軽量性ベンチマーク
+- Future App Integrations
+- Ver1.0手動テスト表
 - Ver1.0テスト計画
 - Preference記憶の最小実装
 - Preference確認質問の最小実装
@@ -398,6 +407,7 @@ Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽�
 Capability基礎には、現在対応可能な入力と未実装機能が必要な入力の分類が含まれる。
 自動忘却基礎には、Memoryを変更しないdry-run候補提案が含まれる。
 軽量性基礎には、主要処理時間を測る `scripts/benchmark_lightweight.py` が含まれる。
+将来連携方針には、Tool / Adapter形式でアプリや制作環境を追加する方針が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

@@ -455,6 +455,18 @@ Qwen / Ollamaへの問い合わせ、外部通信、DB削除、Memory物理削�
 
 将来的には、OpenAI、Web Reader、PDF Reader、Image Readerなどを追加したあとに、機能追加で重くなっていないか比較するために使う。
 
+## Version 0.26のFuture App Integrations / Ver1.0手動テスト
+
+Version 0.26では、将来的にPersonalAIへ追加したいアプリ・ツール連携の方針を整理した。
+
+PersonalAI本体に個別アプリ連携を詰め込むのではなく、Reader、Creator、Operator、ManagerなどのTool / Adapterとして追加する方針である。
+
+また、Ver1.0前に人間が確認するための手動テスト表を追加した。
+通常会話、記憶保存、記憶参照、Preference、確認質問、未実装機能、Capability、Permission、MemoryContext、忘却dry-run、軽量性ベンチマーク、引き継ぎを確認対象にする。
+
+インストール、購入、外部投稿、配信開始、ファイル削除、Git push、個人情報入力などは必ずPermission方針に従う。
+今回もコード機能本体は変更しない。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

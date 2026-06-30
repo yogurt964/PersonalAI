@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 0.26
+
+開始内容:
+
+- `docs/future_app_integrations.md` を追加
+- `docs/version_1_0_manual_test.md` を追加
+- 将来的に対応したい制作系・日常系・読み取り系・操作系アプリを整理
+- Tool / Adapter形式で後から追加しやすくする方針を整理
+- インストール、購入、外部投稿、配信開始、ファイル削除などは必ず許可を取る方針を整理
+- Ver1.0前の手動テスト表を追加
+- `scripts/check_ver026.py` を追加し、docsの存在、重要語、importを確認できるようにした
+- 今回はコード機能本体を変更せず、docs整備と確認スクリプト追加として実施
+
 ## Version 0.25
 
 開始内容:
