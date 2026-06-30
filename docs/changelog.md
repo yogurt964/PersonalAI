@@ -1,5 +1,15 @@
 # Changelog
 
+## Version 1.2
+
+開始内容:
+
+- Ver1.x用チェック運用を整理
+- quick check / standard check / full pre-release check の考え方を追加
+- `scripts/run_ver1_checks.py` を追加
+- `scripts/check_ver120.py` を追加
+- Ver1.xのcheck番号方針をdocsに整理
+
 ## Version 1.1
 
 開始内容:

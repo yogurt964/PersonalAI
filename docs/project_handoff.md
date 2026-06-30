@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver1.1
+現在バージョン: Ver1.2
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver1.1時点では、以下が実装済みである。
+Ver1.2時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -92,6 +92,7 @@ Ver0.30: Ver1.0直前の手動テスト実測更新
 Ver0.31: Ver1.0直前 GO / HOLD / NO-GO 最終確認
 Ver1.0 Final Preparation: Ver1.0最終GO判定とリリース準備
 Ver1.1: Memory利用バランス調整
+Ver1.2: Ver1.x用チェック運用整理
 ```
 
 ## 現在の主要ファイル
@@ -118,7 +119,9 @@ docs/version_1_0_manual_test.md: Ver1.0前の手動テスト表
 docs/version_1_0_final_check.md: Ver1.0前の総合チェック手順
 docs/version_1_0_release_decision.md: Ver1.0へ進めるGO / HOLD / NO-GO判定
 docs/version_policy.md: 長期開発のバージョン管理方針
+docs/check_workflow.md: Ver1.xチェック運用方針
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
+scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 database/models.py: DBモデル
 database/memory_manager.py: Memory保存・取得・状態変更
 database/chat_history.py: 会話履歴保存・取得
@@ -150,6 +153,8 @@ scripts/check_ver030.py
 scripts/check_ver031.py
 scripts/check_v1_final_preparation.py
 scripts/check_ver110.py
+scripts/check_ver120.py
+scripts/run_ver1_checks.py
 ```
 
 注意:
@@ -180,10 +185,9 @@ GUI
 
 ## 次にやること
 
-Ver1.1後の候補:
+Ver1.2後の候補:
 
 ```text
-Ver1.2: Ver1.x用チェック運用整理
 Ver1.3: 会話品質改善
 Ver1.4: Reader追加前のTool / Adapter受け口整理
 Ver2.0方面: Web / PDF / Image / YouTube Reader
