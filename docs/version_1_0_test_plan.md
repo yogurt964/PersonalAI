@@ -434,7 +434,10 @@ check一式: 数分以内なら一旦OK
 MemoryContext: 長くなりすぎない
 ```
 
-今後、`scripts/benchmark_personal_ai.py` などで評価する予定である。
+Version 0.25では、`scripts/benchmark_lightweight.py` を追加した。
+このスクリプトはQwen / Ollamaへの問い合わせや外部通信を行わず、主要処理時間を測定する。
+
+Ver1.0前には、ベンチマークを実行して、機能追加によって重くなりすぎていないか確認する。
 
 ## 13. Ver1.0にまだ不要なもの
 
@@ -461,6 +464,8 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver025.py
+venv\Scripts\python.exe -B scripts\benchmark_lightweight.py
 venv\Scripts\python.exe -B scripts\check_ver024.py
 venv\Scripts\python.exe -B scripts\check_ver023.py
 venv\Scripts\python.exe -B scripts\check_ver022.py

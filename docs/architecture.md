@@ -436,6 +436,25 @@ Memoryの物理削除は行わない。
 
 高重要度のユーザー情報、Preference、project情報、core方針、安全方針は候補にしにくくする。
 
+## Version 0.25の軽量性ベンチマーク
+
+Version 0.25では、PersonalAIが重くなりすぎていないか確認するための軽量性ベンチマークを追加した。
+
+`scripts/benchmark_lightweight.py` は、以下の時間を測定する。
+
+- PersonalAI import
+- PersonalAI初期化
+- Capability判定
+- Preference抽出
+- Preference確認判定
+- MemoryContext生成
+- 自動忘却dry-run
+
+これは高速化ではなく、まず測定できる状態にするための基盤である。
+Qwen / Ollamaへの問い合わせ、外部通信、DB削除、Memory物理削除、`is_active` 変更は行わない。
+
+将来的には、OpenAI、Web Reader、PDF Reader、Image Readerなどを追加したあとに、機能追加で重くなっていないか比較するために使う。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

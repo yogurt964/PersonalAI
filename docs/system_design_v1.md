@@ -10,10 +10,11 @@ Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではな�
 
 PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
 
-現在のVer0.24では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+現在のVer0.25では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
 また、Preference確認質問後のユーザー回答を1件だけpendingとして扱い、保存・追加・変更・キャンセル・再確認を処理できる。
 さらに、CapabilityManagerが入力に必要な能力を判定し、未実装機能が必要な場合は読んだふり・実行したふりをせずに止める。
 自動忘却については、候補提案のdry-runだけを追加し、削除や自動無効化は行わない。
+軽量性については、主要処理時間を測れるベンチマークを追加し、まず測定できる状態にした。
 OpenAI、Web、YouTube、PDF、画像、PC画面などの実読み取りや実行はまだ未実装である。
 
 ## 2. 基本優先順位
@@ -297,6 +298,12 @@ Version 0.24では、自動忘却dry-runを追加した。
 現時点では、Memoryの物理削除も自動 `is_active=False` も行わない。
 将来的には、候補表示、ユーザー確認、`is_active=False` の順に進める。
 
+Version 0.25では、軽量性ベンチマークを追加した。
+`scripts/benchmark_lightweight.py` は、PersonalAI import、初期化、Capability判定、Preference抽出、Preference確認判定、MemoryContext生成、自動忘却dry-runの時間を測定する。
+
+このベンチマークは高速化そのものではなく、重さを測れる状態にするための基盤である。
+Qwen / Ollamaへの問い合わせ、外部通信、DB削除、Memory物理削除、`is_active` 変更は行わない。
+
 Version 0.21では、Project Handoff、Recovery Guide、Core Principlesを追加した。
 これは機能追加ではなく、PersonalAIプロジェクトを長期的に継続しやすくするための運用docsである。
 
@@ -379,6 +386,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Memory手動無効化・復元
 - 無効化MemoryのContext反映確認
 - 自動忘却dry-run
+- 軽量性ベンチマーク
 - Ver1.0テスト計画
 - Preference記憶の最小実装
 - Preference確認質問の最小実装
@@ -389,6 +397,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存、Preference確認質問の最小判定、確認回答後の保存続行が含まれる。
 Capability基礎には、現在対応可能な入力と未実装機能が必要な入力の分類が含まれる。
 自動忘却基礎には、Memoryを変更しないdry-run候補提案が含まれる。
+軽量性基礎には、主要処理時間を測る `scripts/benchmark_lightweight.py` が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

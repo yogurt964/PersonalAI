@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 0.25
+
+開始内容:
+
+- 軽量性ベンチマークを追加
+- `scripts/benchmark_lightweight.py` を追加し、主要処理時間を測定できるように変更
+- PersonalAI import時間、初期化時間、Capability判定時間、Preference抽出時間、Preference確認判定時間を測定
+- MemoryContext生成時間と自動忘却dry-run時間を測定
+- `scripts/check_ver025.py` を追加し、benchmarkスクリプトの存在と実行を確認
+- `docs/performance_benchmark.md` を追加
+- 今回は高速化ではなく、測定できる状態にすることを目的として実施
+- Qwen / Ollama問い合わせ、外部通信、DB削除、Memory物理削除、`is_active` 変更は行わない方針を維持
+
 ## Version 0.24
 
 開始内容:
