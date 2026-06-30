@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 1.4
+
+開始内容:
+
+- Reader追加前のTool / Adapter受け口を整理
+- ToolRequest / ToolResult / ToolAdapter を追加
+- ToolRegistry を追加
+- 未実装Toolを実行したふりせず扱う方針を追加
+- `docs/tool_adapter_design.md` を追加
+- `scripts/check_ver140.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver140.py` を追加
+
 ## Version 1.3
 
 開始内容:

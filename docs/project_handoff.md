@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver1.3
+現在バージョン: Ver1.4
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver1.3時点では、以下が実装済みである。
+Ver1.4時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -94,6 +94,7 @@ Ver1.0 Final Preparation: Ver1.0最終GO判定とリリース準備
 Ver1.1: Memory利用バランス調整
 Ver1.2: Ver1.x用チェック運用整理
 Ver1.3: 会話品質改善
+Ver1.4: Reader追加前のTool / Adapter受け口整理
 ```
 
 ## 現在の主要ファイル
@@ -107,6 +108,8 @@ core/planner.py: 行動計画
 core/router.py: 実行先選択
 core/executor.py: 実行・未実装応答
 core/permission_manager.py: Permission / Risk判断
+core/tool_adapter.py: Tool / Adapter共通データ構造
+core/tool_registry.py: Tool / Adapter登録管理
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -123,6 +126,7 @@ docs/version_1_0_release_decision.md: Ver1.0へ進めるGO / HOLD / NO-GO判定
 docs/version_policy.md: 長期開発のバージョン管理方針
 docs/check_workflow.md: Ver1.xチェック運用方針
 docs/conversation_quality.md: 会話品質方針
+docs/tool_adapter_design.md: Tool / Adapter設計方針
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 database/models.py: DBモデル
@@ -158,6 +162,7 @@ scripts/check_v1_final_preparation.py
 scripts/check_ver110.py
 scripts/check_ver120.py
 scripts/check_ver130.py
+scripts/check_ver140.py
 scripts/run_ver1_checks.py
 ```
 
@@ -189,10 +194,11 @@ GUI
 
 ## 次にやること
 
-Ver1.3後の候補:
+Ver1.4後の候補:
 
 ```text
-Ver1.4: Reader追加前のTool / Adapter受け口整理
+Ver1.5: PermissionManagerとTool実行前確認の接続準備
+Ver1.6: Reader実装前のInputAnalyzer / Capability / Tool連携確認
 Ver2.0方面: Web / PDF / Image / YouTube Reader
 Ver1.x継続改善: 会話品質、Memory利用バランス、チェック運用の微調整
 ```
