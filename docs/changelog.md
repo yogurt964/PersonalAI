@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 0.28
+
+開始内容:
+
+- `docs/version_1_0_release_decision.md` を追加
+- `scripts/check_ver028.py` を追加
+- Ver1.0へ進めるGO / HOLD / NO-GO条件を整理
+- Ver1.0後に回す作業を整理
+- Ver1.0直前の推奨確認手順を整理
+- 今回はコード機能本体を変更せず、Ver1.0へ進む前の判定基準をdocsとして明文化
+
 ## Version 0.27
 
 開始内容:

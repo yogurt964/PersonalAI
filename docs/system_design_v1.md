@@ -10,13 +10,14 @@ Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではな�
 
 PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
 
-現在のVer0.27では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+現在のVer0.28では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
 また、Preference確認質問後のユーザー回答を1件だけpendingとして扱い、保存・追加・変更・キャンセル・再確認を処理できる。
 さらに、CapabilityManagerが入力に必要な能力を判定し、未実装機能が必要な場合は読んだふり・実行したふりをせずに止める。
 自動忘却については、候補提案のdry-runだけを追加し、削除や自動無効化は行わない。
 軽量性については、主要処理時間を測れるベンチマークを追加し、まず測定できる状態にした。
 将来のアプリ・ツール連携はTool / Adapter形式で追加する方針を整理し、Ver1.0前の手動テスト表も追加した。
 Ver1.0前の総合チェック手順も追加し、自動チェック、ベンチマーク、手動テスト、Git確認の順番を整理した。
+Ver1.0へ進めるGO / HOLD / NO-GO判定基準も追加し、実用テスト版へ進める条件と保留すべき条件を整理した。
 OpenAI、Web、YouTube、PDF、画像、PC画面などの実読み取りや実行はまだ未実装である。
 
 ## 2. 基本優先順位
@@ -318,6 +319,10 @@ Version 0.27では、Ver1.0前の総合チェック手順を追加した。
 `scripts/run_pre_v1_checks.py` は、Ver0.11〜Ver0.26のcheckと軽量性ベンチマークを順番に実行する。
 途中で失敗しても最後に結果をまとめる。
 
+Version 0.28では、Ver1.0へ進めるかどうかのリリース判定基準を追加した。
+`docs/version_1_0_release_decision.md` は、GO / HOLD / NO-GO条件、Ver1.0後に回す作業、Ver1.0直前の推奨手順、手動で埋める判定欄をまとめる。
+この判定基準により、Ver1.0を完成版ではなく、最低限の会話・記憶・安全確認・未実装機能の正直な扱いをテストできる実用テスト版として判断する。
+
 Version 0.21では、Project Handoff、Recovery Guide、Core Principlesを追加した。
 これは機能追加ではなく、PersonalAIプロジェクトを長期的に継続しやすくするための運用docsである。
 
@@ -404,6 +409,7 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Future App Integrations
 - Ver1.0手動テスト表
 - Ver1.0前総合チェック手順
+- Ver1.0リリース判定基準
 - Ver1.0テスト計画
 - Preference記憶の最小実装
 - Preference確認質問の最小実装
@@ -417,6 +423,7 @@ Capability基礎には、現在対応可能な入力と未実装機能が必要�
 軽量性基礎には、主要処理時間を測る `scripts/benchmark_lightweight.py` が含まれる。
 将来連携方針には、Tool / Adapter形式でアプリや制作環境を追加する方針が含まれる。
 総合チェック基礎には、Ver1.0へ進める前の自動チェック・手動チェック・Git確認の順番が含まれる。
+リリース判定基礎には、GO / HOLD / NO-GO条件とVer1.0後に回す作業の整理が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

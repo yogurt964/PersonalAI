@@ -464,6 +464,7 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver028.py
 venv\Scripts\python.exe -B scripts\check_ver027.py
 venv\Scripts\python.exe -B scripts\run_pre_v1_checks.py
 venv\Scripts\python.exe -B scripts\check_ver026.py
@@ -505,6 +506,9 @@ Ver1.0前は、この表を使って自動チェックでは見えにくい会�
 Version 0.27では、`docs/version_1_0_final_check.md` と `scripts/run_pre_v1_checks.py` を追加した。
 Ver1.0前は、最終確認手順に沿ってGit状態、自動check、ベンチマーク、手動テスト、引き継ぎdocsを確認する。
 
+Version 0.28では、`docs/version_1_0_release_decision.md` と `scripts/check_ver028.py` を追加した。
+Ver1.0へ進めるかどうかは、GO / HOLD / NO-GO条件に沿って判断する。
+
 ## 15. 再開・復旧時に読むdocs
 
 Ver1.0に向けた作業を再開するときは、まず以下を確認する。
@@ -517,6 +521,7 @@ docs/changelog.md
 docs/version_1_0_test_plan.md
 docs/version_1_0_manual_test.md
 docs/version_1_0_final_check.md
+docs/version_1_0_release_decision.md
 docs/future_app_integrations.md
 ```
 

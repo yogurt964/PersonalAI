@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver0.27
+現在バージョン: Ver0.28
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver0.27時点では、以下が実装済みである。
+Ver0.28時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -86,6 +86,7 @@ Ver0.24: 自動忘却dry-run
 Ver0.25: 軽量性ベンチマーク
 Ver0.26: Future App Integrations / Ver1.0手動テスト表
 Ver0.27: Ver1.0前の総合チェック手順
+Ver0.28: Ver1.0リリース判定
 ```
 
 ## 現在の主要ファイル
@@ -109,6 +110,7 @@ scripts/benchmark_lightweight.py: 軽量性ベンチマーク
 docs/future_app_integrations.md: 将来アプリ・ツール連携方針
 docs/version_1_0_manual_test.md: Ver1.0前の手動テスト表
 docs/version_1_0_final_check.md: Ver1.0前の総合チェック手順
+docs/version_1_0_release_decision.md: Ver1.0へ進めるGO / HOLD / NO-GO判定
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 database/models.py: DBモデル
 database/memory_manager.py: Memory保存・取得・状態変更
@@ -135,6 +137,7 @@ scripts/check_ver024.py
 scripts/check_ver025.py
 scripts/check_ver026.py
 scripts/check_ver027.py
+scripts/check_ver028.py
 ```
 
 注意:
@@ -165,18 +168,19 @@ GUI
 
 ## 次にやること
 
-Ver0.27後の候補:
+Ver0.28後の候補:
 
 ```text
-Ver0.28: Ver1.0リリース判定
+Ver1.0直前: 手動テスト表の実測更新
 Ver1.0: 最低限の会話・記憶・安全確認をテストできる実用テスト版
+Ver1.1以降: Reader / Tool / Adapter追加
 ```
 
 ## ChatGPT再開用プロンプト
 
 ```text
 PersonalAIプロジェクトを再開します。
-まず docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_test_plan.md、docs/version_1_0_manual_test.md、docs/version_1_0_final_check.md を確認してください。
+まず docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_test_plan.md、docs/version_1_0_manual_test.md、docs/version_1_0_final_check.md、docs/version_1_0_release_decision.md を確認してください。
 現在の状態を要約し、勝手に実装せず、次にやるべき作業案を出してください。
 ```
 
@@ -184,7 +188,7 @@ PersonalAIプロジェクトを再開します。
 
 ```text
 PersonalAIプロジェクトを再開します。
-まず docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md を読んでください。
+まず docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_release_decision.md を読んでください。
 現在のバージョン、実装済み機能、未実装機能、次の作業候補を把握してください。
 勝手に大きな変更をせず、変更前に作業計画を出してください。
 ```

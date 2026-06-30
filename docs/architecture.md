@@ -477,6 +477,18 @@ Version 0.27では、Ver1.0へ進む前の総合チェック手順を整理し�
 
 今回もコード機能本体は変更しない。
 
+## Version 0.28のVer1.0リリース判定
+
+Version 0.28では、Ver1.0へ進めるかどうかを判断するための判定基準を整理した。
+
+`docs/version_1_0_release_decision.md` では、Ver1.0を完成版ではなく実用テスト版として位置づけ、GO / HOLD / NO-GO の3段階で判断する。
+
+GO条件には、import成功、app.py起動、`scripts/check_ver028.py` と `scripts/run_pre_v1_checks.py` の成功、手動テスト重要項目の確認、未実装機能をできたふりしないこと、MemoryとPreferenceの安全性、引き継ぎdocsの最新性を含める。
+
+HOLD条件は追加確認や軽微な修正が必要な状態、NO-GO条件はMemory破壊、無許可操作、読んだふり、広範囲のcheck失敗など安全性に関わる状態として扱う。
+
+今回もコード機能本体は変更しない。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

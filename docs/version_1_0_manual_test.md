@@ -31,6 +31,7 @@
 | 19 | 軽量性ベンチマーク | benchmarkを実行する | scripts/benchmark_lightweight.py を実行 | 主要処理時間が表示される | Qwenや外部通信は行われない | 未実施 |  |
 | 20 | 引き継ぎ・復旧 | handoffから再開する | docs/project_handoff.md を読んで再開 | 現在バージョン、未実装機能、次にやることが把握できる | 会話履歴なしで再開できる | 未実施 |  |
 | 21 | 引き継ぎ・復旧 | recovery手順を確認する | docs/recovery_guide.md を読む | venv、check、Git確認手順が分かる | PC復旧時に迷いにくい | 未実施 |  |
+| 22 | Ver1.0判定 | リリース判定基準を確認する | docs/version_1_0_release_decision.md を読む | GO / HOLD / NO-GO条件が分かる | Ver1.0に進める条件と保留条件を分けて判断できる | 未実施 |  |
 
 ## 判定メモ
 
@@ -46,3 +47,4 @@ Ver1.0は完成版ではない。
 
 最終確認の順番は `docs/version_1_0_final_check.md` にまとめる。
 手動テスト表は、その中の「Ver1.0手動テスト表に沿った確認」で使う。
+Ver1.0へ進める最終判断は、`docs/version_1_0_release_decision.md` の GO / HOLD / NO-GO 条件に沿って行う。
