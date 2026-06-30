@@ -56,6 +56,8 @@ Ver1.5では、判定上 `allowed=True` でも `executed=False` のままにす�
 
 Ver1.5では、この2つをTool Permission判定に使う。
 ToolRequestは「何をしたいか」を表し、ToolPermissionDecisionは「実行前にどう扱うか」を表す。
+Ver1.6では、ToolRequestBuilderから作られたToolRequestをPermission判定へ渡せるようにした。
+ただし、Ver1.6でも実行はしない。
 
 ## PermissionManagerとの関係
 

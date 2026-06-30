@@ -23,6 +23,8 @@ Version 1.4では、Reader追加前のTool / Adapter受け口を追加した。
 Toolを実行する前に、ユーザー確認が必要か、危険度がどれくらいかを判断するための情報である。
 
 将来的には、Planner / Router / Executorが作った判断をもとに `ToolRequest` を作り、Tool / Adapterへ渡す。
+Ver1.6では `ToolRequestBuilder` が、入力から必要そうなToolRequestを作る準備を追加した。
+ただし、Adapter実行はまだ行わない。
 
 ## ToolResult
 

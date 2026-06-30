@@ -13,6 +13,7 @@ quick check は、小さな変更後に短時間で最低限の確認をした�
 例:
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver160.py
 venv\Scripts\python.exe -B scripts\check_ver150.py
 venv\Scripts\python.exe -B scripts\check_ver140.py
 venv\Scripts\python.exe -B scripts\check_ver130.py
@@ -41,6 +42,7 @@ venv\Scripts\python.exe -B scripts\run_ver1_checks.py
 
 主な対象:
 
+- `scripts/check_ver160.py`
 - `scripts/check_ver150.py`
 - `scripts/check_ver140.py`
 - `scripts/check_ver130.py`
@@ -78,6 +80,7 @@ Ver1.3 -> scripts/check_ver130.py
 Ver1.4 -> scripts/check_ver140.py
 Ver1.5 -> scripts/check_ver150.py
 Ver1.6 -> scripts/check_ver160.py
+Ver1.7 -> scripts/check_ver170.py
 ```
 
 各version固有のcheckは、作業内容に合わせて追加する。
@@ -85,6 +88,7 @@ Ver1.6 -> scripts/check_ver160.py
 Ver1.3では `check_ver130.py` で会話品質方針を確認する。
 Ver1.4では `check_ver140.py` でTool / Adapter受け口を確認する。
 Ver1.5では `check_ver150.py` でTool実行前Permission判定を確認する。
+Ver1.6では `check_ver160.py` でInputAnalyzer / Capability / Tool連携のdry-runを確認する。
 
 ## 運用方針
 

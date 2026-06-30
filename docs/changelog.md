@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 1.6
+
+開始内容:
+
+- Reader実装前のInputAnalyzer / Capability / Tool連携確認を追加
+- ToolRequestDecision を追加
+- build_tool_request_decision を追加
+- 通常会話ではToolRequestを作らない方針を追加
+- Reader系入力ではToolRequestを作るが実行しないdry-run方針を追加
+- `docs/tool_input_integration.md` を追加
+- `scripts/check_ver160.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver160.py` を追加
+
 ## Version 1.5
 
 開始内容:
