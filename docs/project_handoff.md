@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver1.0 Final Preparation / Ver1.0直前
+現在バージョン: Ver1.1
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver1.0 Final Preparation時点では、以下が実装済みである。
+Ver1.1時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -91,6 +91,7 @@ Ver0.29: バージョン管理方針
 Ver0.30: Ver1.0直前の手動テスト実測更新
 Ver0.31: Ver1.0直前 GO / HOLD / NO-GO 最終確認
 Ver1.0 Final Preparation: Ver1.0最終GO判定とリリース準備
+Ver1.1: Memory利用バランス調整
 ```
 
 ## 現在の主要ファイル
@@ -107,6 +108,7 @@ core/permission_manager.py: Permission / Risk判断
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
+ai/memory_usage_policy.py: Memory利用方針判定
 ai/memory_forgetting.py: 自動忘却dry-run候補判定
 ai/preference_memory.py: Preference記憶抽出・保存
 ai/preference_confirmation.py: Preference確認質問判定
@@ -147,6 +149,7 @@ scripts/check_ver029.py
 scripts/check_ver030.py
 scripts/check_ver031.py
 scripts/check_v1_final_preparation.py
+scripts/check_ver110.py
 ```
 
 注意:
@@ -177,24 +180,30 @@ GUI
 
 ## 次にやること
 
-Ver1.0 Final Preparation後の候補:
+Ver1.1後の候補:
 
 ```text
-Ver1.0: 最終commit / push
-Ver1.0: git tag v1.0.0 作成
-Ver1.0: tag push
-必要ならGitHub Release作成
-Ver1.1以降: Memory利用バランス調整
-Ver1.1以降: Reader / Tool / Adapter追加
+Ver1.2: Ver1.x用チェック運用整理
+Ver1.3: 会話品質改善
+Ver1.4: Reader追加前のTool / Adapter受け口整理
+Ver2.0方面: Web / PDF / Image / YouTube Reader
 ```
 
 ## Ver1.1以降の改善候補
 
 ```text
-通常会話でMemory情報を使いすぎないようにする
-ユーザーが明示的に記憶参照を求めたときだけ詳しくMemoryを使う
-何気ない会話では、関連が強いMemoryだけ使う
-Preference情報を毎回話題に出しすぎない
+Memory利用方針 minimal / normal / detailed の判定語彙を増やす
+通常会話でのMemory利用が自然か実会話で継続確認する
+会話品質を改善する
+Reader / Tool / Adapter追加前の受け口を整理する
+```
+
+## Ver1.0.0リリース済みメモ
+
+```text
+Ver1.0.0はGitHub Releaseまで完了済み。
+Ver1.0.0は完成版ではなく、最低限の会話・記憶・安全確認・未実装機能の正直な扱いをテストできる実用テスト版である。
+Ver1.0 Final Preparationでは、git tag v1.0.0 作成、tag push、GitHub Release作成へ進む準備を整理した。
 ```
 
 ## ChatGPT再開用プロンプト

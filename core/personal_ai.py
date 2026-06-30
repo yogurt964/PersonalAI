@@ -1,6 +1,7 @@
 from ai.llm import SYSTEM_PROMPT
 from ai.memory_context import build_memory_context
 from ai.memory_extract import extract_memories
+from ai.memory_usage_policy import decide_memory_usage
 from ai.preference_confirmation import (
     analyze_preference_confirmation,
     resolve_preference_confirmation_answer,
@@ -41,6 +42,7 @@ class PersonalAI:
         self.last_route = None
         self.last_permission_decision = None
         self.last_preference_confirmation = None
+        self.last_memory_usage = None
         self.pending_preference_confirmation = None
         self.last_response = None
 
@@ -73,6 +75,10 @@ class PersonalAI:
         # 現時点ではWebやYouTubeを実際に読みに行く処理は行いません。
         input_analysis = self.input_analyzer.analyze(user_input)
         self.last_input_analysis = input_analysis
+
+        # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
+        memory_usage = decide_memory_usage(user_input, input_analysis)
+        self.last_memory_usage = memory_usage
 
         # 今のPersonalAIで対応できる入力かを先に判定します。
         # WebやPDFなど未実装の読み取りが必要な場合は、読んだふりをせずここで返答します。
@@ -115,7 +121,7 @@ class PersonalAI:
             self.save_assistant_message(ai_response)
             return ai_response
 
-        messages = self.build_messages()
+        messages = self.build_messages(memory_usage)
         ai_response = self.executor.execute(plan, route, messages)
         self.last_response = ai_response
 
@@ -225,11 +231,16 @@ class PersonalAI:
             "question": preference_confirmation.get("question", ""),
         }
 
-    def build_messages(self):
+    def build_messages(self, memory_usage=None):
         """長期記憶と会話履歴を使って、LLMに渡すmessagesを作ります。"""
+        if memory_usage is None:
+            memory_usage = self.last_memory_usage or "normal"
+
         memories = get_memories()
-        memory_context = build_memory_context(memories)
-        recent_messages = get_recent_messages(20)
+        memory_context = build_memory_context(memories, memory_usage=memory_usage)
+        # minimalでは直近履歴に残ったPreference情報も出しすぎないよう、現在入力中心にします。
+        recent_limit = 1 if memory_usage == "minimal" else 20
+        recent_messages = get_recent_messages(recent_limit)
 
         messages = [
             {
@@ -250,4 +261,34 @@ class PersonalAI:
                 }
             )
 
+        runtime_instruction = self.build_memory_usage_runtime_instruction(memory_usage)
+
+        if runtime_instruction:
+            messages.append(
+                {
+                    "role": "system",
+                    "content": runtime_instruction,
+                }
+            )
+
         return messages
+
+    def build_memory_usage_runtime_instruction(self, memory_usage):
+        """今回の入力に対するMemory利用の強さを、最後にもう一度伝えます。"""
+        if memory_usage == "minimal":
+            return (
+                "今回の入力は通常会話です。会話履歴や長期記憶に好きな食べ物などの"
+                "Preference情報があっても、直接関係がなければ話題に出さないでください。"
+                "挨拶、応援、雑談として自然に短く返してください。"
+            )
+
+        if memory_usage == "detailed":
+            return (
+                "今回の入力は明示的な記憶参照です。保存済みMemoryを分かる範囲で整理して答え、"
+                "記憶にないことは作らないでください。"
+            )
+
+        return (
+            "今回の入力では、関連が強いMemoryだけを使ってください。"
+            "関係の薄いPreference情報は無理に出さないでください。"
+        )

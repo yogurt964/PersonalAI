@@ -25,7 +25,8 @@ Ver0.x:
 Ver1.0に向けた準備・設計・安全確認の段階
 
 Ver1.x:
-Core Assistantの改善段階
+Core Assistantの改善段階。
+会話品質、Memory利用バランス、Preferenceの自然な扱い、Ver1.x用チェック運用を整える。
 
 Ver2.x:
 Reader / Knowledge機能の追加・改善段階

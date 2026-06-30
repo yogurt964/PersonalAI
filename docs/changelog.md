@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 1.1
+
+開始内容:
+
+- 通常会話でMemory情報を使いすぎないように調整
+- Memory利用方針 minimal / normal / detailed を追加
+- 明示的な記憶参照ではMemoryを詳しく使い、通常会話では控えめに使う方針を追加
+- Preference情報を雑談に毎回混ぜない方針を追加
+- `ai/memory_usage_policy.py` を追加
+- `scripts/check_ver110.py` を追加
+
 ## Version 1.0 Final Preparation
 
 開始内容:

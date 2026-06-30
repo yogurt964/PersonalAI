@@ -407,6 +407,63 @@ Version 0.24では、自動忘却の土台としてdry-runを追加した。
 
 詳細は `docs/memory_forgetting.md` にまとめる。
 
+## Version 1.1のMemory利用方針
+
+Version 1.1では、Memoryを「使う / 使わない」の二択ではなく、会話内容に応じて使い方の強さを分ける。
+
+Memory利用方針は以下の3段階である。
+
+| memory_usage | 使い方 |
+|---|---|
+| `minimal` | 通常会話ではMemory情報を控えめに使う |
+| `normal` | 関連が強いMemoryだけ使う |
+| `detailed` | ユーザーが明示的に記憶参照を求めた場合は詳しく使う |
+
+基本方針:
+
+- 通常会話ではMemory情報を控えめに使う
+- ユーザーが明示的に記憶参照を求めた場合は詳しく使う
+- Preference情報は、会話と直接関係がある場合だけ使う
+- 好きな食べ物などのPreference情報を、単なる挨拶、応援、雑談に毎回混ぜない
+- 関係の薄いMemoryを無理に会話へ混ぜない
+
+`minimal` の例:
+
+```text
+こんにちは
+今日は疲れました
+短く応援してください
+```
+
+この場合、MemoryContextには通常会話向けの注意を入れる。
+Preference情報は原則として前に出さず、挨拶や応援として自然に返答できることを優先する。
+
+`normal` の例:
+
+```text
+おすすめを教えて
+私に合いそうなものを提案して
+前の方針を踏まえて考えて
+```
+
+この場合、関連が強いMemoryだけを使う。
+食事、好み、選択に直接関係する場合はPreference情報を使ってよいが、関係が薄い場合は使わない。
+
+`detailed` の例:
+
+```text
+私について覚えていることを教えて
+何を覚えてる？
+Memoryを確認したい
+```
+
+この場合は、ユーザーが記憶参照を求めているため、保存済みMemoryを分かる範囲で整理して答える。
+ただし、記憶にないことは推測で作らない。
+
+判定は `ai/memory_usage_policy.py` の `decide_memory_usage()` で行う。
+MemoryContext生成時には、`build_memory_context(memories, memory_usage="normal")` のように利用方針を渡す。
+既存呼び出しが壊れないよう、既定値は `normal` とする。
+
 ## 現時点でまだ行わないこと
 
 Version 0.20では、明確なPreference更新候補に対する確認質問の最小実装を追加する段階である。

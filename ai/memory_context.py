@@ -28,11 +28,15 @@ SCOPE_TO_SECTION = {
     "knowledge": "知識",
 }
 
+VALID_MEMORY_USAGES = ["minimal", "normal", "detailed"]
 
-def build_memory_context(memories):
+
+def build_memory_context(memories, memory_usage="normal"):
     """長期記憶を、LLMに渡しやすい分類済みテキストへ変換します。"""
+    memory_usage = normalize_memory_usage(memory_usage)
     active_memories = filter_active_memories(memories)
-    sorted_memories = sort_memories(active_memories)
+    usage_memories = filter_memories_by_usage(active_memories, memory_usage)
+    sorted_memories = sort_memories(usage_memories)
     limited_memories = sorted_memories[:MAX_TOTAL_MEMORIES]
     grouped_memories = group_memories_by_section(limited_memories)
 
@@ -42,10 +46,14 @@ def build_memory_context(memories):
         "確定情報を優先してください。",
         "記憶にないことは推測で断定しないでください。",
         "",
+        "【Memory利用方針】",
+        build_memory_usage_guidance(memory_usage),
+        "",
     ]
 
     if not limited_memories:
-        return "【長期記憶】\n現在、利用できる長期記憶はありません。"
+        lines.append("現在、利用できる長期記憶はありません。")
+        return "\n".join(lines).rstrip()
 
     for section_name in SECTION_ORDER:
         section_memories = grouped_memories.get(section_name, [])
@@ -61,6 +69,45 @@ def build_memory_context(memories):
         lines.append("")
 
     return "\n".join(lines).rstrip()
+
+
+def normalize_memory_usage(memory_usage):
+    """想定外の値が来た場合も、既定のnormalとして安全に扱います。"""
+    if memory_usage in VALID_MEMORY_USAGES:
+        return memory_usage
+
+    return "normal"
+
+
+def build_memory_usage_guidance(memory_usage):
+    """memory_usageごとに、LLMへ渡すMemoryの使い方を変えます。"""
+    if memory_usage == "minimal":
+        return (
+            "memory_usage: minimal。通常会話ではMemoryを控えめに使う。"
+            "Preference情報を毎回話題に出さない。"
+            "単なる挨拶、応援、雑談では好きな食べ物などを無理に出さない。"
+        )
+
+    if memory_usage == "detailed":
+        return (
+            "memory_usage: detailed。ユーザーが明示的に記憶参照を求めた場合は詳しく使う。"
+            "保存済みMemoryを分かる範囲で整理して答える。"
+            "分からないことは作らない。"
+        )
+
+    return (
+        "memory_usage: normal。関連が強いMemoryだけ使う。"
+        "関係の薄いMemoryは使わない。"
+        "Preference情報は、好み・おすすめ・食事・選択など会話と直接関係がある場合だけ自然に使う。"
+    )
+
+
+def filter_memories_by_usage(memories, memory_usage):
+    """通常会話では長期記憶の詳細を渡さず、記憶参照では詳しく渡します。"""
+    if memory_usage == "minimal":
+        return []
+
+    return memories
 
 
 def filter_active_memories(memories):
