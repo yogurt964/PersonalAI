@@ -45,7 +45,8 @@ def build_tool_flow_preview(
     """入力からTool実行前のdry-run情報を作ります。
 
     ToolRegistryからAdapterは取得しますが、executeは絶対に呼びません。
-    Ver1.6では、必要そうなToolと許可確認の必要性だけを確認します。
+    Ver1.6以降では、必要そうなToolと許可確認の必要性だけを確認します。
+    Ver1.7で追加したToolExecutionRecordへ、将来このpreview結果を記録できます。
     """
     request_decision = build_tool_request_decision(
         user_input,

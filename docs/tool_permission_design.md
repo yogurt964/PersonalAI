@@ -58,6 +58,8 @@ Ver1.5では、この2つをTool Permission判定に使う。
 ToolRequestは「何をしたいか」を表し、ToolPermissionDecisionは「実行前にどう扱うか」を表す。
 Ver1.6では、ToolRequestBuilderから作られたToolRequestをPermission判定へ渡せるようにした。
 ただし、Ver1.6でも実行はしない。
+Ver1.7では、ToolPermissionDecisionを `ToolExecutionRecord` に記録できる土台を追加した。
+許可されていない場合は `executed=False` として記録する。
 
 ## PermissionManagerとの関係
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 1.7
+
+開始内容:
+
+- Tool実行ログと結果記録の設計を追加
+- ToolExecutionRecord を追加
+- ToolExecutionLogger を追加
+- build_tool_execution_record を追加
+- ToolRequest / ToolPermissionDecision / ToolResult をまとめて記録できる土台を追加
+- executed=False を明確に記録する方針を追加
+- DB保存はまだ行わない方針をdocs化
+- `docs/tool_execution_log_design.md` を追加
+- `scripts/check_ver170.py` を追加
+- `scripts/run_ver1_checks.py` に `check_ver170.py` を追加
+
 ## Version 1.6
 
 開始内容:

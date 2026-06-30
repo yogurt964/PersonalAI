@@ -41,6 +41,8 @@ Ver1.6では `ToolRequestBuilder` が、入力から必要そうなToolRequest�
 `executed=False` は重要である。
 未実装Toolや許可前の処理では、実行したふりをしないために `executed=False` を返す。
 未許可、未実行、未実装を明確に分けるためにも `executed=False` を使う。
+Ver1.7では、ToolResultは `ToolExecutionRecord` に記録される。
+`executed` は実行済みかどうかを示す重要フィールドであり、`success` と混同しない。
 
 ## ToolAdapter
 

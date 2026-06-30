@@ -31,6 +31,7 @@ Ver1.xではCore Assistantの会話品質改善も継続して扱う。
 Reader追加前のTool / Adapter受け口整理もVer1.xで扱う。
 Ver1.xではTool実行前確認とPermission連携準備も扱う。
 Ver1.xではReader実装前のInputAnalyzer / Capability / Tool連携確認も扱う。
+Ver1.xではTool実行ログと結果記録の設計も扱う。
 quick check / standard check / full pre-release check を使い分け、通常のVer1.x確認には run_ver1_checks.py を使う。
 
 Ver2.x:

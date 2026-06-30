@@ -126,3 +126,5 @@ ToolResult
 
 Ver1.6では Executor への本接続はまだ行わない。
 まずはReaderやAdapterを追加する前に、入力からToolRequest、Permission、Registryまでの流れを確認できる状態にする。
+Ver1.7では、dry-runやToolRequestの結果を `ToolExecutionRecord` として記録できる土台を追加した。
+ただし、Ver1.7でも実際のTool実行はまだ行わない。

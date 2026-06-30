@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver1.6
+現在バージョン: Ver1.7
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver1.6時点では、以下が実装済みである。
+Ver1.7時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -97,6 +97,7 @@ Ver1.3: 会話品質改善
 Ver1.4: Reader追加前のTool / Adapter受け口整理
 Ver1.5: PermissionManagerとTool実行前確認の接続準備
 Ver1.6: Reader実装前のInputAnalyzer / Capability / Tool連携確認
+Ver1.7: Tool実行ログと結果記録の設計
 ```
 
 ## 現在の主要ファイル
@@ -115,6 +116,7 @@ core/tool_registry.py: Tool / Adapter登録管理
 core/tool_permission.py: ToolRequest単位の実行前Permission判定
 core/tool_request_builder.py: 入力からToolRequestを作るdry-run判定
 core/tool_flow.py: ToolRequest / Registry / Permissionのdry-runプレビュー
+core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基礎
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -134,6 +136,7 @@ docs/conversation_quality.md: 会話品質方針
 docs/tool_adapter_design.md: Tool / Adapter設計方針
 docs/tool_permission_design.md: Tool Permission設計方針
 docs/tool_input_integration.md: InputAnalyzer / Capability / Tool連携方針
+docs/tool_execution_log_design.md: Tool実行ログ設計方針
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 database/models.py: DBモデル
@@ -172,6 +175,7 @@ scripts/check_ver130.py
 scripts/check_ver140.py
 scripts/check_ver150.py
 scripts/check_ver160.py
+scripts/check_ver170.py
 scripts/run_ver1_checks.py
 ```
 
@@ -203,11 +207,11 @@ GUI
 
 ## 次にやること
 
-Ver1.6後の候補:
+Ver1.7後の候補:
 
 ```text
-Ver1.7: Tool実行ログと結果記録の設計
 Ver1.8: Reader実装前の手動テストケース整理
+Ver1.9: Ver2.0 Reader実装計画
 Ver2.0方面: Web / PDF / Image / YouTube Reader
 Ver1.x継続改善: 会話品質、Memory利用バランス、チェック運用の微調整
 ```
