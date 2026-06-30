@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver0.23
+現在バージョン: Ver0.24
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver0.23時点では、以下が実装済みである。
+Ver0.24時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -82,6 +82,7 @@ Ver0.20: Preference確認質問
 Ver0.21: Project Handoff / Recovery / Core Principles
 Ver0.22: 確認回答後にPreference保存を続行する仕組み
 Ver0.23: Capability判定強化
+Ver0.24: 自動忘却dry-run
 ```
 
 ## 現在の主要ファイル
@@ -98,6 +99,7 @@ core/permission_manager.py: Permission / Risk判断
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
+ai/memory_forgetting.py: 自動忘却dry-run候補判定
 ai/preference_memory.py: Preference記憶抽出・保存
 ai/preference_confirmation.py: Preference確認質問判定
 database/models.py: DBモデル
@@ -121,6 +123,7 @@ scripts/check_ver020.py
 scripts/check_ver021.py
 scripts/check_ver022.py
 scripts/check_ver023.py
+scripts/check_ver024.py
 ```
 
 注意:
@@ -142,7 +145,6 @@ PDF読み取り
 Word / Excel / PDF作成
 PC画面読み取り
 PC操作
-自動忘却のdry-run
 自動忘却の実行
 ベクトルDB
 Embedding検索
@@ -152,10 +154,9 @@ GUI
 
 ## 次にやること
 
-Ver0.23後の候補:
+Ver0.24後の候補:
 
 ```text
-Ver0.24: 自動忘却dry-run
 Ver0.25: 軽量性ベンチマーク
 Ver0.26: Ver1.0手動テスト表
 Ver1.0: 最低限の会話・記憶・安全確認をテストできる実用テスト版

@@ -368,6 +368,20 @@ PersonalAIの重要方針
 ユーザーが明確に覚えてと言った内容
 ```
 
+Version 0.24では、この方針に沿って自動忘却dry-runを追加した。
+現時点では候補を提案するだけで、Memoryの物理削除や自動 `is_active=False` は行わない。
+
+確認観点:
+
+```text
+低重要度・低信頼度・一時記憶が候補になる
+期限切れ記憶が候補になる
+inactive記憶は候補から除外される
+ユーザー基本情報、Preference、project、core方針は候補になりにくい
+dry_run=True が含まれる
+DBを変更しない
+```
+
 ## 11. ユーザーとの会話によるAI調整
 
 PersonalAIは、ユーザーとの会話から以下のような設定を調整できるようにする予定である。
@@ -447,6 +461,7 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver024.py
 venv\Scripts\python.exe -B scripts\check_ver023.py
 venv\Scripts\python.exe -B scripts\check_ver022.py
 venv\Scripts\python.exe -B scripts\check_ver021.py

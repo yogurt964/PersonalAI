@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 0.24
+
+開始内容:
+
+- 自動忘却dry-runを追加
+- `ai/memory_forgetting.py` を追加し、忘却候補をスコア方式で判定できるように変更
+- `analyze_forgetting_candidates()` を追加
+- `get_forgetting_candidates()` を追加
+- 低重要度、低信頼度、一時記憶、test/debug系、期限切れ記憶を候補にしやすくする方針を追加
+- ユーザー基本情報、Preference、project、core方針、高重要度・高信頼度の記憶を候補にしにくくする方針を追加
+- dry-run結果に `dry_run=True`、`recommended_action`、`score`、`reasons` を含めるように変更
+- `scripts/check_ver024.py` を追加し、synthetic memoryとDB読み取りdry-runを確認
+- 物理削除、自動 `is_active=False`、ユーザー確認なしの忘却は行わない方針を明文化
+
 ## Version 0.23
 
 開始内容:

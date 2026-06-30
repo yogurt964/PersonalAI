@@ -417,6 +417,25 @@ PermissionManagerは「実行してよいか」を判断する。
 
 将来的には、OpenAI、Web Reader、YouTube Reader、PDF Reader、Image Reader、Document Creator、PC Operatorを追加し、Capability判定結果をもとに安全に実行へ進める。
 
+## Version 0.24の自動忘却dry-run
+
+Version 0.24では、自動忘却候補を提案するdry-runを追加した。
+
+`ai/memory_forgetting.py` は、Memory一覧を読み取り、低重要度、低信頼度、一時記憶、test/debug系、期限切れ記憶などを候補としてスコア化する。
+
+この処理は読み取り専用である。
+Memoryの物理削除は行わない。
+自動で `is_active=False` にもしない。
+ユーザー確認なしに記憶を忘れない。
+
+将来的には、以下の流れを目指す。
+
+```text
+忘却候補表示 → ユーザー確認 → is_active=False
+```
+
+高重要度のユーザー情報、Preference、project情報、core方針、安全方針は候補にしにくくする。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。
