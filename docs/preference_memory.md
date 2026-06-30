@@ -140,6 +140,27 @@ PersonalAI本体では、Preference保存前に `analyze_preference_confirmation
 
 詳細は `docs/preference_confirmation.md` にまとめる。
 
+## Version 0.22の確認回答後保存
+
+Version 0.22では、確認質問後のユーザー回答を扱えるようにした。
+
+現在は、PersonalAIインスタンス内に1件だけ `pending_preference_confirmation` を保持する。
+pendingはDBには保存せず、アプリを終了すると消える。
+
+確認回答では、以下を最小限のルールで判定する。
+
+- `save_primary`: 一番好きとして保存
+- `save_addition`: 好きなものの1つとして追加
+- `save_change`: 好みの変更として保存
+- `cancel`: 保存しない
+- `ask_again`: 曖昧な回答として再確認する
+
+一番好きな食べ物は `preference:food:primary` に保存する。
+通常の好きな食べ物は、これまで通り `preference:food:<target>` を使う。
+
+この処理は完全な自然言語理解ではなく、明確な確認回答パターンだけを扱う。
+Web、OpenAI、Vector DB、Embedding検索などは使わない。
+
 ## 確認してもよいケース
 
 以下の場合は、追加確認してよい。

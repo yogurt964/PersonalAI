@@ -364,6 +364,25 @@ Version 0.20では、Preference記憶を保存する前に、確認質問が必�
 確認しすぎると会話が重くなるため、毎回質問しない。
 将来的には、`confirmation_frequency` や `memory_confirmation_style` をユーザー設定として記憶し、確認頻度を調整できるようにする。
 
+## Version 0.22のPreference確認回答
+
+Version 0.22では、確認質問を出したあと、ユーザーの回答を受けてPreference保存を続行する最小実装を追加した。
+
+PersonalAIは、現在のインスタンス内で1件だけ `pending_preference_confirmation` を保持する。
+このpendingはDBには保存しない一時状態であり、アプリを終了すると消える。
+
+確認回答では、以下のactionを扱う。
+
+- `save_primary`: 一番好きとして保存
+- `save_addition`: 好きなものの1つとして追加
+- `save_change`: 好みの変更として保存
+- `cancel`: 保存しない
+- `ask_again`: 曖昧なため再確認する
+
+一番好きな食べ物は、通常の `preference:food:<target>` とは分けて、特別な `memory_key` として `preference:food:primary` に保存する。
+これは完全な自然言語理解ではなく、明確な返答パターンを扱うための小さな実装である。
+ユーザーに影響する大きな操作ではなく、Preference記憶の保存に限定した確認回答処理として扱う。
+
 ## 現時点でまだ行わないこと
 
 Version 0.20では、明確なPreference更新候補に対する確認質問の最小実装を追加する段階である。

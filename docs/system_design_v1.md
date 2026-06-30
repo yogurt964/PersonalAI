@@ -10,7 +10,8 @@ Qwen、OpenAI、Memory、Knowledge、Toolは、PersonalAIそのものではな�
 
 PersonalAIの中心的な責務は、単にLLMへ文章を渡すことではない。ユーザーが本当に達成したいことを考え、必要な文脈を集め、適切な処理を選び、結果が妥当かを確認し、今後も役立つ情報を記憶することである。
 
-現在のVer0.9.1では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+現在のVer0.22では、PersonalAI本体はQwenを直接呼び出さず、Routerが作ったRouteをExecutorへ渡し、ExecutorがQwenを実行する。
+また、Preference確認質問後のユーザー回答を1件だけpendingとして扱い、保存・追加・変更・キャンセル・再確認を処理できる。
 OpenAI、Web、YouTube、PDF、画像、PC画面などの実読み取りや実行はまだ未実装である。
 
 ## 2. 基本優先順位
@@ -244,6 +245,14 @@ PersonalAI本体では、`should_ask=True` の場合にPreferenceを保存せず
 これにより、確認しすぎを避けつつ、曖昧なPreference更新だけユーザーに確認できる。
 確認頻度は将来的にユーザーとの会話から調整する予定である。
 
+Version 0.22では、確認質問後のユーザー回答を処理する最小実装を追加した。
+PersonalAIは1件だけ `pending_preference_confirmation` を保持し、次のユーザー入力を通常処理より先に確認回答として扱う。
+
+回答は、`save_primary`、`save_addition`、`save_change`、`cancel`、`ask_again` に分類する。
+一番好きな食べ物は `preference:food:primary` に保存し、通常のlikeは `preference:food:<target>` に保存する。
+pendingはDBに保存せず、PersonalAIインスタンス内だけで保持する。
+これは明確な返答パターンだけを扱う最小実装であり、完全な自然言語理解や複数pending管理は今後の課題である。
+
 Version 0.21では、Project Handoff、Recovery Guide、Core Principlesを追加した。
 これは機能追加ではなく、PersonalAIプロジェクトを長期的に継続しやすくするための運用docsである。
 
@@ -327,10 +336,11 @@ PersonalAIは、将来的に多くの能力を持つ可能性がある。その�
 - Ver1.0テスト計画
 - Preference記憶の最小実装
 - Preference確認質問の最小実装
+- Preference確認回答後の保存続行
 - Project Handoff / Recovery / Core Principles
 - Qwen接続
 
-Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存、Preference確認質問の最小判定が含まれる。
+Memory基礎には、会話履歴保存、長期記憶保存、自動記憶抽出、複数記憶抽出、categoryによる記憶更新、memory_keyによる記憶更新、カテゴリ別MemoryContext作成、MemoryContextプレビュー、Memory一覧表示、手動無効化・復元、無効化MemoryのContext反映確認、Preference記憶の最小保存、Preference確認質問の最小判定、確認回答後の保存続行が含まれる。
 
 `.agents` フォルダは現時点では用途不明であり、現在のPersonalAI本体では未使用扱いである。
 今後、Codexやエージェント設定で使う可能性があるため削除しない。

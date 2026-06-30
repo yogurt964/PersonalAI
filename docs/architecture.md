@@ -377,6 +377,25 @@ Version 0.21では、機能追加ではなく、プロジェクトを安全に�
 
 Ver0.21時点では、PersonalAIの最終目標を「ユーザーの作業の中心入口」とし、回答精度、安全確認、未実装機能をできたふりしないことを最重要方針として整理した。
 
+## Version 0.22のPreference確認回答
+
+Version 0.22では、Preference確認質問のあとにユーザーが答えた場合、その回答を通常処理より先に扱うようにした。
+
+現在の流れは以下である。
+
+```text
+ユーザー入力 → 入力保存 → pending preference確認 → InputAnalyzer → 記憶抽出・保存 → Planner → Router → PermissionManager → Executor
+```
+
+`pending_preference_confirmation` はPersonalAIインスタンス内で1件だけ保持する。
+DBには保存しないため、アプリを終了すると消える一時状態である。
+
+確認回答では、`save_primary`、`save_addition`、`save_change`、`cancel`、`ask_again` を扱う。
+一番好きな食べ物は `preference:food:primary` に保存する。
+
+この機能は、ユーザーに影響する大きな操作ではなく、Preference記憶の保存に限定した確認回答処理である。
+完全な自然言語理解や複数pending管理はまだ行わない。
+
 ## 現在の構成
 
 現在のコードは、主に以下のフォルダに分かれている。

@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 0.22
+
+開始内容:
+
+- 確認質問後にPreference保存を続行する仕組みを追加
+- PersonalAIが1件だけ `pending_preference_confirmation` を保持できるように変更
+- pendingはPersonalAIインスタンス内のみで保持し、DBには保存しない方針を採用
+- `resolve_preference_confirmation_answer()` を追加し、確認回答を `save_primary`、`save_addition`、`save_change`、`cancel`、`ask_again` に分類
+- `save_resolved_preference_confirmation()` を追加し、確認回答後にPreferenceを保存できるように変更
+- 一番好きな食べ物を `preference:food:primary` で保存する方針を追加
+- `scripts/check_ver022.py` を追加し、回答解決、保存、PersonalAI pending flowを確認
+- 完全な自然言語理解、長期的なpending DB保存、複数同時保留、OpenAI接続、Vector DB、Embedding検索は今後の課題として維持
+
 ## Version 0.21
 
 開始内容:

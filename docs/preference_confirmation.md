@@ -195,13 +195,131 @@ PersonalAI本体では、Preference保存前に `analyze_preference_confirmation
 好きな食べ物をカレーから焼き肉に変更して。覚えて
 ```
 
+## Version 0.22の確認回答処理
+
+Version 0.22では、確認質問を出したあと、ユーザーの回答を受けてPreference保存を続行する最小実装を追加した。
+
+PersonalAIは、現在のインスタンス内で1件だけ保留中のPreference確認を保持する。
+
+```python
+self.pending_preference_confirmation = None
+```
+
+保留情報はDBには保存しない。
+アプリを終了すると消える一時状態である。
+この処理は、ユーザーに影響する大きな操作ではなく、Preference記憶の保存に限定した確認回答処理である。
+
+保留情報の例:
+
+```python
+{
+    "type": "preference_confirmation",
+    "original_text": "一番好きな食べ物は焼き肉です。覚えて",
+    "reason": "primary_preference_update",
+    "target": "焼き肉",
+    "domain": "food",
+    "question": "焼き肉を一番好きな食べ物として記憶しますか？それとも、好きな食べ物の1つとして追加しますか？",
+}
+```
+
+追加した主な関数:
+
+- `resolve_preference_confirmation_answer(answer_text, pending)`
+- `save_resolved_preference_confirmation(pending, resolution, source="user", tags="preference")`
+
+`resolve_preference_confirmation_answer()` は、ユーザーの回答を以下のactionへ分類する。
+
+| action | 意味 |
+|---|---|
+| `save_primary` | 一番好きとして保存 |
+| `save_addition` | 好きなものの1つとして追加 |
+| `save_change` | 好みの変更として保存 |
+| `cancel` | 保存しない |
+| `ask_again` | 曖昧なので再確認 |
+
+## 回答パターン
+
+### save_primary
+
+```text
+一番好きとして記憶して
+一番でいい
+一番好き
+最優先で記憶
+```
+
+`preference:food:primary` を使って、一番好きな食べ物として保存する。
+
+### save_addition
+
+```text
+好きなものの1つとして追加して
+追加で
+追加して
+両方好き
+それも好き
+```
+
+通常のlikeとして `preference:food:<target>` に保存する。
+
+### save_change
+
+```text
+変更して
+更新して
+今はそれで
+今は焼き肉
+カレーから焼き肉にして
+```
+
+新しい対象を現在の好みとして保存し、可能であれば古い対象を `food_past_like` として更新する。
+
+### cancel
+
+```text
+記憶しないで
+キャンセル
+やっぱりいい
+保存しないで
+取り消して
+```
+
+Preference記憶は保存せず、pendingをクリアする。
+
+### ask_again
+
+```text
+わからない
+どっちでも
+任せる
+```
+
+pendingを残し、もう一度確認する。
+
+## 保存方針
+
+`save_primary` では、以下の特別なmemory_keyを使う。
+
+```text
+preference:food:primary
+```
+
+これは「一番好きな食べ物」を表すkeyであり、通常の `preference:food:焼き肉` とは分けて扱う。
+
+`save_addition` では、通常のlikeとして保存する。
+
+`save_change` では、新しい対象を現在のlikeとして保存し、古い対象がある場合は、現在の好みとしては優先しない記憶へ更新する。
+
 ## まだ実装しないこと
 
-Version 0.20では、以下はまだ実装しない。
+Version 0.22では、以下はまだ実装しない。
 
 - 完全な自然言語理解
 - LLMによる高度な矛盾判定
 - Preference以外の複雑な矛盾処理
+- 長期的なpending状態のDB保存
+- 複数の同時保留タスク管理
+- 複雑な時系列Preference推論
 - 自動忘却の実行
 - 一括無効化
 - Memoryの物理削除

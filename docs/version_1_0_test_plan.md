@@ -118,6 +118,10 @@ Version 0.19では、明確な日本語パターンに対する最小実装と�
 Version 0.20では、Preference保存前に確認質問が必要か判定できるようにした。
 好きなものの単純追加や明確な否定では確認せず、`一番好き`、`今は / 前は`、`変更` のような更新意図がありそうな場合だけ確認候補にする。
 
+Version 0.22では、確認質問後のユーザー回答を処理できるようにした。
+現在は1件だけ `pending_preference_confirmation` を保持し、次の回答を保存・追加・変更・キャンセル・再確認に分類する。
+一番好きな食べ物は `preference:food:primary` として扱う。
+
 ただし、Ver1.0テストではまだ以下を重点確認する。
 
 - 複数の好きなものが自然に扱えるか
@@ -435,6 +439,10 @@ GUI
 Ver1.0前には、少なくとも以下を確認する。
 
 ```powershell
+venv\Scripts\python.exe -B scripts\check_ver022.py
+venv\Scripts\python.exe -B scripts\check_ver021.py
+venv\Scripts\python.exe -B scripts\check_ver020.py
+venv\Scripts\python.exe -B scripts\check_ver019.py
 venv\Scripts\python.exe -B scripts\check_ver018.py
 venv\Scripts\python.exe -B scripts\check_ver017.py
 venv\Scripts\python.exe -B scripts\check_ver016.py
