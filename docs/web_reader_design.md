@@ -12,12 +12,19 @@ Web Readerは、Reader方面の最初の実用テスト版である。
 
 - Ver2.0: Web Reader最小実用版
 - Ver2.1: 手動実行テストと会話UI接続方針の整理
+- Ver2.2: URL入力検出から確認メッセージ生成までのdry-run
 
 Ver2.1では、会話UI自動接続はまだしない。
 URLを検出しただけで自動Webアクセスしない。
 自動チェックでは実Webアクセスしない。
 実Webアクセスはユーザー確認つきの手動確認でのみ行う。
 PDF Reader / Image Reader / YouTube Reader / File Reader は今後の段階追加とする。
+
+Ver2.2では、URLを検出し、Web Reader実行前の確認メッセージ生成までをdry-runで扱う。
+この段階ではToolRunnerは呼ばない。
+WebReaderAdapterのfetchは実行しない。
+会話UIへの実接続はまだしない。
+`user_confirmed=True` による実行接続は今後扱う。
 
 ## Web Readerの責務
 

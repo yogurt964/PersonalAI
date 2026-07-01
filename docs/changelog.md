@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.2
+
+開始内容:
+
+- URL入力検出から確認メッセージ生成までのdry-runを追加
+- `core/web_reader_confirmation.py` を追加
+- Web Reader実行前確認メッセージを作れるようにした
+- ToolRunnerを呼ばず、WebReaderAdapterのfetchも実行しない方針を維持
+- 会話UIへの実接続はまだ行わない方針を維持
+- `scripts/check_ver220.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver220.py` を追加
+
 ## Version 2.1
 
 開始内容:

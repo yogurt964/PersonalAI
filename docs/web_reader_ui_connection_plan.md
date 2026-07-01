@@ -9,16 +9,24 @@ URLを検出しただけで勝手にアクセスしない。
 今回の作業は実装ではなく方針整理に留める。
 手動テストの代表URLは `https://example.com` とし、会話UIからはまだ自動実行しない。
 
+Ver2.2では、URL入力検出から確認メッセージ生成までのdry-runを追加する。
+この段階ではWebアクセスはまだしない。
+会話UIへの実接続はまだしない。
+`user_confirmed=True` による実行接続は今後扱う。
+URLを見つけただけで勝手にアクセスしない。
+Ver2.2 checkは実Webアクセスしない。
+
 ## 将来の接続案
 
 将来の接続案:
 
 1. `InputAnalyzer` がURL入力を検出する
-2. `PersonalAI` が「Webを読み取ってよいか」をユーザーに確認する
-3. ユーザーが明示許可した場合のみ `user_confirmed=True` にする
-4. `ToolRunner` 経由で `WebReaderAdapter` を実行する
-5. 結果を会話文脈に渡す
-6. `ToolExecutionLog` に実行結果を残す
+2. URL確認メッセージ生成dry-runで「Webを読み取ってよいか」を作る
+3. `PersonalAI` が確認メッセージを会話UIに表示する
+4. ユーザーが明示許可した場合のみ `user_confirmed=True` にする
+5. `ToolRunner` 経由で `WebReaderAdapter` を実行する
+6. 結果を会話文脈に渡す
+7. `ToolExecutionLog` に実行結果を残す
 
 この流れができるまでは、会話UIからWeb Readerを自動実行しない。
 

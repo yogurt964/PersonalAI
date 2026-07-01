@@ -128,7 +128,7 @@ def main():
             "Ver2.0.0",
             "v2.0.0",
             "PersonalAI Version 2.0.0",
-            "Ver2.1開始前",
+            "Ver2.1でWeb Reader手動実行テストと会話UI接続方針を整理済み",
             "Web Reader手動実行テストと会話UI接続方針整理",
             "Web Readerの会話UI自動接続はまだ未実装",
         ],
