@@ -115,12 +115,8 @@ def check_personal_ai_connection_source():
     failures += check_true("PersonalAI stores pending Web Reader confirmation", "pending_web_reader_confirmation" in text)
     failures += check_true("PersonalAI returns confirmation response", "build_web_reader_confirmation_response" in text)
     failures += check_true(
-        "PersonalAI does not call ToolRunner",
-        "run_tool_request" not in text and "ToolRunner" not in text,
-    )
-    failures += check_true(
-        "PersonalAI does not call WebReaderAdapter fetch",
-        "WebReaderAdapter(" not in text and ".fetch(" not in text and "urlopen" not in text,
+        "PersonalAI does not call WebReaderAdapter fetch directly",
+        ".fetch(" not in text and "urlopen" not in text,
     )
     failures += check_true(
         "confirmation helper has no execution calls",
@@ -134,22 +130,38 @@ def check_personal_ai_connection_source():
     return failures
 
 
-def check_yes_response_does_not_execute():
+def check_url_input_only_does_not_execute():
+    from core.tool_execution_log import ToolExecutionLogger
+    from core.input_analyzer import InputAnalyzer
     from core.personal_ai import PersonalAI
 
-    ai = PersonalAI.__new__(PersonalAI)
-    ai.pending_web_reader_confirmation = {
-        "url": "https://example.com",
-        "tool_name": "web_reader",
-        "action": "read_url",
-    }
+    calls = []
 
-    response = ai.handle_pending_web_reader_confirmation("はい")
+    def fake_fetcher(url):
+        calls.append(url)
+        return {
+            "html": "<html><head><title>Example Domain</title></head><body><h1>Example Domain</h1></body></html>",
+            "final_url": "https://example.com/",
+        }
+
+    ai = PersonalAI.__new__(PersonalAI)
+    ai.input_analyzer = InputAnalyzer()
+    ai.web_reader_fetcher = fake_fetcher
+    ai.tool_registry = ai.build_tool_registry(fake_fetcher)
+    ai.tool_execution_logger = ToolExecutionLogger()
+    ai.pending_preference_confirmation = None
+    ai.pending_web_reader_confirmation = None
+    ai.last_web_reader_tool_result = None
+    ai.save_user_message = lambda _message: None
+    ai.save_assistant_message = lambda _message: None
+
+    response = ai.handle_user_input("このURLを読んで https://example.com")
 
     failures = 0
-    failures += check_true("yes response returns unimplemented message", "未実装" in response)
-    failures += check_true("yes response clears pending confirmation", ai.pending_web_reader_confirmation is None)
-    failures += check_true("yes response does not pretend execution", "読み取りました" not in response)
+    failures += check_true("URL input returns confirmation", "Web Readerで読み取ってもよいですか" in response)
+    failures += check_true("URL input creates pending confirmation", ai.pending_web_reader_confirmation is not None)
+    failures += check_true("URL input does not call fake fetcher", len(calls) == 0)
+    failures += check_true("URL input does not create ToolResult", ai.last_web_reader_tool_result is None)
 
     return failures
 
@@ -197,7 +209,7 @@ def main():
     failures += check_imports()
     failures += check_conversation_response_dry_run()
     failures += check_personal_ai_connection_source()
-    failures += check_yes_response_does_not_execute()
+    failures += check_url_input_only_does_not_execute()
     failures += check_db_file_unchanged_by_helper()
 
     failures += check_words(

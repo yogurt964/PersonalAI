@@ -94,30 +94,30 @@ def check_url_input_creates_pending():
 
 
 def check_confirmed_response_dry_run():
-    ai = build_lightweight_personal_ai()
-    ai.pending_web_reader_confirmation = {
+    from core.web_reader_confirmation import resolve_web_reader_confirmation_response
+
+    result = resolve_web_reader_confirmation_response(
+        "はい",
+        {
         "url": "https://example.com",
         "tool_name": "web_reader",
         "action": "read_url",
         "original_input": "このURLを読んで https://example.com",
-    }
-
-    response = ai.handle_pending_web_reader_confirmation("はい")
-    candidate = ai.last_web_reader_tool_request_candidate
-    result = ai.last_web_reader_confirmation_result
+        },
+    )
+    candidate = result.tool_request_candidate
 
     failures = 0
-    failures += check_true("yes response says dry-run", "dry-run" in response)
-    failures += check_true("yes response does not execute", result["should_execute"] is False)
-    failures += check_true("yes response status confirmed", result["status"] == "confirmed")
-    failures += check_true("yes response user_confirmed True", result["user_confirmed"] is True)
+    failures += check_true("yes response says dry-run", "dry-run" in result.message)
+    failures += check_true("yes response does not execute in resolver", result.should_execute is False)
+    failures += check_true("yes response status confirmed", result.status == "confirmed")
+    failures += check_true("yes response user_confirmed True", result.user_confirmed is True)
     failures += check_true("yes creates candidate", candidate is not None)
     failures += check_true("candidate tool_name web_reader", candidate["tool_name"] == "web_reader")
     failures += check_true("candidate action read_url", candidate["action"] == "read_url")
     failures += check_true("candidate user_confirmed True", candidate["user_confirmed"] is True)
     failures += check_true("candidate URL", candidate["input_data"]["url"] == "https://example.com")
-    failures += check_true("yes clears pending", ai.pending_web_reader_confirmation is None)
-    failures += check_true("yes does not pretend read", "読み取りました" not in response)
+    failures += check_true("yes does not pretend read in resolver", "読み取りました" not in result.message)
 
     return failures
 
@@ -192,12 +192,12 @@ def check_no_execution_code():
 
     failures = 0
     failures += check_true(
-        "PersonalAI does not call Tool runner",
-        "run_tool_request" not in personal_ai_text and "ToolRunner" not in personal_ai_text,
+        "PersonalAI uses Tool runner only after confirmation",
+        "run_tool_request" in personal_ai_text,
     )
     failures += check_true(
-        "PersonalAI does not call WebReaderAdapter fetch",
-        "WebReaderAdapter(" not in personal_ai_text and ".fetch(" not in personal_ai_text and "urlopen" not in personal_ai_text,
+        "PersonalAI does not call WebReaderAdapter fetch directly",
+        ".fetch(" not in personal_ai_text and "urlopen" not in personal_ai_text,
     )
     failures += check_true(
         "confirmation response helper does not execute Tool",

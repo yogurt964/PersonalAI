@@ -15,6 +15,7 @@ Web Readerは、Reader方面の最初の実用テスト版である。
 - Ver2.2: URL入力検出から確認メッセージ生成までのdry-run
 - Ver2.3: URL確認メッセージを会話返答として表示するdry-run接続
 - Ver2.4: 確認応答の前段処理とToolRequest候補作成dry-run
+- Ver2.5: user_confirmed=True後にToolRunner経由でWeb Readerを実行
 
 Ver2.1では、会話UI自動接続はまだしない。
 URLを検出しただけで自動Webアクセスしない。
@@ -40,6 +41,13 @@ ToolRunnerは会話UIから呼ばない。
 run_tool_requestは会話UIから呼ばない。
 WebReaderAdapterのfetchは実行しない。
 実Webアクセスしない。
+
+Ver2.5では、保留中の確認に対する肯定応答がある場合だけ、`user_confirmed=True` としてToolRunner経由でWeb Readerを実行する。
+URL検出だけではWebアクセスしない。
+自動チェックではfake fetcherを使い、実Webアクセスしない。
+成功時はtitle / final_url / text_previewを返す。
+失敗時は読めたふりをしない。
+Reader結果のMemory保存はまだしない。
 
 ## Web Readerの責務
 

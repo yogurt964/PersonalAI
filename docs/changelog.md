@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.5
+
+開始内容:
+
+- `user_confirmed=True` 後にToolRunner経由でWeb Readerを実行する接続を追加
+- URL検出だけでは実行せず、保留中の確認に対する肯定応答がある場合だけ実行
+- 成功時にtitle / final_url / text_previewを会話返答へ含める
+- 失敗時に読めたふりをせず、失敗理由を返す
+- 自動チェックではfake fetcherを使い、実Webアクセスしない方針を維持
+- `scripts/check_ver250.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver250.py` を追加
+
 ## Version 2.4
 
 開始内容:

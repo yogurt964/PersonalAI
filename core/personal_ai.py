@@ -18,6 +18,11 @@ from core.input_analyzer import InputAnalyzer
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
+from core.tool_adapter import ToolRequest
+from core.tool_execution_log import ToolExecutionLogger
+from core.tool_registry import ToolRegistry
+from core.tool_runner import run_tool_request
+from core.web_reader_adapter import WebReaderAdapter
 from core.web_reader_confirmation import (
     build_web_reader_confirmation,
     resolve_web_reader_confirmation_response,
@@ -58,7 +63,7 @@ def _get_analysis_value(input_analysis, key, default=None):
 class PersonalAI:
     """PersonalAI本体の会話処理をまとめるクラスです。"""
 
-    def __init__(self):
+    def __init__(self, web_reader_fetcher=None):
         # 起動時にデータベースとテーブルを用意します。
         create_database()
 
@@ -69,6 +74,9 @@ class PersonalAI:
         self.router = Router()
         self.permission_manager = PermissionManager()
         self.executor = Executor()
+        self.web_reader_fetcher = web_reader_fetcher
+        self.tool_registry = self.build_tool_registry(web_reader_fetcher)
+        self.tool_execution_logger = ToolExecutionLogger()
 
         # 直近の判断結果を保存しておく場所です。将来のデバッグやExecutor連携で使えます。
         self.last_input_analysis = None
@@ -84,9 +92,18 @@ class PersonalAI:
         self.last_web_reader_confirmation = None
         self.last_web_reader_confirmation_result = None
         self.last_web_reader_tool_request_candidate = None
+        self.last_web_reader_tool_run_result = None
+        self.last_web_reader_tool_result = None
+        self.last_tool_execution_record = None
         self.pending_preference_confirmation = None
         self.pending_web_reader_confirmation = None
         self.last_response = None
+
+    def build_tool_registry(self, web_reader_fetcher=None):
+        """会話UIから使うToolRegistryを用意します。"""
+        registry = ToolRegistry()
+        registry.register(WebReaderAdapter(fetcher=web_reader_fetcher))
+        return registry
 
     def run(self):
         """ユーザー入力を受け取り続けるメインループです。"""
@@ -131,6 +148,9 @@ class PersonalAI:
         self.last_web_reader_confirmation = web_reader_confirmation
         self.last_web_reader_confirmation_result = None
         self.last_web_reader_tool_request_candidate = None
+        self.last_web_reader_tool_run_result = None
+        self.last_web_reader_tool_result = None
+        self.last_tool_execution_record = None
         web_reader_response = build_web_reader_confirmation_response(
             user_input,
             input_analysis=input_analysis,
@@ -328,7 +348,82 @@ class PersonalAI:
         if result.status in ["confirmed", "cancelled", "ignored"]:
             self.pending_web_reader_confirmation = None
 
+        if result.status == "confirmed" and result.tool_request_candidate:
+            return self.execute_web_reader_tool_request_candidate(
+                result.tool_request_candidate,
+            )
+
         return result.message or None
+
+    def execute_web_reader_tool_request_candidate(self, candidate):
+        """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        request = self.build_tool_request_from_candidate(candidate)
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        run_result = run_tool_request(
+            request,
+            registry=registry,
+            user_confirmed=user_confirmed,
+            logger=logger,
+        )
+
+        self.last_web_reader_tool_run_result = run_result
+        self.last_web_reader_tool_result = run_result.result
+        self.last_tool_execution_record = run_result.execution_record
+
+        return self.build_web_reader_tool_response(run_result.result)
+
+    def build_tool_request_from_candidate(self, candidate):
+        """dict形式の候補から、既存のToolRequestへ変換します。"""
+        input_data = dict(candidate.get("input_data") or {})
+
+        return ToolRequest(
+            tool_name=candidate.get("tool_name", "web_reader"),
+            action=candidate.get("action", "read_url"),
+            input_data=input_data,
+            requires_permission=bool(candidate.get("requires_permission", True)),
+            risk_level=candidate.get("risk_level", "medium"),
+        )
+
+    def build_web_reader_tool_response(self, result):
+        """ToolResultを、ユーザーに見せる短い返答へ変換します。"""
+        if not getattr(result, "executed", False):
+            reason = getattr(result, "message", "") or getattr(result, "error", "")
+            return (
+                "Web Readerは実行されませんでした。\n\n"
+                f"理由: {reason}"
+            )
+
+        if not getattr(result, "success", False):
+            reason = getattr(result, "error", None) or getattr(result, "message", "")
+            return (
+                "Web Readerで読み取りを試みましたが、失敗しました。\n\n"
+                f"理由: {reason}"
+            )
+
+        data = getattr(result, "data", {}) or {}
+        title = data.get("title") or "(タイトルなし)"
+        final_url = data.get("final_url") or data.get("url") or ""
+        text_preview = data.get("text_preview") or data.get("text") or ""
+
+        return (
+            "Web Readerで読み取りました。\n\n"
+            f"タイトル: {title}\n"
+            f"URL: {final_url}\n"
+            "本文プレビュー:\n"
+            f"{text_preview}"
+        )
 
     def build_messages(
         self,

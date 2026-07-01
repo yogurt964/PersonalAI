@@ -32,6 +32,15 @@ WebReaderAdapterのfetchは実行しない。
 実Webアクセスしない。
 Ver2.4 checkは実Webアクセスしない。
 
+Ver2.5では、保留中の確認に対する肯定応答がある場合だけ、`user_confirmed=True` としてToolRunner経由でWeb Readerを実行する。
+URL検出だけではWebアクセスしない。
+自動チェックではfake fetcherを使い、実Webアクセスしない。
+実Webアクセスは手動テストで確認する。
+成功時はtitle / final_url / text_previewを返す。
+失敗時は読めたふりをしない。
+Reader結果のMemory保存はまだしない。
+PDF / Image / YouTube / File Readerは今後扱う。
+
 ## 将来の接続案
 
 将来の接続案:

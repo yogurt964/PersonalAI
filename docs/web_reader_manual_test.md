@@ -85,9 +85,12 @@ DBに書き込まない。
 
 ## 会話UIとの関係
 
-会話UIにはまだ自動接続しない。
+Ver2.5では、会話UIからWeb Readerを実行できる。
 
 URLを入力しただけでWeb Readerを実行しない。
-将来会話UIへ接続するときは、ユーザーに「Webを読み取ってよいか」を確認し、明示許可がある場合だけ `user_confirmed=True` にする。
+ユーザーに「Webを読み取ってよいか」を確認し、保留中の確認に対して肯定応答がある場合だけ `user_confirmed=True` にする。
+その場合だけToolRunner経由でWeb Readerを実行する。
 
 読めなかった場合は、読めたふりをしない。
+成功時はtitle / final_url / text_previewを確認する。
+Reader結果のMemory保存はまだ行わない。
