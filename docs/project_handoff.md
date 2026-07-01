@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.2
+現在バージョン: Ver2.3
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver2.2時点では、以下が実装済みである。
+Ver2.3時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -104,6 +104,7 @@ Ver1.10: Ver1.x総仕上げ確認
 Ver2.0: Web Reader最小実用版
 Ver2.1: Web Reader手動実行テストと会話UI接続方針整理
 Ver2.2: URL入力検出から確認メッセージ生成までのdry-run
+Ver2.3: URL確認メッセージを会話UIに表示するdry-run接続
 ```
 
 ## 現在の主要ファイル
@@ -126,6 +127,7 @@ core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基
 core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージを作るdry-run
+core/personal_ai.py: URL確認メッセージを会話返答として返すdry-run接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -198,6 +200,7 @@ scripts/check_ver1100.py
 scripts/check_ver200.py
 scripts/check_ver210.py
 scripts/check_ver220.py
+scripts/check_ver230.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -216,7 +219,7 @@ OpenAI接続
 Claude / Gemini接続
 Web Readerの会話UI自動接続
 Web Readerの会話UI自動接続はまだ未実装
-Web Reader確認メッセージの会話UI表示
+Web Readerの `user_confirmed=True` 後の実行接続
 YouTube実要約
 PDF読み取り
 画像読み取り
@@ -240,18 +243,20 @@ v2.0.0 タグ作成済み
 GitHub Release PersonalAI Version 2.0.0 作成済み
 Ver2.1でWeb Reader手動実行テストと会話UI接続方針を整理済み
 Ver2.2でURL入力検出から確認メッセージ生成までのdry-runを追加
+Ver2.3でURL確認メッセージを会話返答として表示するdry-run接続を追加
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
-会話UIへの実接続はまだしない
+会話UIからToolRunnerはまだ呼ばない
+user_confirmed=True後の実行接続はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.2後の候補:
+Ver2.3後の候補:
 
 ```text
-Ver2.3: URL確認メッセージを会話UIに表示するdry-run接続
-Ver2.3: ユーザー確認応答を受け取る前段設計
+Ver2.4: ユーザー確認応答を受け取る前段設計
+Ver2.4: user_confirmed=True後のToolRunner接続設計
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針

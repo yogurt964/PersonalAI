@@ -16,6 +16,13 @@ Ver2.2では、URL入力検出から確認メッセージ生成までのdry-run�
 URLを見つけただけで勝手にアクセスしない。
 Ver2.2 checkは実Webアクセスしない。
 
+Ver2.3では、URL確認メッセージを会話返答として表示するdry-run接続を追加する。
+この段階でもWebアクセスはまだしない。
+ToolRunnerはまだ会話UIから呼ばない。
+`user_confirmed=True` 後の実行接続は今後扱う。
+URLを見つけただけで勝手にWebアクセスしない。
+Ver2.3 checkは実Webアクセスしない。
+
 ## 将来の接続案
 
 将来の接続案:
@@ -23,10 +30,11 @@ Ver2.2 checkは実Webアクセスしない。
 1. `InputAnalyzer` がURL入力を検出する
 2. URL確認メッセージ生成dry-runで「Webを読み取ってよいか」を作る
 3. `PersonalAI` が確認メッセージを会話UIに表示する
-4. ユーザーが明示許可した場合のみ `user_confirmed=True` にする
-5. `ToolRunner` 経由で `WebReaderAdapter` を実行する
-6. 結果を会話文脈に渡す
-7. `ToolExecutionLog` に実行結果を残す
+4. ユーザー確認応答を受け取る前段設計を追加する
+5. ユーザーが明示許可した場合のみ `user_confirmed=True` にする
+6. `ToolRunner` 経由で `WebReaderAdapter` を実行する
+7. 結果を会話文脈に渡す
+8. `ToolExecutionLog` に実行結果を残す
 
 この流れができるまでは、会話UIからWeb Readerを自動実行しない。
 
@@ -63,6 +71,7 @@ Reader結果のMemory保存方針は、Ver2.xの別作業として整理する�
 以下はまだ実装しない。
 
 - Web Readerの会話UI自動実行
+- `user_confirmed=True` 後の実行接続
 - PDF Reader
 - Image Reader
 - YouTube Reader

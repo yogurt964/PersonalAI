@@ -18,9 +18,38 @@ from core.input_analyzer import InputAnalyzer
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
+from core.web_reader_confirmation import build_web_reader_confirmation
 from database.chat_history import get_recent_messages, save_message
 from database.memory_manager import get_memories, save_memory
 from database.models import create_database
+
+
+def build_web_reader_confirmation_response(user_input, input_analysis=None, confirmation=None):
+    """会話返答として出せるWeb Reader確認メッセージをdry-runで作ります。
+
+    URLがない場合やYouTube URLの場合は、Web Reader確認メッセージにしません。
+    この関数はTool実行処理を呼ばず、メッセージだけを返します。
+    """
+    if _get_analysis_value(input_analysis, "input_type") == "youtube":
+        return None
+
+    confirmation = confirmation or build_web_reader_confirmation(user_input)
+
+    if not confirmation.needs_confirmation:
+        return None
+
+    return confirmation.message
+
+
+def _get_analysis_value(input_analysis, key, default=None):
+    """InputAnalyzerのdictや将来のモデル形式から値を取り出します。"""
+    if input_analysis is None:
+        return default
+
+    if isinstance(input_analysis, dict):
+        return input_analysis.get(key, default)
+
+    return getattr(input_analysis, key, default)
 
 
 class PersonalAI:
@@ -49,7 +78,9 @@ class PersonalAI:
         self.last_memory_usage = None
         self.last_conversation_mode = None
         self.last_conversation_quality_guidance = None
+        self.last_web_reader_confirmation = None
         self.pending_preference_confirmation = None
+        self.pending_web_reader_confirmation = None
         self.last_response = None
 
     def run(self):
@@ -77,10 +108,33 @@ class PersonalAI:
             self.save_assistant_message(pending_response)
             return pending_response
 
+        pending_web_reader_response = self.handle_pending_web_reader_confirmation(user_input)
+
+        if pending_web_reader_response:
+            self.last_response = pending_web_reader_response
+            self.save_assistant_message(pending_web_reader_response)
+            return pending_web_reader_response
+
         # 入力内容を構造化して、将来のPlannerやRouterが使いやすい形にします。
         # 現時点ではWebやYouTubeを実際に読みに行く処理は行いません。
         input_analysis = self.input_analyzer.analyze(user_input)
         self.last_input_analysis = input_analysis
+
+        # Ver2.3では、URLを含む入力に対してWeb Reader実行前の確認メッセージだけを返します。
+        # ここではWebアクセスせず、許可後の実行接続もまだ行いません。
+        web_reader_confirmation = build_web_reader_confirmation(user_input)
+        self.last_web_reader_confirmation = web_reader_confirmation
+        web_reader_response = build_web_reader_confirmation_response(
+            user_input,
+            input_analysis=input_analysis,
+            confirmation=web_reader_confirmation,
+        )
+
+        if web_reader_response:
+            self.pending_web_reader_confirmation = web_reader_confirmation.to_dict()
+            self.last_response = web_reader_response
+            self.save_assistant_message(web_reader_response)
+            return web_reader_response
 
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
@@ -248,6 +302,34 @@ class PersonalAI:
             "domain": preference_confirmation.get("domain", "food"),
             "question": preference_confirmation.get("question", ""),
         }
+
+    def handle_pending_web_reader_confirmation(self, user_input):
+        """Web Reader確認後の返答を、実行せずに安全に扱います。"""
+        if not self.pending_web_reader_confirmation:
+            return None
+
+        text = str(user_input or "").strip()
+
+        if self._is_affirmative_response(text):
+            self.pending_web_reader_confirmation = None
+            return (
+                "Web Readerの実行接続はまだ未実装です。\n"
+                "現在はURL確認メッセージの表示dry-runまで対応しています。"
+            )
+
+        if self._is_negative_response(text):
+            self.pending_web_reader_confirmation = None
+            return "了解しました。Web Readerは実行しません。"
+
+        # 別の話題に移った場合は、古い確認待ちを残さず通常処理へ戻します。
+        self.pending_web_reader_confirmation = None
+        return None
+
+    def _is_affirmative_response(self, text):
+        return text in ["はい", "お願いします", "お願い", "OK", "ok", "Yes", "yes", "実行して"]
+
+    def _is_negative_response(self, text):
+        return text in ["いいえ", "やめて", "キャンセル", "不要", "しないで", "no", "No"]
 
     def build_messages(
         self,

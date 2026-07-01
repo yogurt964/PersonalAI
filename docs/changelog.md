@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 2.3
+
+開始内容:
+
+- URL確認メッセージを会話返答として表示するdry-run接続を追加
+- `core/personal_ai.py` でWeb Reader確認メッセージを返せるようにした
+- ユーザーが「はい」と答えてもWeb Reader実行には進まない方針を維持
+- ToolRunnerを会話UIから呼ばず、WebReaderAdapterのfetchも実行しない方針を維持
+- `scripts/check_ver230.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver230.py` を追加
+
 ## Version 2.2
 
 開始内容:

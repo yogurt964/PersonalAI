@@ -73,26 +73,34 @@ def check_risk(label, text, expected_risk):
     return 0
 
 
-def check_personal_ai_url_unimplemented():
+def check_personal_ai_url_confirmation_dry_run():
     ai = PersonalAI()
     ai.save_user_message = lambda _message: None
     ai.save_assistant_message = lambda _message: None
 
     response = ai.handle_user_input("https://example.com を要約して")
 
-    if "未実装" not in response:
+    if "Web Readerで読み取ってもよいですか" not in response:
         print(f"[NG] PersonalAI URL response -> {response}")
         return 1
 
-    if ai.last_capability_analysis is None:
-        print("[NG] PersonalAI last_capability_analysis was not set")
+    if "https://example.com" not in response:
+        print(f"[NG] PersonalAI URL response missing URL -> {response}")
         return 1
 
-    if ai.last_capability_analysis["primary_capability"] != "web_read_required":
-        print(f"[NG] PersonalAI capability -> {ai.last_capability_analysis}")
+    if "外部Webへアクセス" not in response or "確認が必要" not in response:
+        print(f"[NG] PersonalAI URL response missing confirmation wording -> {response}")
         return 1
 
-    print("[OK] PersonalAI returns unimplemented URL message")
+    if ai.last_web_reader_confirmation is None:
+        print("[NG] PersonalAI last_web_reader_confirmation was not set")
+        return 1
+
+    if not ai.pending_web_reader_confirmation:
+        print("[NG] PersonalAI pending_web_reader_confirmation was not set")
+        return 1
+
+    print("[OK] PersonalAI returns Web Reader confirmation dry-run")
     return 0
 
 
@@ -192,7 +200,7 @@ def main():
         failures += check_capability(label, text, False, "openai_required")
         failures += check_includes(label, text, "missing_capabilities", ["openai"])
 
-    failures += check_personal_ai_url_unimplemented()
+    failures += check_personal_ai_url_confirmation_dry_run()
 
     if failures:
         print(f"{failures} checks failed.")
