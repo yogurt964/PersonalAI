@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 2.4
+
+開始内容:
+
+- Web Reader確認応答の前段処理を整理
+- 肯定・否定・別話題・pendingなしをdry-run結果として扱えるようにした
+- 肯定時にToolRequest候補を作れるようにした
+- ただしWeb Reader実行、ToolRunner呼び出し、run_tool_request呼び出し、fetch実行はまだ行わない
+- `scripts/check_ver240.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver240.py` を追加
+
 ## Version 2.3
 
 開始内容:

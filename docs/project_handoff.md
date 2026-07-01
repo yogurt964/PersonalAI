@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.3
+現在バージョン: Ver2.4
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver2.3時点では、以下が実装済みである。
+Ver2.4時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -105,6 +105,7 @@ Ver2.0: Web Reader最小実用版
 Ver2.1: Web Reader手動実行テストと会話UI接続方針整理
 Ver2.2: URL入力検出から確認メッセージ生成までのdry-run
 Ver2.3: URL確認メッセージを会話UIに表示するdry-run接続
+Ver2.4: Web Reader確認応答の前段処理とToolRequest候補作成dry-run
 ```
 
 ## 現在の主要ファイル
@@ -126,7 +127,7 @@ core/tool_flow.py: ToolRequest / Registry / Permissionのdry-runプレビュー
 core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基礎
 core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
-core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージを作るdry-run
+core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
 core/personal_ai.py: URL確認メッセージを会話返答として返すdry-run接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
@@ -201,6 +202,7 @@ scripts/check_ver200.py
 scripts/check_ver210.py
 scripts/check_ver220.py
 scripts/check_ver230.py
+scripts/check_ver240.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -244,19 +246,21 @@ GitHub Release PersonalAI Version 2.0.0 作成済み
 Ver2.1でWeb Reader手動実行テストと会話UI接続方針を整理済み
 Ver2.2でURL入力検出から確認メッセージ生成までのdry-runを追加
 Ver2.3でURL確認メッセージを会話返答として表示するdry-run接続を追加
+Ver2.4で確認応答の前段処理とToolRequest候補作成dry-runを追加
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
 会話UIからToolRunnerはまだ呼ばない
+会話UIからrun_tool_requestはまだ呼ばない
 user_confirmed=True後の実行接続はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.3後の候補:
+Ver2.4後の候補:
 
 ```text
-Ver2.4: ユーザー確認応答を受け取る前段設計
-Ver2.4: user_confirmed=True後のToolRunner接続設計
+Ver2.5: user_confirmed=True後のToolRunner接続設計
+Ver2.5: 実Web Reader手動接続テスト
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針

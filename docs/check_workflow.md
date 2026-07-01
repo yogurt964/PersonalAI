@@ -71,12 +71,14 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver240.py`
 - `scripts/check_ver230.py`
 - `scripts/check_ver220.py`
 - `scripts/check_ver210.py`
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.4では、`check_ver240.py` で確認応答のdry-runとToolRequest候補作成を確認する。
 Ver2.3では、`check_ver230.py` でURL確認メッセージを会話返答として表示するdry-run接続を確認する。
 Ver2.2では、`check_ver220.py` でURL入力検出から確認メッセージ生成までのdry-runを確認する。
 Ver2.0では、`check_ver200.py` でWeb Reader最小実用版を確認する。
