@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.6
+
+開始内容:
+
+- Web Reader実Web手動テスト結果をdocsへ整理
+- `https://example.com` を会話UIから読み取り、`Example Domain` と `text_preview` が返ったことを記録
+- 自動チェックではfake fetcherを使い、実Webアクセスしない方針を維持
+- Reader結果のMemory保存はまだしない方針を維持
+- PDF / Image / YouTube / File Reader は今後の段階追加として維持
+- `scripts/check_ver260.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver260.py` を追加
+
 ## Version 2.5
 
 開始内容:

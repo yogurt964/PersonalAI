@@ -94,3 +94,67 @@ URLを入力しただけでWeb Readerを実行しない。
 読めなかった場合は、読めたふりをしない。
 成功時はtitle / final_url / text_previewを確認する。
 Reader結果のMemory保存はまだ行わない。
+
+## Ver2.5 実Web手動確認結果
+
+Ver2.5で、会話UIからのWeb Reader実行をユーザー環境で手動確認した。
+
+確認URL:
+
+```text
+https://example.com
+```
+
+実行コマンド:
+
+```powershell
+venv\Scripts\python.exe -B app.py
+```
+
+入力:
+
+```text
+このURLを読んで https://example.com
+```
+
+確認メッセージ:
+
+```text
+このURLをWeb Readerで読み取ってもよいですか？
+https://example.com
+
+外部Webへアクセスするため、実行前に確認が必要です。
+```
+
+続けて入力:
+
+```text
+はい
+```
+
+結果:
+
+- 確認メッセージが表示された
+- `はい` の後にWeb Readerが実行された
+- タイトルとして `Example Domain` が返った
+- `text_preview` が返った
+- `git status` は clean だった
+
+実際の返答要点:
+
+```text
+Web Readerで読み取りました。
+
+タイトル: Example Domain
+URL: https://example.com
+本文プレビュー:
+Example Domain This domain is for use in documentation examples without needing permission. Avoid use in operations. Learn more
+```
+
+## Ver2.6で記録した安全方針
+
+Ver2.6では、上記の実Web手動確認結果をdocsに整理した。
+
+自動チェックでは引き続きfake fetcherを使い、実Webアクセスしない。
+実Webアクセスは、ユーザー確認つきの手動確認でのみ行う。
+Reader結果のMemory保存はまだ行わない。

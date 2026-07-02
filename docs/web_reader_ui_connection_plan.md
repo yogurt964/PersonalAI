@@ -41,6 +41,11 @@ URL検出だけではWebアクセスしない。
 Reader結果のMemory保存はまだしない。
 PDF / Image / YouTube / File Readerは今後扱う。
 
+Ver2.6では、Ver2.5の会話UI接続を使い、ユーザー環境で `https://example.com` の実Web手動確認が成功したことを記録する。
+入力 `このURLを読んで https://example.com` に対して確認メッセージが表示され、`はい` の後に `Example Domain` と `text_preview` が返った。
+自動チェックでは引き続きfake fetcherを使い、実Webアクセスしない。
+Reader結果のMemory保存はまだしない。
+
 ## 将来の接続案
 
 将来の接続案:
@@ -55,7 +60,8 @@ PDF / Image / YouTube / File Readerは今後扱う。
 8. 結果を会話文脈に渡す
 9. `ToolExecutionLog` に実行結果を残す
 
-この流れができるまでは、会話UIからWeb Readerを自動実行しない。
+Ver2.5で、1から8までの最小接続はできた。
+今後は、返答の自然さ、失敗時の案内、Reader結果のMemory保存方針を段階的に整理する。
 
 ## 安全方針
 
@@ -89,9 +95,8 @@ Reader結果のMemory保存方針は、Ver2.xの別作業として整理する�
 
 以下はまだ実装しない。
 
-- Web Readerの会話UI自動実行
-- `user_confirmed=True` 後の実行接続
-- 実Web Reader手動接続テスト
+- URL検出だけで確認なしにWebアクセスすること
+- Reader結果のMemory自動保存
 - PDF Reader
 - Image Reader
 - YouTube Reader

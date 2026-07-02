@@ -16,6 +16,7 @@ Web Readerは、Reader方面の最初の実用テスト版である。
 - Ver2.3: URL確認メッセージを会話返答として表示するdry-run接続
 - Ver2.4: 確認応答の前段処理とToolRequest候補作成dry-run
 - Ver2.5: user_confirmed=True後にToolRunner経由でWeb Readerを実行
+- Ver2.6: 実Web手動テスト結果をdocsへ整理
 
 Ver2.1では、会話UI自動接続はまだしない。
 URLを検出しただけで自動Webアクセスしない。
@@ -48,6 +49,12 @@ URL検出だけではWebアクセスしない。
 成功時はtitle / final_url / text_previewを返す。
 失敗時は読めたふりをしない。
 Reader結果のMemory保存はまだしない。
+
+Ver2.6では、Ver2.5の会話UI接続を使い、ユーザー環境で `https://example.com` の実Web手動確認が成功したことをdocsへ記録した。
+手動確認では、確認メッセージ表示後に `はい` と答えた場合だけWeb Readerが実行され、`Example Domain` と `text_preview` が返った。
+自動チェックでは引き続きfake fetcherを使い、実Webアクセスしない。
+Reader結果のMemory保存はまだしない。
+PDF Reader / Image Reader / YouTube Reader / File Reader は今後の段階追加とする。
 
 ## Web Readerの責務
 
@@ -176,8 +183,7 @@ Web Readerは、読めないページを読めたとは言わない。
 
 ## 今後の課題
 
-- 会話UIからの許可確認つきWeb Reader実行
-- 実Webアクセスの手動テスト整理
+- Web Reader結果の会話品質改善
 - 文字コードやContent-Typeの扱い改善
 - 取得失敗時の代替案提示
 - Reader結果のMemory保存方針

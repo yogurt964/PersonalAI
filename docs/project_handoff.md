@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.5
+現在バージョン: Ver2.6
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver2.5時点では、以下が実装済みである。
+Ver2.6時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -107,6 +107,7 @@ Ver2.2: URL入力検出から確認メッセージ生成までのdry-run
 Ver2.3: URL確認メッセージを会話UIに表示するdry-run接続
 Ver2.4: Web Reader確認応答の前段処理とToolRequest候補作成dry-run
 Ver2.5: user_confirmed=True後にToolRunner経由でWeb Readerを実行
+Ver2.6: Web Reader実Web手動テスト結果整理
 ```
 
 ## 現在の主要ファイル
@@ -205,6 +206,7 @@ scripts/check_ver220.py
 scripts/check_ver230.py
 scripts/check_ver240.py
 scripts/check_ver250.py
+scripts/check_ver260.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -221,8 +223,6 @@ scripts/run_ver2_checks.py
 ```text
 OpenAI接続
 Claude / Gemini接続
-Web Readerの会話UI自動接続
-Web Reader実Webアクセスの手動テスト結果整理
 YouTube実要約
 PDF読み取り
 画像読み取り
@@ -249,6 +249,8 @@ Ver2.2でURL入力検出から確認メッセージ生成までのdry-runを追�
 Ver2.3でURL確認メッセージを会話返答として表示するdry-run接続を追加
 Ver2.4で確認応答の前段処理とToolRequest候補作成dry-runを追加
 Ver2.5でuser_confirmed=True後にToolRunner経由でWeb Readerを実行する接続を追加
+Ver2.6で https://example.com の実Web手動テスト結果をdocsへ整理
+実Web手動確認では Example Domain と text_preview が返った
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -258,12 +260,12 @@ Reader結果のMemory保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.5後の候補:
+Ver2.6後の候補:
 
 ```text
-Ver2.6: 実Web Reader手動テスト結果の整理
-Ver2.6: Web Reader結果の会話品質改善
-Ver2.6: Reader結果のMemory保存方針設計
+Ver2.7: Web Reader結果の会話品質改善
+Ver2.7: Reader結果のMemory保存方針設計
+Ver2.7: Web Reader失敗時応答の改善
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針
