@@ -131,14 +131,13 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.6",
+            "Ver2.6: Web Reader実Web手動テスト結果整理",
             "Ver2.5でuser_confirmed=True後にToolRunner経由でWeb Readerを実行する接続を追加",
             "Ver2.6で https://example.com の実Web手動テスト結果をdocsへ整理",
             "実Web手動確認では Example Domain と text_preview が返った",
             "自動checkでは実Webアクセスしない",
             "Reader結果のMemory保存はまだしない",
             "PDF/Image/YouTube/File Readerはまだ未実装",
-            "Ver2.7: Web Reader結果の会話品質改善",
         ],
     )
 

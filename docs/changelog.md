@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.7
+
+開始内容:
+
+- 完成形ビジョンをdocs化
+- `docs/final_product_vision.md` を追加
+- `docs/conversation_policy.md` を追加
+- 高自律・記憶・ModelRouter / ToolRouter・自己アップデート・自律調査方針を整理
+- 会話品質・返答方針を整理
+- 実装はまだ行わない方針を維持
+- `scripts/check_ver270.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver270.py` を追加
+
 ## Version 2.6
 
 開始内容:

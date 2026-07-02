@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver270.py`
 - `scripts/check_ver260.py`
 - `scripts/check_ver250.py`
 - `scripts/check_ver240.py`
@@ -80,6 +81,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.7では、`check_ver270.py` で完成形ビジョン、会話品質・返答方針、Ver2.7のdocs更新を確認する。
+このcheckはdocs確認のみを行い、実Webアクセス、DB書き込み、LLM実行、ToolRunner実行をしない。
 Ver2.6では、`check_ver260.py` で実Web手動テスト結果がdocsに記録されていることを確認する。
 このcheckはdocs確認のみを行い、実Webアクセスしない。
 Ver2.5では、`check_ver250.py` でuser_confirmed=True後のToolRunner経由Web Reader実行をfake fetcherで確認する。
