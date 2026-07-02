@@ -18,6 +18,7 @@ Web Readerは、Reader方面の最初の実用テスト版である。
 - Ver2.5: user_confirmed=True後にToolRunner経由でWeb Readerを実行
 - Ver2.6: 実Web手動テスト結果をdocsへ整理
 - Ver2.8: Web Reader結果の会話品質を改善
+- Ver2.9: Reader結果のMemory保存方針をdocs化
 
 Ver2.1では、会話UI自動接続はまだしない。
 URLを検出しただけで自動Webアクセスしない。
@@ -63,6 +64,11 @@ Ver2.8では、Web Reader成功時の会話返答を見やすくした。
 失敗時は読めたふりをせず、理由と次にできることを返す。
 自動チェックではfake fetcherを使い、実Webアクセスしない。
 Reader結果のMemory保存はまだしない。
+
+Ver2.9では、Reader結果のMemory保存方針をdocs化した。
+Web Reader結果を将来保存する場合は、本文全文を勝手に保存せず、Memory CandidateやProject Knowledgeなどの中間形式を使う。
+保存前にユーザー確認が必要な条件を整理した。
+Web Reader結果のMemory保存はまだしない。
 
 ## Web Readerの責務
 
@@ -193,5 +199,5 @@ Web Readerは、読めないページを読めたとは言わない。
 
 - 文字コードやContent-Typeの扱い改善
 - 取得失敗時の代替案提示
-- Reader結果のMemory保存方針
+- Memory Candidate生成のdry-run設計
 - PDF Reader / Image Reader / YouTube Reader / File Reader の段階追加

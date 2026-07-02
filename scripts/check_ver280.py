@@ -304,7 +304,6 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.8",
             "Ver2.8: Web Reader結果の会話品質改善",
             "成功時の返答を見やすくした",
             "Reader結果のMemory保存はまだしない",

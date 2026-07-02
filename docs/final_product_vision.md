@@ -127,6 +127,10 @@ PersonalAIでは以下の方針にする。
 Memory物理削除は慎重に扱う。
 削除より先に、無効化、Archive化、圧縮、要約を検討する。
 
+Ver2.9では、Reader結果のMemory保存方針を `docs/reader_memory_policy.md` に分けて整理した。
+Reader結果は勝手に長期Memoryへ保存せず、Memory Candidate、Project Knowledge、User Preference、Archiveなどの段階を通して扱う。
+機密情報、個人情報、長文本文は特に慎重に扱い、必要に応じて保存前にユーザー確認する。
+
 ## 6. ModelRouter / ToolRouter 方針
 
 Qwen / OpenAI / Claude / Gemini などは、PersonalAIそのものではなく、PersonalAIが使う道具として扱う。

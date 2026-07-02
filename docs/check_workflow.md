@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver290.py`
 - `scripts/check_ver280.py`
 - `scripts/check_ver270.py`
 - `scripts/check_ver260.py`
@@ -82,6 +83,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.9では、`check_ver290.py` でReader結果のMemory保存方針docsを確認する。
+このcheckはdocs確認のみを行い、実Webアクセス、DB書き込み、LLM実行、ToolRunner実行をしない。
 Ver2.8では、`check_ver280.py` でWeb Reader結果の会話返答品質を確認する。
 成功時の表示、失敗時の読めたふり防止、user_confirmed=False時の未実行、fake fetcherのみ使用、DB非変更を確認する。
 Ver2.7では、`check_ver270.py` で完成形ビジョン、会話品質・返答方針、Ver2.7のdocs更新を確認する。

@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.9
+
+開始内容:
+
+- Reader結果のMemory保存方針をdocs化
+- `docs/reader_memory_policy.md` を追加
+- Reader結果から保存する候補、保存しないもの、保存前確認が必要な条件を整理
+- Memory Candidate / Project Knowledge / User Preference / Archive の扱いを整理
+- Memory保存の本実装はまだしない方針を維持
+- Web Reader結果のMemory保存はまだしない方針を維持
+- `scripts/check_ver290.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver290.py` を追加
+
 ## Version 2.8
 
 開始内容:
