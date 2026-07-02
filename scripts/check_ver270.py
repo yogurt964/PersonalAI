@@ -150,12 +150,11 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.7",
+            "Ver2.7: 完成形ビジョンと自律・記憶・モデル選定方針整理",
             "Ver2.7で完成形ビジョンをdocs化",
             "docs/final_product_vision.md",
             "docs/conversation_policy.md",
             "高自律・記憶・ModelRouter/ToolRouter・自己アップデート・自律調査方針を整理",
-            "実装はまだしない",
             "Ver2.8: Web Reader結果の会話品質改善",
         ],
     )

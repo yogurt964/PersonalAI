@@ -158,3 +158,32 @@ Ver2.6では、上記の実Web手動確認結果をdocsに整理した。
 自動チェックでは引き続きfake fetcherを使い、実Webアクセスしない。
 実Webアクセスは、ユーザー確認つきの手動確認でのみ行う。
 Reader結果のMemory保存はまだ行わない。
+
+## Ver2.8での表示改善
+
+Ver2.8では、Web Reader結果の会話品質を改善した。
+
+成功時は、タイトル、URL、本文プレビューを分けて表示する。
+本文プレビューの余分な空白を整理し、長すぎる場合は短く表示する。
+失敗時は読めたふりをせず、理由と次にできることを返す。
+
+Ver2.8以降の表示例:
+
+```text
+Web Readerで読み取りました。
+
+タイトル:
+Example Domain
+
+URL:
+https://example.com
+
+本文プレビュー:
+Example Domain
+This domain is for use in documentation examples without needing permission.
+Avoid use in operations.
+Learn more
+```
+
+自動チェックではfake fetcherを使い、実Webアクセスしない。
+Reader結果のMemory保存はまだ行わない。

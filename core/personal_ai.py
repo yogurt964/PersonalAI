@@ -1,3 +1,6 @@
+import re
+import textwrap
+
 from ai.llm import SYSTEM_PROMPT
 from ai.conversation_quality_policy import (
     build_conversation_quality_guidance,
@@ -32,6 +35,10 @@ from database.memory_manager import get_memories, save_memory
 from database.models import create_database
 
 
+WEB_READER_PREVIEW_MAX_CHARS = 360
+WEB_READER_PREVIEW_LINE_WIDTH = 90
+
+
 def build_web_reader_confirmation_response(user_input, input_analysis=None, confirmation=None):
     """会話返答として出せるWeb Reader確認メッセージをdry-runで作ります。
 
@@ -58,6 +65,76 @@ def _get_analysis_value(input_analysis, key, default=None):
         return input_analysis.get(key, default)
 
     return getattr(input_analysis, key, default)
+
+
+def _clean_web_reader_display_text(value):
+    """Web Reader表示用に、余分な空白や改行を1つの空白へ整理します。"""
+    if value is None:
+        return ""
+
+    return " ".join(str(value).split())
+
+
+def _shorten_web_reader_preview(text, max_chars=WEB_READER_PREVIEW_MAX_CHARS):
+    """本文プレビューが長すぎる場合、読みやすい長さに切ります。"""
+    text = _clean_web_reader_display_text(text)
+
+    if len(text) <= max_chars:
+        return text
+
+    shortened = text[:max_chars].rstrip()
+    last_space = shortened.rfind(" ")
+
+    if last_space >= int(max_chars * 0.6):
+        shortened = shortened[:last_space].rstrip()
+
+    return f"{shortened}..."
+
+
+def _split_web_reader_preview_lines(text):
+    """句点などを目安に、本文プレビューを数行へ分けます。"""
+    if not text:
+        return []
+
+    parts = re.split(r"(?<=[。！？.!?])\s+", text)
+    lines = []
+
+    for part in parts:
+        part = part.strip()
+
+        if not part:
+            continue
+
+        wrapped_lines = textwrap.wrap(
+            part,
+            width=WEB_READER_PREVIEW_LINE_WIDTH,
+            break_long_words=False,
+            break_on_hyphens=False,
+        )
+        lines.extend(wrapped_lines or [part])
+
+    return lines
+
+
+def _format_web_reader_preview(text, title=None):
+    """本文プレビューを、会話で読みやすい複数行の表示に整えます。"""
+    preview = _shorten_web_reader_preview(text)
+
+    if not preview:
+        return "(本文プレビューなし)"
+
+    title_text = _clean_web_reader_display_text(title)
+    lines = []
+
+    if title_text and preview.startswith(f"{title_text} "):
+        lines.append(title_text)
+        preview = preview[len(title_text):].strip()
+    elif title_text and preview == title_text:
+        return title_text
+
+    lines.extend(_split_web_reader_preview_lines(preview))
+
+    return "\n".join(lines) if lines else "(本文プレビューなし)"
 
 
 class PersonalAI:
@@ -402,27 +479,35 @@ class PersonalAI:
             reason = getattr(result, "message", "") or getattr(result, "error", "")
             return (
                 "Web Readerは実行されませんでした。\n\n"
-                f"理由: {reason}"
+                "理由:\n"
+                f"{reason or 'ユーザー確認がないため、外部Webアクセスを行いませんでした。'}"
             )
 
         if not getattr(result, "success", False):
             reason = getattr(result, "error", None) or getattr(result, "message", "")
             return (
                 "Web Readerで読み取りを試みましたが、失敗しました。\n\n"
-                f"理由: {reason}"
+                "理由:\n"
+                f"{reason or '原因は特定できませんでした。'}\n\n"
+                "次にできること:\n"
+                "- URLが正しいか確認する\n"
+                "- ログや別のURLを試す"
             )
 
         data = getattr(result, "data", {}) or {}
-        title = data.get("title") or "(タイトルなし)"
-        final_url = data.get("final_url") or data.get("url") or ""
+        title = _clean_web_reader_display_text(data.get("title")) or "(タイトルなし)"
+        final_url = _clean_web_reader_display_text(data.get("final_url") or data.get("url"))
         text_preview = data.get("text_preview") or data.get("text") or ""
+        formatted_preview = _format_web_reader_preview(text_preview, title=title)
 
         return (
             "Web Readerで読み取りました。\n\n"
-            f"タイトル: {title}\n"
-            f"URL: {final_url}\n"
+            "タイトル:\n"
+            f"{title}\n\n"
+            "URL:\n"
+            f"{final_url or '(URLなし)'}\n\n"
             "本文プレビュー:\n"
-            f"{text_preview}"
+            f"{formatted_preview}"
         )
 
     def build_messages(

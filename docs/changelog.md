@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.8
+
+開始内容:
+
+- Web Reader結果の会話品質を改善
+- 成功時の返答を見やすくした
+- 本文プレビューの余分な空白を整理し、長すぎる場合は短く表示するようにした
+- 失敗時に読めたふりをしない方針を維持
+- 自動チェックではfake fetcherを使い、実Webアクセスしない方針を維持
+- Reader結果のMemory保存はまだしない方針を維持
+- `scripts/check_ver280.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver280.py` を追加
+
 ## Version 2.7
 
 開始内容:
