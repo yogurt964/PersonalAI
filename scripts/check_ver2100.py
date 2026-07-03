@@ -215,12 +215,9 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.10",
             "Ver2.10: Memory Candidate生成のdry-run設計",
             "core/memory_candidate.py",
             "Reader結果から保存候補を作る土台を追加",
-            "Web Reader本体にはまだ自動接続しない",
-            "Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続",
         ],
     )
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.11
+
+開始内容:
+
+- Memory CandidateをWeb Reader結果にdry-run接続
+- Web Reader成功時に保存候補を作る
+- Web Reader成功時の返答にMemory Candidate dry-run情報を短く表示
+- 失敗時・未実行時はMemory Candidateを作らない
+- まだMemory保存はしない方針を維持
+- DBスキーマ変更はしない方針を維持
+- Memory CandidateもDB保存しない方針を維持
+- 自動チェックではfake fetcherを使い、実Webアクセスしない
+- `scripts/check_ver2110.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2110.py` を追加
+
 ## Version 2.10
 
 開始内容:

@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2110.py`
 - `scripts/check_ver2100.py`
 - `scripts/check_ver290.py`
 - `scripts/check_ver280.py`
@@ -84,6 +85,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.11では、`check_ver2110.py` でMemory CandidateをWeb Reader結果にdry-run接続したことを確認する。
+このcheckはfake fetcherのみを使い、実Webアクセス、DB書き込み、LLM実行、Memory保存、Memory CandidateのDB保存をしない。
 Ver2.10では、`check_ver2100.py` でMemory Candidate生成のdry-runを確認する。
 このcheckは実Webアクセス、DB書き込み、LLM実行、ToolRunner実行、Memory保存をしない。
 Ver2.9では、`check_ver290.py` でReader結果のMemory保存方針docsを確認する。

@@ -18,6 +18,7 @@ from ai.preference_memory import save_preference_memories
 from core.capability_manager import CapabilityManager
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
+from core.memory_candidate import build_memory_candidate_from_reader_result
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
@@ -172,6 +173,7 @@ class PersonalAI:
         self.last_web_reader_tool_run_result = None
         self.last_web_reader_tool_result = None
         self.last_tool_execution_record = None
+        self.last_memory_candidate = None
         self.pending_preference_confirmation = None
         self.pending_web_reader_confirmation = None
         self.last_response = None
@@ -228,6 +230,7 @@ class PersonalAI:
         self.last_web_reader_tool_run_result = None
         self.last_web_reader_tool_result = None
         self.last_tool_execution_record = None
+        self.last_memory_candidate = None
         web_reader_response = build_web_reader_confirmation_response(
             user_input,
             input_analysis=input_analysis,
@@ -476,6 +479,7 @@ class PersonalAI:
     def build_web_reader_tool_response(self, result):
         """ToolResultを、ユーザーに見せる短い返答へ変換します。"""
         if not getattr(result, "executed", False):
+            self.last_memory_candidate = None
             reason = getattr(result, "message", "") or getattr(result, "error", "")
             return (
                 "Web Readerは実行されませんでした。\n\n"
@@ -484,6 +488,7 @@ class PersonalAI:
             )
 
         if not getattr(result, "success", False):
+            self.last_memory_candidate = None
             reason = getattr(result, "error", None) or getattr(result, "message", "")
             return (
                 "Web Readerで読み取りを試みましたが、失敗しました。\n\n"
@@ -499,6 +504,12 @@ class PersonalAI:
         final_url = _clean_web_reader_display_text(data.get("final_url") or data.get("url"))
         text_preview = data.get("text_preview") or data.get("text") or ""
         formatted_preview = _format_web_reader_preview(text_preview, title=title)
+        memory_candidate = build_memory_candidate_from_reader_result(
+            result,
+            source_tool="web_reader",
+        )
+        self.last_memory_candidate = memory_candidate
+        memory_candidate_text = self.format_memory_candidate_dry_run(memory_candidate)
 
         return (
             "Web Readerで読み取りました。\n\n"
@@ -507,8 +518,38 @@ class PersonalAI:
             "URL:\n"
             f"{final_url or '(URLなし)'}\n\n"
             "本文プレビュー:\n"
-            f"{formatted_preview}"
+            f"{formatted_preview}\n\n"
+            f"{memory_candidate_text}"
         )
+
+    def format_memory_candidate_dry_run(self, candidate):
+        """Memory Candidateを、保存しないdry-run情報として短く表示します。"""
+        if not candidate:
+            return (
+                "Memory Candidate dry-run:\n"
+                "保存候補は作成されませんでした。"
+            )
+
+        reasons = candidate.get("reasons") or []
+        reason_lines = [f"- {reason}" for reason in reasons[:3]]
+
+        if len(reasons) > 3:
+            reason_lines.append("- ほかの理由は省略しました。")
+
+        return (
+            "Memory Candidate dry-run:\n"
+            f"保存候補タイプ: {candidate.get('candidate_type', 'unknown')}\n"
+            f"重要度: {candidate.get('importance', 'unknown')}\n"
+            f"リスク: {candidate.get('risk_level', 'unknown')}\n"
+            f"保存実行: {self.format_boolean_label(candidate.get('should_save'), true_label='する', false_label='しない')}\n"
+            f"確認必要: {self.format_boolean_label(candidate.get('requires_user_confirmation'))}\n"
+            "理由:\n"
+            f"{chr(10).join(reason_lines) if reason_lines else '- 理由なし'}"
+        )
+
+    def format_boolean_label(self, value, true_label="はい", false_label="いいえ"):
+        """True/Falseを、ユーザーに見せやすい日本語へ変換します。"""
+        return true_label if bool(value) else false_label
 
     def build_messages(
         self,

@@ -131,8 +131,10 @@ Memory保存方針docs整理
 Ver2.10:
 Memory Candidate生成のdry-run
 
-次以降:
+Ver2.11:
 Memory CandidateをWeb Reader結果にdry-run接続
+
+次以降:
 ユーザー確認つき保存
 Project Stateへの反映
 重複・矛盾管理
@@ -146,6 +148,13 @@ Ver2.10では、Reader結果から保存候補を作る土台として `core/mem
 Memory保存はまだしない。
 Web Reader本体にはまだ自動接続しない。
 自動チェックでは実Webアクセス・LLM実行・ToolRunner実行・DB書き込みをしない。
+
+Ver2.11では、Memory CandidateをWeb Reader結果にdry-run接続する。
+Web Reader成功時に保存候補を作るが、Memory保存はまだしない。
+Memory CandidateもDB保存しない。
+DBスキーマ変更はしない。
+失敗時・未実行時はMemory Candidateを作らない。
+自動チェックではfake fetcherを使い、実Webアクセスしない。
 
 ## Ver2.9で実装しないこと
 

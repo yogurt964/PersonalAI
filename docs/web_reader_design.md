@@ -19,6 +19,7 @@ Web Readerは、Reader方面の最初の実用テスト版である。
 - Ver2.6: 実Web手動テスト結果をdocsへ整理
 - Ver2.8: Web Reader結果の会話品質を改善
 - Ver2.9: Reader結果のMemory保存方針をdocs化
+- Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続
 
 Ver2.1では、会話UI自動接続はまだしない。
 URLを検出しただけで自動Webアクセスしない。
@@ -69,6 +70,13 @@ Ver2.9では、Reader結果のMemory保存方針をdocs化した。
 Web Reader結果を将来保存する場合は、本文全文を勝手に保存せず、Memory CandidateやProject Knowledgeなどの中間形式を使う。
 保存前にユーザー確認が必要な条件を整理した。
 Web Reader結果のMemory保存はまだしない。
+
+Ver2.11では、Web Reader成功時に保存候補を作る。
+成功時の会話返答には `Memory Candidate dry-run` として、candidate_type、importance、risk_level、requires_user_confirmation、should_save、reasonsを短く表示する。
+これはdry-runであり、まだMemory保存はしない。
+Memory CandidateもDB保存しない。
+失敗時・未実行時はMemory Candidateを作らない。
+自動チェックではfake fetcherを使い、実Webアクセスしない。
 
 ## Web Readerの責務
 
@@ -199,5 +207,5 @@ Web Readerは、読めないページを読めたとは言わない。
 
 - 文字コードやContent-Typeの扱い改善
 - 取得失敗時の代替案提示
-- Memory Candidate生成のdry-run設計
+- Memory Candidate確認UI方針
 - PDF Reader / Image Reader / YouTube Reader / File Reader の段階追加
