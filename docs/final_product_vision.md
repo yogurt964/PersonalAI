@@ -130,6 +130,8 @@ Memory物理削除は慎重に扱う。
 Ver2.9では、Reader結果のMemory保存方針を `docs/reader_memory_policy.md` に分けて整理した。
 Reader結果は勝手に長期Memoryへ保存せず、Memory Candidate、Project Knowledge、User Preference、Archiveなどの段階を通して扱う。
 機密情報、個人情報、長文本文は特に慎重に扱い、必要に応じて保存前にユーザー確認する。
+Ver2.12では、Memory Candidate確認UI方針を `docs/memory_candidate_ui_policy.md` に分けて整理した。
+保存前にユーザーが確認できる形を優先し、高リスク候補は自動保存しない。
 
 ## 6. ModelRouter / ToolRouter 方針
 

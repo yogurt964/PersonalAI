@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.12
+
+開始内容:
+
+- Memory Candidate確認UI方針をdocs化
+- `docs/memory_candidate_ui_policy.md` を追加
+- 保存前にユーザーが確認できる形を整理
+- 保存 / 保存しない / 編集 / 後で確認 の選択肢を整理
+- 高リスク候補は自動保存しない方針を明記
+- まだMemory保存はしない方針を維持
+- DBスキーマ変更はしない方針を維持
+- Memory CandidateのDB保存もしない方針を維持
+- `scripts/check_ver2120.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2120.py` を追加
+
 ## Version 2.11
 
 開始内容:

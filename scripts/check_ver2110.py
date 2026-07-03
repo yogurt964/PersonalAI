@@ -278,7 +278,6 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.11",
             "Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続",
             "Web Reader成功時に保存候補を作る",
             "失敗時・未実行時はMemory Candidateを作らない",

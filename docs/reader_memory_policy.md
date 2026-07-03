@@ -134,6 +134,9 @@ Memory Candidate生成のdry-run
 Ver2.11:
 Memory CandidateをWeb Reader結果にdry-run接続
 
+Ver2.12:
+Memory Candidate確認UI方針
+
 次以降:
 ユーザー確認つき保存
 Project Stateへの反映
@@ -155,6 +158,14 @@ Memory CandidateもDB保存しない。
 DBスキーマ変更はしない。
 失敗時・未実行時はMemory Candidateを作らない。
 自動チェックではfake fetcherを使い、実Webアクセスしない。
+
+Ver2.12では、Memory Candidate確認UI方針をdocs化する。
+保存前にユーザーが確認できる形を整理する。
+保存 / 保存しない / 編集 / 後で確認 の選択肢を整理する。
+高リスク候補は自動保存しない。
+まだMemory保存はしない。
+DBスキーマ変更はしない。
+Memory CandidateのDB保存もしない。
 
 ## Ver2.9で実装しないこと
 
