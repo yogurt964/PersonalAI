@@ -131,7 +131,6 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.9",
             "Ver2.9: Reader結果のMemory保存方針設計",
             "docs/reader_memory_policy.md",
             "Memory Candidate生成やユーザー確認つき保存へ進める土台を整理",

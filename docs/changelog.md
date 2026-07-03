@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.10
+
+開始内容:
+
+- Memory Candidate生成のdry-runを追加
+- `core/memory_candidate.py` を追加
+- Reader結果から保存候補を作る土台を追加
+- `scripts/check_ver2100.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2100.py` を追加
+- まだMemory保存はしない方針を維持
+- DBスキーマ変更はしない方針を維持
+- Web Reader本体にはまだ自動接続しない方針を維持
+- 自動チェックでは実Webアクセス・LLM実行・ToolRunner実行・DB書き込みをしない
+
 ## Version 2.9
 
 開始内容:

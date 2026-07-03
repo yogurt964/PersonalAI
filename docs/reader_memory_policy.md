@@ -128,8 +128,11 @@ Ver2.8時点では、Web Readerは読み取り結果を会話返答に出すだ�
 Ver2.9:
 Memory保存方針docs整理
 
+Ver2.10:
+Memory Candidate生成のdry-run
+
 次以降:
-Memory Candidate生成
+Memory CandidateをWeb Reader結果にdry-run接続
 ユーザー確認つき保存
 Project Stateへの反映
 重複・矛盾管理
@@ -137,6 +140,12 @@ Project Stateへの反映
 
 Web Reader結果を保存する場合も、ページ本文全文をそのままMemoryへ入れない。
 必要な場合は、短いReader Summary、Memory Candidate、Project Knowledge、User Preference、Archiveへ分ける。
+
+Ver2.10では、Reader結果から保存候補を作る土台として `core/memory_candidate.py` を追加する。
+これはdry-runであり、DBスキーマ変更はしない。
+Memory保存はまだしない。
+Web Reader本体にはまだ自動接続しない。
+自動チェックでは実Webアクセス・LLM実行・ToolRunner実行・DB書き込みをしない。
 
 ## Ver2.9で実装しないこと
 

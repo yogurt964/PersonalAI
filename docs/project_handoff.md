@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.9
+現在バージョン: Ver2.10
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver2.9時点では、以下が実装済みである。
+Ver2.10時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -111,6 +111,7 @@ Ver2.6: Web Reader実Web手動テスト結果整理
 Ver2.7: 完成形ビジョンと自律・記憶・モデル選定方針整理
 Ver2.8: Web Reader結果の会話品質改善
 Ver2.9: Reader結果のMemory保存方針設計
+Ver2.10: Memory Candidate生成のdry-run設計
 ```
 
 ## 現在の主要ファイル
@@ -133,6 +134,7 @@ core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基
 core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
+core/memory_candidate.py: Reader結果からMemory Candidateを作るdry-run
 core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行を接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
@@ -216,6 +218,7 @@ scripts/check_ver260.py
 scripts/check_ver270.py
 scripts/check_ver280.py
 scripts/check_ver290.py
+scripts/check_ver2100.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -269,6 +272,9 @@ Ver2.8でWeb Reader結果の会話品質を改善
 Ver2.9でReader結果のMemory保存方針をdocs化
 Memory Candidate生成やユーザー確認つき保存へ進める土台を整理
 Memory保存の本実装はまだしていない
+Ver2.10でMemory Candidate生成のdry-runを追加
+Reader結果から保存候補を作る土台を追加
+Web Reader本体にはまだ自動接続しない
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -278,12 +284,12 @@ Reader結果のMemory保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.9後の候補:
+Ver2.10後の候補:
 
 ```text
-Ver2.10: Memory Candidate生成のdry-run設計
-Ver2.10: ModelRouter / ToolRouter設計の詳細化
-Ver2.10: Web Reader失敗時応答の追加改善
+Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続
+Ver2.11: ModelRouter / ToolRouter設計の詳細化
+Ver2.11: Memory Candidate確認UI方針
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針
