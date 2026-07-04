@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.13
+
+開始内容:
+
+- Memory Candidate確認応答のdry-runを追加
+- `core/memory_candidate_confirmation.py` を追加
+- 保存する / 保存しない / 編集して保存 / 後で確認 の応答を解釈
+- Web Reader成功後のMemory Candidate pendingに確認応答dry-runを軽く接続
+- 「保存する」と言われてもdry-runで止める
+- まだMemory保存はしない方針を維持
+- DBスキーマ変更はしない方針を維持
+- Memory CandidateのDB保存もしない方針を維持
+- 自動チェックでは実Webアクセス・LLM実行・DB書き込みをしない
+- `scripts/check_ver2130.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2130.py` を追加
+
 ## Version 2.12
 
 開始内容:

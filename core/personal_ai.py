@@ -19,6 +19,7 @@ from core.capability_manager import CapabilityManager
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
 from core.memory_candidate import build_memory_candidate_from_reader_result
+from core.memory_candidate_confirmation import resolve_memory_candidate_confirmation_response
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
@@ -174,7 +175,9 @@ class PersonalAI:
         self.last_web_reader_tool_result = None
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
+        self.last_memory_candidate_confirmation_result = None
         self.pending_preference_confirmation = None
+        self.pending_memory_candidate_confirmation = None
         self.pending_web_reader_confirmation = None
         self.last_response = None
 
@@ -209,6 +212,13 @@ class PersonalAI:
             self.save_assistant_message(pending_response)
             return pending_response
 
+        pending_memory_candidate_response = self.handle_pending_memory_candidate_confirmation(user_input)
+
+        if pending_memory_candidate_response:
+            self.last_response = pending_memory_candidate_response
+            self.save_assistant_message(pending_memory_candidate_response)
+            return pending_memory_candidate_response
+
         pending_web_reader_response = self.handle_pending_web_reader_confirmation(user_input)
 
         if pending_web_reader_response:
@@ -231,6 +241,7 @@ class PersonalAI:
         self.last_web_reader_tool_result = None
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
+        self.last_memory_candidate_confirmation_result = None
         web_reader_response = build_web_reader_confirmation_response(
             user_input,
             input_analysis=input_analysis,
@@ -358,6 +369,25 @@ class PersonalAI:
 
         return resolution.get("message")
 
+    def handle_pending_memory_candidate_confirmation(self, user_input):
+        """Memory Candidate確認応答をdry-runで扱います。"""
+        pending_candidate = getattr(self, "pending_memory_candidate_confirmation", None)
+
+        if not pending_candidate:
+            return None
+
+        result = resolve_memory_candidate_confirmation_response(
+            user_input,
+            pending_candidate,
+        )
+        self.last_memory_candidate_confirmation_result = result
+
+        # Ver2.13では保存せず、完了系の応答だけpendingを解除します。
+        if result.get("status") in ["confirmed", "rejected", "postponed"]:
+            self.pending_memory_candidate_confirmation = None
+
+        return result.get("message")
+
     def extract_and_save_memories(self, user_input):
         """ユーザー発言から長期記憶を抽出し、保存します。"""
         self.last_preference_confirmation = None
@@ -480,6 +510,7 @@ class PersonalAI:
         """ToolResultを、ユーザーに見せる短い返答へ変換します。"""
         if not getattr(result, "executed", False):
             self.last_memory_candidate = None
+            self.pending_memory_candidate_confirmation = None
             reason = getattr(result, "message", "") or getattr(result, "error", "")
             return (
                 "Web Readerは実行されませんでした。\n\n"
@@ -489,6 +520,7 @@ class PersonalAI:
 
         if not getattr(result, "success", False):
             self.last_memory_candidate = None
+            self.pending_memory_candidate_confirmation = None
             reason = getattr(result, "error", None) or getattr(result, "message", "")
             return (
                 "Web Readerで読み取りを試みましたが、失敗しました。\n\n"
@@ -509,6 +541,7 @@ class PersonalAI:
             source_tool="web_reader",
         )
         self.last_memory_candidate = memory_candidate
+        self.pending_memory_candidate_confirmation = dict(memory_candidate)
         memory_candidate_text = self.format_memory_candidate_dry_run(memory_candidate)
 
         return (

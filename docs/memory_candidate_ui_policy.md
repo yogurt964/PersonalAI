@@ -141,3 +141,22 @@ Ver2.12では、以下は実装しない。
 - OpenAI / Claude / Gemini接続
 - PDF / Image / YouTube / File Reader
 - PC操作
+
+## 8. Ver2.13の確認応答dry-run
+
+Ver2.13では、Memory Candidate確認応答のdry-runを追加する。
+
+解釈する応答:
+
+- 保存する
+- 保存しない
+- 編集して保存
+- 後で確認
+
+「保存する」と言われてもdry-runで止める。
+保存要求は認識するが、Memory保存の本実装はまだ行わない。
+DBスキーマ変更はしない。
+Memory CandidateのDB保存もしない。
+
+Ver2.13の目的は、ユーザーの意図を安全に解釈する土台を作ることである。
+保存処理、GUI実装、LLM要約、外部API接続は次以降の段階で扱う。

@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2130.py`
 - `scripts/check_ver2120.py`
 - `scripts/check_ver2110.py`
 - `scripts/check_ver2100.py`
@@ -86,6 +87,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.13では、`check_ver2130.py` でMemory Candidate確認応答のdry-runを確認する。
+このcheckは保存する / 保存しない / 編集して保存 / 後で確認の解釈を確認し、実Webアクセス、DB書き込み、LLM実行、Memory保存をしない。
 Ver2.12では、`check_ver2120.py` でMemory Candidate確認UI方針を確認する。
 このcheckはdocs確認のみを行い、実Webアクセス、DB書き込み、LLM実行、ToolRunner実行、Memory保存をしない。
 Ver2.11では、`check_ver2110.py` でMemory CandidateをWeb Reader結果にdry-run接続したことを確認する。

@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.12
+現在バージョン: Ver2.13
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -63,7 +63,7 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 
 ## 現在の実装済み機能
 
-Ver2.12時点では、以下が実装済みである。
+Ver2.13時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -114,6 +114,7 @@ Ver2.9: Reader結果のMemory保存方針設計
 Ver2.10: Memory Candidate生成のdry-run設計
 Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続
 Ver2.12: Memory Candidate確認UI方針
+Ver2.13: Memory Candidate確認応答のdry-run
 ```
 
 ## 現在の主要ファイル
@@ -137,6 +138,7 @@ core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
 core/memory_candidate.py: Reader結果からMemory Candidateを作るdry-run
+core/memory_candidate_confirmation.py: Memory Candidate確認応答をdry-runで解釈
 core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-runを接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
@@ -224,6 +226,7 @@ scripts/check_ver290.py
 scripts/check_ver2100.py
 scripts/check_ver2110.py
 scripts/check_ver2120.py
+scripts/check_ver2130.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -288,6 +291,10 @@ Ver2.12でMemory Candidate確認UI方針をdocs化
 保存 / 保存しない / 編集 / 後で確認 の選択肢を整理
 高リスク候補は自動保存しない
 Memory CandidateのDB保存もしない
+Ver2.13でMemory Candidate確認応答のdry-runを追加
+保存する / 保存しない / 編集して保存 / 後で確認 の応答を解釈
+「保存する」と言われてもdry-runで止める
+まだMemory保存はしない
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -297,12 +304,12 @@ Reader結果のMemory保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.12後の候補:
+Ver2.13後の候補:
 
 ```text
-Ver2.13: Memory Candidateのユーザー確認つき保存設計
-Ver2.13: Memory Candidate確認応答のdry-run実装
-Ver2.13: ModelRouter / ToolRouter設計の詳細化
+Ver2.14: Memory Candidateのユーザー確認つき保存設計
+Ver2.14: Memory Candidate編集dry-run
+Ver2.14: ModelRouter / ToolRouter設計の詳細化
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針

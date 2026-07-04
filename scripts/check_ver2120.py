@@ -131,7 +131,6 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.12",
             "Ver2.12: Memory Candidate確認UI方針",
             "docs/memory_candidate_ui_policy.md",
             "保存前にユーザーが確認できる形を整理",
