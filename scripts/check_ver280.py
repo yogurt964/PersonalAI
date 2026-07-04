@@ -306,7 +306,7 @@ def main():
         [
             "Ver2.8: Web Reader結果の会話品質改善",
             "成功時の返答を見やすくした",
-            "Reader結果のMemory保存はまだしない",
+            "Reader結果全文のDB保存はまだしない",
         ],
     )
 

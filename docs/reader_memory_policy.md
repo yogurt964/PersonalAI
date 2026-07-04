@@ -4,8 +4,8 @@
 
 このドキュメントは、Reader結果のMemory保存を将来実装するための設計方針である。
 
-Ver2.9では、Web ReaderなどのReader結果をMemoryへ保存する前に、何を保存するか、何を保存しないか、いつユーザー確認が必要かを整理する。
-今回は設計整理のみであり、Memory保存の本実装はまだしない。
+Ver2.9では、Web ReaderなどのReader結果をMemoryへ保存する前に、何を保存するか、何を保存しないか、いつユーザー確認が必要かを整理した。
+Ver2.17では、ユーザーが明示的に確認した低リスクのMemory Candidateだけ、既存の長期記憶保存機構へ渡す。
 
 ## 1. 基本方針
 
@@ -143,8 +143,11 @@ Memory Candidate確認応答のdry-run
 Ver2.16:
 Memory Candidate編集dry-run
 
+Ver2.17:
+Memory Candidateのユーザー確認つき保存
+
 次以降:
-ユーザー確認つき保存
+Memory保存後の検索・表示確認
 Project Stateへの反映
 重複・矛盾管理
 ```
@@ -187,6 +190,14 @@ Ver2.16では、Memory Candidate編集dry-runを追加する。
 DBスキーマ変更はしない。
 Memory CandidateのDB保存もしない。
 Reader結果のDB保存もしない。
+
+Ver2.17では、Memory Candidateのユーザー確認つき保存を追加する。
+ユーザーが明示的に `保存する` と答えた低リスク候補だけ、既存の長期記憶保存機構へ渡す。
+自動チェックでは実DB保存しない。
+高リスク候補は自動保存しない。
+DBスキーマ変更はしない。
+Memory Candidate専用テーブルは作らない。
+Reader結果全文のDB保存はしない。
 
 ## Ver2.9で実装しないこと
 

@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.17
+
+開始内容:
+
+- Memory Candidateのユーザー確認つき保存を追加
+- ユーザーが明示的に `保存する` と答えた場合だけ、低リスク候補を保存対象にする
+- `core/memory_candidate_saver.py` を追加
+- Memory Candidateを既存の長期記憶保存機構へ渡せる保存用テキストに変換
+- 編集済みMemory Candidateも保存対象にできるようにした
+- 高リスク候補はVer2.17では自動保存しない
+- DBスキーマ変更はしない方針を維持
+- 自動チェックでは実DB保存しない方針を維持
+- `scripts/check_ver2170.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2170.py` を追加
+
 ## Version 2.16
 
 開始内容:

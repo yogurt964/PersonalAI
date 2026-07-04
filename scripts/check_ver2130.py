@@ -133,6 +133,7 @@ def build_lightweight_personal_ai(fake_fetcher):
     ai.last_tool_execution_record = None
     ai.last_memory_candidate = None
     ai.last_memory_candidate_confirmation_result = None
+    ai.last_memory_candidate_save_result = None
     ai.last_input_analysis = None
     ai.last_response = None
     ai.save_user_message = lambda _message: None
@@ -156,10 +157,17 @@ def make_fake_fetcher(calls, html=FAKE_HTML):
 def check_personal_ai_memory_candidate_pending_flow():
     import core.personal_ai as personal_ai_module
 
-    def forbidden_memory_writer(*_args, **_kwargs):
-        raise AssertionError("save_memory must not be called in Ver2.13 dry-run")
+    saved_items = []
 
-    personal_ai_module.save_memory = forbidden_memory_writer
+    def fake_memory_writer(memory_text, *args, **kwargs):
+        saved_items.append({
+            "memory_text": memory_text,
+            "args": args,
+            "kwargs": kwargs,
+        })
+        return True
+
+    personal_ai_module.save_memory = fake_memory_writer
 
     calls = []
     ai = build_lightweight_personal_ai(make_fake_fetcher(calls))
@@ -169,6 +177,7 @@ def check_personal_ai_memory_candidate_pending_flow():
     pending_candidate = ai.pending_memory_candidate_confirmation
     save_response = ai.handle_user_input("保存する")
     result = ai.last_memory_candidate_confirmation_result
+    save_result = ai.last_memory_candidate_save_result
 
     failures = 0
     failures += check_true("Web Reader confirmation shown", "Web Readerで読み取ってもよいですか" in confirmation_response)
@@ -177,12 +186,15 @@ def check_personal_ai_memory_candidate_pending_flow():
     failures += check_true("Memory Candidate dry-run response", "Memory Candidate dry-run:" in web_response)
     failures += check_true("pending candidate created", isinstance(pending_candidate, dict))
     failures += check_true("pending candidate should_save False", pending_candidate["should_save"] is False)
-    failures += check_true("save response dry-run", "Ver2.13ではまだMemory保存しません" in save_response)
+    failures += check_true("save response handled", "長期記憶に保存しました" in save_response)
     failures += check_true("confirmation result exists", isinstance(result, dict))
     failures += check_true("save requested status", result["status"] == "confirmed")
     failures += check_true("save requested action", result["action"] == "save_requested_dry_run")
     failures += check_true("save requested should_save False", result["should_save"] is False)
     failures += check_true("save requested should_execute False", result["should_execute"] is False)
+    failures += check_true("save result exists", isinstance(save_result, dict))
+    failures += check_true("save result saved", save_result["status"] == "saved")
+    failures += check_true("fake save called once", len(saved_items) == 1)
     failures += check_true("pending cleared after save request", ai.pending_memory_candidate_confirmation is None)
 
     return failures

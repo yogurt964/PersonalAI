@@ -23,6 +23,7 @@ from core.memory_candidate_confirmation import (
     resolve_memory_candidate_confirmation_response,
     resolve_memory_candidate_edit_response,
 )
+from core.memory_candidate_saver import save_memory_candidate
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
@@ -179,6 +180,7 @@ class PersonalAI:
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
         self.last_memory_candidate_confirmation_result = None
+        self.last_memory_candidate_save_result = None
         self.pending_preference_confirmation = None
         self.pending_memory_candidate_confirmation = None
         self.pending_memory_candidate_edit = None
@@ -253,6 +255,7 @@ class PersonalAI:
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
         self.last_memory_candidate_confirmation_result = None
+        self.last_memory_candidate_save_result = None
         self.pending_memory_candidate_edit = None
         web_reader_response = build_web_reader_confirmation_response(
             user_input,
@@ -394,8 +397,18 @@ class PersonalAI:
         )
         self.last_memory_candidate_confirmation_result = result
 
-        # Ver2.13では保存せず、完了系の応答だけpendingを解除します。
-        if result.get("status") in ["confirmed", "rejected", "postponed"]:
+        if result.get("status") == "confirmed":
+            save_result = save_memory_candidate(
+                result.get("candidate"),
+                save_memory,
+            )
+            self.last_memory_candidate_save_result = save_result
+            self.pending_memory_candidate_confirmation = None
+            self.pending_memory_candidate_edit = None
+            return self.build_memory_candidate_save_response(save_result)
+
+        # 保存しない・後で確認はDBへ保存せず、pendingを解除します。
+        if result.get("status") in ["rejected", "postponed"]:
             self.pending_memory_candidate_confirmation = None
             self.pending_memory_candidate_edit = None
 
@@ -429,7 +442,7 @@ class PersonalAI:
             edited_candidate = result.get("edited_candidate") or {}
             self.last_memory_candidate = edited_candidate
             self.pending_memory_candidate_edit = None
-            self.pending_memory_candidate_confirmation = None
+            self.pending_memory_candidate_confirmation = dict(edited_candidate)
 
             return (
                 f"{result.get('message')}\n\n"
@@ -437,6 +450,31 @@ class PersonalAI:
             )
 
         return result.get("message")
+
+    def build_memory_candidate_save_response(self, save_result):
+        """Memory Candidate保存結果を、会話で分かりやすい返答へ変換します。"""
+        status = save_result.get("status")
+
+        if status == "saved":
+            return (
+                f"{save_result.get('message')}\n\n"
+                "保存結果:\n"
+                "- 保存先: 既存の長期記憶\n"
+                "- DBスキーマ変更: なし"
+            )
+
+        if status == "save_blocked_high_risk":
+            return save_result.get("message")
+
+        if status == "save_unavailable":
+            return save_result.get("message")
+
+        error = save_result.get("error")
+
+        if error:
+            return f"{save_result.get('message')}\n理由: {error}"
+
+        return save_result.get("message", "Memory Candidateの保存結果を確認できませんでした。")
 
     def extract_and_save_memories(self, user_input):
         """ユーザー発言から長期記憶を抽出し、保存します。"""

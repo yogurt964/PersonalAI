@@ -130,6 +130,7 @@ def build_lightweight_personal_ai(fake_fetcher):
     ai.last_tool_execution_record = None
     ai.last_memory_candidate = None
     ai.last_memory_candidate_confirmation_result = None
+    ai.last_memory_candidate_save_result = None
     ai.last_input_analysis = None
     ai.last_response = None
     ai.save_user_message = lambda _message: None
@@ -183,7 +184,7 @@ def check_personal_ai_edit_flow():
     failures += check_true("edited candidate exists", isinstance(result["edited_candidate"], dict))
     failures += check_true("edited summary kept", result["edited_summary"] == edit_text)
     failures += check_true("pending edit cleared", ai.pending_memory_candidate_edit is None)
-    failures += check_true("pending confirmation cleared", ai.pending_memory_candidate_confirmation is None)
+    failures += check_true("pending confirmation keeps edited candidate", isinstance(ai.pending_memory_candidate_confirmation, dict))
 
     return failures
 
@@ -285,7 +286,6 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.16",
             "Ver2.16: Memory Candidate編集dry-run",
             "core/memory_candidate_confirmation.py",
             "pending_memory_candidate_edit",

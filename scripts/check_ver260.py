@@ -136,7 +136,7 @@ def main():
             "Ver2.6で https://example.com の実Web手動テスト結果をdocsへ整理",
             "実Web手動確認では Example Domain と text_preview が返った",
             "自動checkでは実Webアクセスしない",
-            "Reader結果のMemory保存はまだしない",
+            "Reader結果全文のDB保存はまだしない",
             "PDF/Image/YouTube/File Readerはまだ未実装",
         ],
     )

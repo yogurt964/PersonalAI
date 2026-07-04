@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2170.py`
 - `scripts/check_ver2160.py`
 - `scripts/check_ver2150.py`
 - `scripts/check_ver2140.py`
@@ -90,6 +91,10 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.17では、`check_ver2170.py` でMemory Candidateのユーザー確認つき保存を確認する。
+このcheckはfake保存関数を使い、`保存する` と明示された低リスク候補だけが既存の長期記憶保存機構へ渡されることを確認する。
+自動チェックでは実DB保存しない。
+高リスク候補は保存せず、DBスキーマ変更もしない。
 Ver2.16では、`check_ver2160.py` でMemory Candidate編集dry-runを確認する。
 このcheckは「編集して保存」の後に編集内容を受け取り、編集済み候補をdry-run保持する流れを確認し、実Webアクセス、DB書き込み、LLM実行、Memory保存をしない。
 Ver2.15では、`check_ver2150.py` でポートフォリオREADMEとデモログを確認する。

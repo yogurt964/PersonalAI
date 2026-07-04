@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.16
+現在バージョン: Ver2.17
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -77,7 +77,7 @@ Ver2.14以降、後から修正できる通常作業はユーザー確認なし�
 
 ## 現在の実装済み機能
 
-Ver2.16時点では、以下が実装済みである。
+Ver2.17時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -132,6 +132,7 @@ Ver2.13: Memory Candidate確認応答のdry-run
 Ver2.14: 開発自走方針
 Ver2.15: ポートフォリオREADMEとデモログ整備
 Ver2.16: Memory Candidate編集dry-run
+Ver2.17: Memory Candidateのユーザー確認つき保存
 ```
 
 ## 現在の主要ファイル
@@ -158,7 +159,8 @@ core/web_reader_adapter.py: Web Reader最小実用版
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
 core/memory_candidate.py: Reader結果からMemory Candidateを作るdry-run
 core/memory_candidate_confirmation.py: Memory Candidate確認応答と編集応答をdry-runで解釈
-core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-run、pending_memory_candidate_editを接続
+core/memory_candidate_saver.py: Memory Candidateを既存の長期記憶保存機構へ渡す保存処理
+core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-run、pending_memory_candidate_edit、last_memory_candidate_save_resultを接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -252,6 +254,7 @@ scripts/check_ver2130.py
 scripts/check_ver2140.py
 scripts/check_ver2150.py
 scripts/check_ver2160.py
+scripts/check_ver2170.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -304,7 +307,7 @@ Ver2.8でWeb Reader結果の会話品質を改善
 失敗時に読めたふりをしない方針を維持
 Ver2.9でReader結果のMemory保存方針をdocs化
 Memory Candidate生成やユーザー確認つき保存へ進める土台を整理
-Memory保存の本実装はまだしていない
+Ver2.9時点ではMemory保存の本実装はまだしていない
 Ver2.10でMemory Candidate生成のdry-runを追加
 Reader結果から保存候補を作る土台を追加
 Ver2.11でMemory CandidateをWeb Reader結果にdry-run接続
@@ -334,21 +337,27 @@ Ver2.16でMemory Candidate編集dry-runを追加
 pending_memory_candidate_edit で編集待ち状態を管理
 ただし、まだMemory保存はしない
 DBスキーマ変更もしない
+Ver2.17でMemory Candidateのユーザー確認つき保存を追加
+ユーザーが明示的に `保存する` と答えた低リスク候補だけ、既存の長期記憶保存機構へ渡す
+core/memory_candidate_saver.py で保存用テキストへ変換する
+last_memory_candidate_save_result に保存結果を保持する
+自動チェックでは実DB保存しない
+高リスク候補は保存しない
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
 保留中の確認に対する肯定応答がある場合だけWeb Readerを実行する
 user_confirmed=Falseでは実行しない
-Reader結果のMemory保存はまだしない
+Reader結果全文のDB保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.16後の候補:
+Ver2.17後の候補:
 
 ```text
-Ver2.17: Memory Candidateのユーザー確認つき保存設計
-Ver2.17: MIGRATION.md作成
-Ver2.x: READMEへの画像・GIF・図の追加
+Ver2.18: MIGRATION.md作成
+Ver2.18: Memory保存後の検索・表示確認
+Ver2.18: READMEへの画像・GIF・図の追加
 Ver2.x: File / PDF Reader
 ```
 

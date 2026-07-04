@@ -2,11 +2,12 @@
 
 ## 目的
 
-このデモログは、Web Reader → Memory Candidate → 確認応答dry-run の流れを説明するための資料である。
+このデモログは、Web Reader → Memory Candidate → Memory Candidateのユーザー確認つき保存 の流れを説明するための資料である。
 
-Ver2.15時点では、Web Readerで読み取った結果からMemory Candidateを作り、保存確認の応答をdry-runで解釈できる。
-ただし、まだMemory保存の本実装はしていない。
-Memory CandidateのDB保存もしない。
+Ver2.17以降では、ユーザーが明示的に「保存する」と答えた場合、低リスクのMemory Candidateは既存の長期記憶保存機構を通して保存される。
+ただし、高リスク候補や保存不可時は保存しない。
+DBスキーマ変更はしない。
+自動チェックでは実DB保存しない。
 
 ## デモログ
 
@@ -46,7 +47,11 @@ Memory Candidate dry-run:
 保存する
 
 PersonalAI:
-保存要求は受け取りましたが、Ver2.13ではまだMemory保存しません。
+Memory Candidateを長期記憶に保存しました。
+
+保存結果:
+- 保存先: 既存の長期記憶
+- DBスキーマ変更: なし
 ```
 
 ## このデモで分かること
@@ -56,15 +61,14 @@ PersonalAI:
 - Web Reader成功時にタイトル、URL、本文プレビューを返す
 - Reader結果からMemory Candidateを作る
 - Memory Candidate dry-runとして保存候補を表示する
-- `保存する` と言われても、まだMemory保存しません
+- `保存する` と明示された場合だけ、低リスク候補を既存の長期記憶保存機構へ渡す
+- 高リスク候補や保存不可時は保存しない
 - 完成済み機能と未実装機能を分けて扱っている
 
-## Ver2.15時点で未実装のこと
+## Ver2.17時点で未実装のこと
 
-- Memory保存の本実装
-- Memory CandidateのDB保存
+- Memory Candidate専用テーブル
 - Reader結果のDB保存
-- Memory Candidate編集UI
 - PDF / Image / YouTube / File Reader
 - OpenAI / Claude / Gemini 接続
 - GUI

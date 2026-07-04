@@ -157,7 +157,6 @@ def main():
             "Web Readerで読み取りました",
             "Memory Candidate dry-run",
             "保存する",
-            "まだMemory保存しません",
         ],
     )
 
