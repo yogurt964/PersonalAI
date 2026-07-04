@@ -172,6 +172,69 @@ def main():
     )
 
     failures += check_words(
+        "MIGRATION.md user adaptation and failure policy",
+        migration,
+        [
+            "ユーザー適応仕様",
+            "ユーザーが好む会話パターン",
+            "先回り",
+            "就活ポートフォリオ",
+            "動作結果",
+            "使いやすさ",
+            "自然さ",
+            "コード差分",
+            "不可逆操作",
+            "致命的リスク",
+            "PCが使い物にならなくなる",
+            "大量の費用",
+            "重要データ",
+            "実用面",
+            "作業相棒",
+            "個人秘書",
+            "自律型AI",
+            "未実装機能を完成済みのように書かない",
+            "開発コスト方針",
+            "無駄なAPI消費",
+            "同じ失敗を何度も繰り返す",
+            "ログを読む",
+            "必要な課金は許容",
+            "開発効率",
+            "AI性能",
+            "完成度",
+            "安定性",
+            "低コストの代替案",
+            "失敗時の対応方針",
+            "SQLite disk I/O error",
+            "timeout",
+            "DBを削除しない",
+            "DBを初期化しない",
+            "reset --" + "hard",
+            "force " + "push",
+            "安全チェック",
+        ],
+    )
+
+    failures += check_words(
+        "AGENTS.md user adaptation and cost policy",
+        agents,
+        [
+            "User adaptation policy",
+            "Cost and failure policy",
+            "Safety priority",
+            "Avoid wasting API usage",
+            "blind retry loops",
+            "Read logs before retrying",
+            "paid tools",
+            "stronger models",
+            "cheaper alternative",
+            "delete or initialize the DB",
+            "reset --" + "hard",
+            "force " + "push",
+            "fatal risks",
+        ],
+    )
+
+    failures += check_words(
         "project_handoff.md",
         project_handoff,
         [
@@ -183,6 +246,10 @@ def main():
             "最終スコープ",
             "個人用総合AIアシスタント",
             "固定ではなく",
+            "細かいコード差分",
+            "先回り",
+            "致命的リスク",
+            "大量課金",
         ],
     )
 
@@ -200,6 +267,10 @@ def main():
             "最終利用スコープ",
             "将来スコープ",
             "用途や開発段階に応じて選ぶ",
+            "ユーザー適応仕様",
+            "開発コスト方針",
+            "失敗時の対応方針",
+            "無駄なAPI消費",
         ],
     )
 
@@ -221,6 +292,10 @@ def main():
             "Claude Code",
             "Cursor",
             "Ver2.21",
+            "ユーザー確認の基本方針",
+            "動く結果",
+            "使い心地",
+            "致命的リスク",
         ],
     )
 
@@ -235,6 +310,8 @@ def main():
             "資料要約",
             "創作支援",
             "具体的なアプリは固定せず",
+            "ポートフォリオとしての位置づけ",
+            "AIエージェントを設計・実装・改善",
         ],
     )
 

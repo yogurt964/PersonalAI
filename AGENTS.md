@@ -61,6 +61,31 @@ Never physically delete Memory without explicit user approval.
 Do not send API keys, personal information, or confidential information outside the local environment.
 課金, contract, and purchase actions always require confirmation.
 
+## User adaptation policy
+
+- The user prefers action-oriented development once the goal is clear.
+- Ask necessary questions proactively, but do not stop progress with excessive confirmations.
+- Report completed behavior, checks, and user-facing verification points rather than detailed diffs.
+- Prioritize actual usability, natural responses, and portfolio value.
+
+## Cost and failure policy
+
+- Prefer low-cost local development first.
+- Avoid wasting API usage or agent quota through blind retry loops.
+- Read logs before retrying.
+- Do not repeat the same failing command many times without changing the cause.
+- Prefer low-cost methods first, but recommend paid tools or stronger models when they clearly improve development speed, quality, stability, or portfolio value.
+- Before any paid usage, explain the cost risk, expected benefit, and cheaper alternative, then ask the user.
+- On failure, debug logs and fix safely.
+- Do not delete or initialize the DB to fix errors.
+- Do not use reset --hard, force push, or rebase without user confirmation.
+- Do not remove safety checks just to make tests pass.
+
+## Safety priority
+
+- Do not over-block normal reversible development.
+- User confirmation is mainly required for fatal risks: PC-breaking operations, large unexpected costs, important data loss, external leakage of sensitive information, destructive DB operations, and Git history destruction.
+
 ## Reporting
 
 Report behavior and results to the user, not long code diffs.
