@@ -24,6 +24,11 @@ from core.memory_candidate_confirmation import (
     resolve_memory_candidate_edit_response,
 )
 from core.memory_candidate_saver import save_memory_candidate
+from core.memory_search import (
+    detect_memory_search_intent,
+    format_memory_search_response,
+    search_memories,
+)
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
@@ -153,7 +158,7 @@ def _format_web_reader_preview(text, title=None):
 class PersonalAI:
     """PersonalAI本体の会話処理をまとめるクラスです。"""
 
-    def __init__(self, web_reader_fetcher=None):
+    def __init__(self, web_reader_fetcher=None, memory_search_func=None):
         # 起動時にデータベースとテーブルを用意します。
         create_database()
 
@@ -165,6 +170,7 @@ class PersonalAI:
         self.permission_manager = PermissionManager()
         self.executor = Executor()
         self.web_reader_fetcher = web_reader_fetcher
+        self.memory_search_func = memory_search_func
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -189,6 +195,8 @@ class PersonalAI:
         self.last_memory_candidate_confirmation_result = None
         self.last_memory_candidate_save_result = None
         self.last_saved_memory_candidate_result = None
+        self.last_memory_search_intent = None
+        self.last_memory_search_result = None
         self.pending_preference_confirmation = None
         self.pending_memory_candidate_confirmation = None
         self.pending_memory_candidate_edit = None
@@ -226,13 +234,6 @@ class PersonalAI:
             self.save_assistant_message(pending_response)
             return pending_response
 
-        recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
-
-        if recent_saved_memory_response:
-            self.last_response = recent_saved_memory_response
-            self.save_assistant_message(recent_saved_memory_response)
-            return recent_saved_memory_response
-
         pending_memory_candidate_edit_response = self.handle_pending_memory_candidate_edit(user_input)
 
         if pending_memory_candidate_edit_response:
@@ -253,6 +254,20 @@ class PersonalAI:
             self.last_response = pending_web_reader_response
             self.save_assistant_message(pending_web_reader_response)
             return pending_web_reader_response
+
+        recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
+
+        if recent_saved_memory_response:
+            self.last_response = recent_saved_memory_response
+            self.save_assistant_message(recent_saved_memory_response)
+            return recent_saved_memory_response
+
+        memory_search_response = self.handle_memory_search_request(user_input)
+
+        if memory_search_response:
+            self.last_response = memory_search_response
+            self.save_assistant_message(memory_search_response)
+            return memory_search_response
 
         # 入力内容を構造化して、将来のPlannerやRouterが使いやすい形にします。
         # 現時点ではWebやYouTubeを実際に読みに行く処理は行いません。
@@ -511,6 +526,22 @@ class PersonalAI:
         """ユーザーが直近保存Memoryの確認を求めているか判定します。"""
         normalized_input = str(user_input or "").lower()
         return any(word.lower() in normalized_input for word in RECENT_SAVED_MEMORY_REQUEST_WORDS)
+
+    def handle_memory_search_request(self, user_input):
+        """保存済みMemory全体から、簡易キーワード検索で探します。"""
+        intent = detect_memory_search_intent(user_input)
+        self.last_memory_search_intent = intent
+
+        if not intent.get("is_memory_search"):
+            return None
+
+        result = search_memories(
+            intent.get("query", ""),
+            search_func=getattr(self, "memory_search_func", None),
+        )
+        self.last_memory_search_result = result
+
+        return format_memory_search_response(result)
 
     def format_saved_memory_candidate_preview(self, save_result):
         """保存済みMemory Candidateの内容を短く見やすく表示します。"""

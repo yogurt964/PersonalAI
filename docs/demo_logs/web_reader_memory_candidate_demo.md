@@ -15,6 +15,9 @@ Ver2.19以降:
 「はい」だけでなく、「いいよ」「お願いします」などもWeb Reader実行許可として扱う。
 確認待ち中に不明な入力が来た場合は、通常会話へ流さず確認を聞き直す。
 
+Ver2.20では、Memory検索の最小実用化として、保存済みMemoryをあとから簡易キーワード検索できるようにする。
+DBスキーマ変更はしない。
+
 ## デモログ
 
 ```text
@@ -90,6 +93,16 @@ Example Domain This domain is for use in documentation examples...
 
 保存元:
 web_reader
+
+ユーザー:
+Example Domainについて覚えてる？
+
+PersonalAI:
+保存済みMemoryから関連しそうな内容を見つけました。
+
+1. [Reader Summary] Title: Example Domain URL: https://example.com Summary: Example Domain This domain is for use in documentation examples...
+   URL: https://example.com
+   保存元: web_reader
 ```
 
 ## このデモで分かること
@@ -101,6 +114,7 @@ web_reader
 - Memory Candidate dry-runとして保存候補を表示する
 - `保存する` と明示された場合だけ、低リスク候補を既存の長期記憶保存機構へ渡す
 - 保存後に、直近保存したMemoryを会話内で確認できる
+- `覚えてる？` と聞いたとき、保存済みMemoryを検索できる
 - 高リスク候補や保存不可時は保存しない
 - 完成済み機能と未実装機能を分けて扱っている
 
@@ -108,6 +122,8 @@ web_reader
 
 - Memory Candidate専用テーブル
 - Reader結果のDB保存
+- ベクトル検索
+- LLMによる高度な文脈検索
 - PDF / Image / YouTube / File Reader
 - OpenAI / Claude / Gemini 接続
 - GUI

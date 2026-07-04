@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.20
+
+開始内容:
+
+- Memory検索の最小実用化を追加
+- `core/memory_search.py` を追加し、保存済みMemoryをキーワード検索できる土台を作成
+- `覚えてる？` / `記憶ある？` / `Memoryを探して` などの簡易Intent抽出を追加
+- 直近保存Memory確認と、保存済みMemory全体の検索を分離
+- DBスキーマ変更はしない方針を維持
+- 自動チェックではfake検索を使い、実DB保存や実Webアクセスを行わない
+- `scripts/check_ver2200.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2200.py` を追加
+
 ## Version 2.19
 
 開始内容:
