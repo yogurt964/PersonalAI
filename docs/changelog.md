@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.14
+
+開始内容:
+
+- 開発自走方針をリポジトリに反映
+- `AGENTS.md` を追加
+- `docs/development_workflow.md` を追加
+- 後から修正できる通常作業はユーザー確認なしで進める方針を明記
+- 通常の `git add` / `git commit` / `git push` は確認不要とする方針を明記
+- 不可逆操作、DB削除、Memory物理削除、課金、外部送信は確認必須とする方針を明記
+- `MIGRATION.md` はVer2.14ではまだ作らない方針を明記
+- `scripts/check_ver2140.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2140.py` を追加
+
 ## Version 2.13
 
 開始内容:

@@ -295,7 +295,6 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.13",
             "Ver2.13: Memory Candidate確認応答のdry-run",
             "core/memory_candidate_confirmation.py",
             "保存する」と言われてもdry-runで止める",

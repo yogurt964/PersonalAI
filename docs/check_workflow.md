@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2140.py`
 - `scripts/check_ver2130.py`
 - `scripts/check_ver2120.py`
 - `scripts/check_ver2110.py`
@@ -87,6 +88,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.14では、`check_ver2140.py` で開発自走方針docsを確認する。
+このcheckはAGENTS.md、docs/development_workflow.md、project_handoff、changelog、check_workflow、run_ver2_checks.pyを確認し、DB書き込み、実Webアクセス、LLM実行、Memory保存をしない。
 Ver2.13では、`check_ver2130.py` でMemory Candidate確認応答のdry-runを確認する。
 このcheckは保存する / 保存しない / 編集して保存 / 後で確認の解釈を確認し、実Webアクセス、DB書き込み、LLM実行、Memory保存をしない。
 Ver2.12では、`check_ver2120.py` でMemory Candidate確認UI方針を確認する。
@@ -163,4 +166,5 @@ Ver1.10では `check_ver1100.py` でVer1.x総仕上げ確認とVer2.0準備状�
 - 通常のcommit前は standard check を使う
 - 大きな区切りやRelease前は full pre-release check を使う
 - checkはDB削除、Memory物理削除、既存Memory削除を行わない方針にする
-- Git commit / push はユーザー確認後に行う
+- Ver2.14以降、通常のGit commit / push はユーザー確認なしで進めてよい
+- force push、rebase、reset、履歴書き換え、作業消失につながる操作はユーザー確認する

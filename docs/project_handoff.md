@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.13
+現在バージョン: Ver2.14
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -37,33 +37,47 @@ PersonalAIは単なるチャットボットではなく、ユーザーの作業�
 - 既存機能を壊さないこと
 - Gitでこまめにcommit / pushすること
 
-## Permission方針
+## Permission / 開発自走方針
 
-ユーザーに影響する操作は必ず許可を取る。
+Ver2.14以降、後から修正できる通常作業はユーザー確認なしで進める。
 
-対象例:
+確認不要:
 
-- ファイル作成
+- コード修正
+- 機能追加
+- 軽いリファクタリング
+- テスト追加
+- docs更新
 - ファイル編集
-- ファイル削除
-- 外部送信
-- Git commit / push
-- PC操作
-- Webアクセス
-- 個人情報処理
-- 外部API利用
+- git add
+- git commit
+- git push
+- branch作成
+- 通常merge
+- 修正用commit
 
-将来的には、以下のような柔軟な許可を扱いたい。
+確認が必要:
 
-- 今回だけ許可
-- この種類の操作は今後も許可
-- このプロジェクト内だけ許可
-- このフォルダ内だけ許可
-- 危険度が高い操作は毎回確認
+- force push
+- reset --hard
+- rebase
+- Git履歴の書き換え
+- 作業内容の消失につながる操作
+- DB削除
+- DB初期化
+- DBスキーマの破壊的変更
+- Memory物理削除
+- 大量ファイル削除
+- APIキー、個人情報、機密情報の外部送信
+- 課金、契約、購入
+- PermissionManagerや安全チェックを弱める変更
+- 後から戻すのが難しい仕様変更
+
+ユーザーにはコード差分の細部ではなく、実際の動作結果、AIの返答の自然さ、使いやすさ、ポートフォリオとして見せられるかを確認してもらう。
 
 ## 現在の実装済み機能
 
-Ver2.13時点では、以下が実装済みである。
+Ver2.14時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -115,11 +129,13 @@ Ver2.10: Memory Candidate生成のdry-run設計
 Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続
 Ver2.12: Memory Candidate確認UI方針
 Ver2.13: Memory Candidate確認応答のdry-run
+Ver2.14: 開発自走方針
 ```
 
 ## 現在の主要ファイル
 
 ```text
+AGENTS.md: AIエージェントが最初に読む短い開発運用ルール
 app.py: CLI起動入口
 core/personal_ai.py: PersonalAI本体
 core/input_analyzer.py: 入力分類
@@ -170,6 +186,7 @@ docs/final_product_vision.md: 完成形ビジョン、高自律、記憶、Model
 docs/conversation_policy.md: 会話品質・返答方針
 docs/reader_memory_policy.md: Reader結果のMemory保存方針
 docs/memory_candidate_ui_policy.md: Memory Candidate確認UI方針
+docs/development_workflow.md: 開発自走方針とユーザー確認の線引き
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 scripts/run_ver2_checks.py: Ver2.x用の標準チェックまとめ実行
@@ -227,6 +244,7 @@ scripts/check_ver2100.py
 scripts/check_ver2110.py
 scripts/check_ver2120.py
 scripts/check_ver2130.py
+scripts/check_ver2140.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -295,6 +313,11 @@ Ver2.13でMemory Candidate確認応答のdry-runを追加
 保存する / 保存しない / 編集して保存 / 後で確認 の応答を解釈
 「保存する」と言われてもdry-runで止める
 まだMemory保存はしない
+Ver2.14で開発自走方針をリポジトリに反映
+AGENTS.md と docs/development_workflow.md を追加
+通常の後から修正できる操作はユーザー確認なしで進める方針に変更
+commit / push は通常確認不要
+不可逆操作、DB削除、Memory物理削除、課金、外部送信は確認必須
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -304,12 +327,13 @@ Reader結果のMemory保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.13後の候補:
+Ver2.14後の候補:
 
 ```text
-Ver2.14: Memory Candidateのユーザー確認つき保存設計
-Ver2.14: Memory Candidate編集dry-run
-Ver2.14: ModelRouter / ToolRouter設計の詳細化
+Ver2.15: MIGRATION.md作成
+Ver2.15: ポートフォリオREADME整備
+Ver2.15: Memory Candidate編集dry-run
+Ver2.15: Memory Candidateのユーザー確認つき保存設計
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針
@@ -336,15 +360,16 @@ Ver1.0 Final Preparationでは、git tag v1.0.0 作成、tag push、GitHub Relea
 
 ```text
 PersonalAIプロジェクトを再開します。
-まず docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_test_plan.md、docs/version_1_0_manual_test.md、docs/version_1_0_final_check.md、docs/version_1_0_release_decision.md、docs/version_policy.md を確認してください。
-現在の状態を要約し、勝手に実装せず、次にやるべき作業案を出してください。
+まず AGENTS.md、docs/development_workflow.md、docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_test_plan.md、docs/version_1_0_manual_test.md、docs/version_1_0_final_check.md、docs/version_1_0_release_decision.md、docs/version_policy.md を確認してください。
+現在の状態を要約し、後から修正できる通常作業は自走し、不可逆操作や危険操作だけ確認してください。
 ```
 
 ## Codex再開用プロンプト
 
 ```text
 PersonalAIプロジェクトを再開します。
-まず docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_release_decision.md、docs/version_policy.md を読んでください。
+まず AGENTS.md、docs/development_workflow.md、docs/project_handoff.md、docs/recovery_guide.md、docs/core_principles.md、docs/changelog.md、docs/version_1_0_release_decision.md、docs/version_policy.md を読んでください。
 現在のバージョン、実装済み機能、未実装機能、次の作業候補を把握してください。
-勝手に大きな変更をせず、変更前に作業計画を出してください。
+Ver2.14以降は、後から修正できる通常作業は自走して進めてください。
+不可逆操作、DB削除、Memory物理削除、課金、外部送信、Git履歴書き換えはユーザー確認してください。
 ```
