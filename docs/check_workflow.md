@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2150.py`
 - `scripts/check_ver2140.py`
 - `scripts/check_ver2130.py`
 - `scripts/check_ver2120.py`
@@ -88,6 +89,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.15では、`check_ver2150.py` でポートフォリオREADMEとデモログを確認する。
+このcheckはREADME.md、docs/portfolio_notes.md、docs/demo_logs/web_reader_memory_candidate_demo.md、project_handoff、changelog、check_workflow、run_ver2_checks.pyを確認し、DB書き込み、実Webアクセス、LLM実行、Memory保存をしない。
 Ver2.14では、`check_ver2140.py` で開発自走方針docsを確認する。
 このcheckはAGENTS.md、docs/development_workflow.md、project_handoff、changelog、check_workflow、run_ver2_checks.pyを確認し、DB書き込み、実Webアクセス、LLM実行、Memory保存をしない。
 Ver2.13では、`check_ver2130.py` でMemory Candidate確認応答のdry-runを確認する。

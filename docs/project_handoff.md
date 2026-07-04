@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.14
+現在バージョン: Ver2.15
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -77,7 +77,7 @@ Ver2.14以降、後から修正できる通常作業はユーザー確認なし�
 
 ## 現在の実装済み機能
 
-Ver2.14時点では、以下が実装済みである。
+Ver2.15時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -130,12 +130,14 @@ Ver2.11: Memory CandidateをWeb Reader結果にdry-run接続
 Ver2.12: Memory Candidate確認UI方針
 Ver2.13: Memory Candidate確認応答のdry-run
 Ver2.14: 開発自走方針
+Ver2.15: ポートフォリオREADMEとデモログ整備
 ```
 
 ## 現在の主要ファイル
 
 ```text
 AGENTS.md: AIエージェントが最初に読む短い開発運用ルール
+README.md: 就活ポートフォリオ向けのプロジェクト概要
 app.py: CLI起動入口
 core/personal_ai.py: PersonalAI本体
 core/input_analyzer.py: 入力分類
@@ -187,6 +189,8 @@ docs/conversation_policy.md: 会話品質・返答方針
 docs/reader_memory_policy.md: Reader結果のMemory保存方針
 docs/memory_candidate_ui_policy.md: Memory Candidate確認UI方針
 docs/development_workflow.md: 開発自走方針とユーザー確認の線引き
+docs/portfolio_notes.md: 就活・面接で説明するための補助メモ
+docs/demo_logs/web_reader_memory_candidate_demo.md: Web ReaderからMemory Candidate確認応答までのデモログ
 scripts/run_pre_v1_checks.py: Ver1.0前の自動チェックまとめ実行
 scripts/run_ver1_checks.py: Ver1.x用の標準チェックまとめ実行
 scripts/run_ver2_checks.py: Ver2.x用の標準チェックまとめ実行
@@ -245,6 +249,7 @@ scripts/check_ver2110.py
 scripts/check_ver2120.py
 scripts/check_ver2130.py
 scripts/check_ver2140.py
+scripts/check_ver2150.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -318,6 +323,10 @@ AGENTS.md と docs/development_workflow.md を追加
 通常の後から修正できる操作はユーザー確認なしで進める方針に変更
 commit / push は通常確認不要
 不可逆操作、DB削除、Memory物理削除、課金、外部送信は確認必須
+Ver2.15でREADME.mdをポートフォリオ向けに整理
+docs/portfolio_notes.md を追加
+docs/demo_logs/web_reader_memory_candidate_demo.md を追加
+Web ReaderからMemory Candidate確認応答dry-runまでのデモを説明可能にした
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -327,13 +336,13 @@ Reader結果のMemory保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.14後の候補:
+Ver2.15後の候補:
 
 ```text
-Ver2.15: MIGRATION.md作成
-Ver2.15: ポートフォリオREADME整備
-Ver2.15: Memory Candidate編集dry-run
-Ver2.15: Memory Candidateのユーザー確認つき保存設計
+Ver2.16: MIGRATION.md作成
+Ver2.16: Memory Candidate編集dry-run
+Ver2.16: Memory Candidateのユーザー確認つき保存設計
+Ver2.x: READMEへの画像・GIF・図の追加
 Ver2.x: PDF Reader または File Reader
 Ver2.x: Image / YouTube Reader
 Ver2.x: Reader結果のMemory保存方針

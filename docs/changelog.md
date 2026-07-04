@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.15
+
+開始内容:
+
+- ポートフォリオREADMEを整備
+- `README.md` を就活ポートフォリオ向けに追加
+- `docs/portfolio_notes.md` を追加
+- `docs/demo_logs/web_reader_memory_candidate_demo.md` を追加
+- Web Reader から Memory Candidate dry-run までのデモログを整理
+- 実装済み機能と未実装機能を分けて記載
+- MIGRATION.mdはまだ作らない方針を維持
+- `scripts/check_ver2150.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2150.py` を追加
+
 ## Version 2.14
 
 開始内容:

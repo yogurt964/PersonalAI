@@ -152,7 +152,6 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.14",
             "Ver2.14: 開発自走方針",
             "AGENTS.md",
             "docs/development_workflow.md",
