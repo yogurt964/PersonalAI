@@ -38,6 +38,7 @@ PersonalAIでは、会話履歴、長期記憶、Reader、Permission、Tool実�
 - 保存する / 保存しない / 編集して保存 / 後で確認 の確認応答dry-run
 - Memory Candidateをユーザー確認つきで長期記憶へ保存する基礎
 - 保存したMemory Candidateの内容を直近保存結果として確認する基礎
+- 確認待ち状態の文脈解釈
 - ToolRunner / PermissionManager による安全な実行設計
 - Verごとのチェックスクリプト
 - 開発自走方針
@@ -126,7 +127,7 @@ PersonalAI:
 Web Readerで読み取ってもよいですか？
 
 ユーザー:
-はい
+いいよ
 
 PersonalAI:
 Web Readerで読み取りました。
@@ -155,6 +156,8 @@ PersonalAIでは、安全設計を初期段階から分けて考えています�
 
 - Web ReaderはURL検出だけでは実行しない
 - 外部Webアクセス前に確認する
+- 確認待ち中は `はい` だけでなく `いいよ` / `お願いします` などを文脈上の許可として扱う
+- 確認待ち中の不明入力は通常会話へ流さず、確認を聞き直す
 - 失敗時に読めたふりをしない
 - Memory Candidateは勝手に保存しない
 - `保存する` と明示された場合だけ低リスク候補を保存する
@@ -198,9 +201,10 @@ PersonalAIは、小さなバージョン単位で設計、実装、チェック�
 
 ## 現在の開発状況
 
-現在はVer2.18です。
+現在はVer2.19です。
 
-Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認まで実装済みです。
+Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈まで実装済みです。
+Web Reader確認待ち中は、`いいよ` や `お願いします` も実行許可として扱えます。
 ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UIはまだ行っていません。
 
 このリポジトリは、就活ポートフォリオとして、AIエージェント設計、責務分離、安全設計、段階的な開発プロセスを見せることを意識して整備しています。

@@ -142,8 +142,8 @@ class CapabilityManager:
             return self._missing_result(
                 "web_read_required",
                 "web_reader",
-                "URL本文の読み取りが必要ですが、Web Readerは未実装です。",
-                "このURLの中身を読む機能はまだ未実装です。URLの本文を貼ってくれれば、その内容を要約できます。",
+                "URL本文の読み取りにはURLとWeb Reader実行前確認が必要です。",
+                "URLを読み取るには、URLを含めて「このURLを読んで」と送ってください。",
             )
 
         if self._requires_pdf_reading(text):

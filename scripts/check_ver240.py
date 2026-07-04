@@ -141,7 +141,7 @@ def check_cancelled_response_dry_run():
     return failures
 
 
-def check_ignored_response_dry_run():
+def check_unclear_response_keeps_pending():
     ai = build_lightweight_personal_ai()
     ai.pending_web_reader_confirmation = {
         "url": "https://example.com",
@@ -152,10 +152,10 @@ def check_ignored_response_dry_run():
     response = ai.handle_pending_web_reader_confirmation("ところで今日の作業を続けよう")
 
     failures = 0
-    failures += check_true("other topic returns None", response is None)
-    failures += check_true("other topic status ignored", ai.last_web_reader_confirmation_result["status"] == "ignored")
-    failures += check_true("other topic clears pending", ai.pending_web_reader_confirmation is None)
-    failures += check_true("other topic creates no candidate", ai.last_web_reader_tool_request_candidate is None)
+    failures += check_true("unclear response asks again", "Web Readerを実行するか確認中です" in response)
+    failures += check_true("unclear response status unclear", ai.last_web_reader_confirmation_result["status"] == "unclear")
+    failures += check_true("unclear response keeps pending", ai.pending_web_reader_confirmation is not None)
+    failures += check_true("unclear response creates no candidate", ai.last_web_reader_tool_request_candidate is None)
 
     return failures
 
@@ -264,7 +264,7 @@ def main():
     failures += check_url_input_creates_pending()
     failures += check_confirmed_response_dry_run()
     failures += check_cancelled_response_dry_run()
-    failures += check_ignored_response_dry_run()
+    failures += check_unclear_response_keeps_pending()
     failures += check_no_pending_and_youtube()
     failures += check_no_execution_code()
     failures += check_db_file_unchanged_by_dry_run()

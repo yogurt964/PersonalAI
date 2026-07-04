@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2190.py`
 - `scripts/check_ver2180.py`
 - `scripts/check_ver2170.py`
 - `scripts/check_ver2160.py`
@@ -92,6 +93,10 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.19では、`check_ver2190.py` で確認待ち状態の文脈解釈を確認する。
+このcheckはfake fetcherとfake保存を使い、`いいよ` / `お願いします` がWeb Reader実行許可として扱われること、`キャンセル` で実行しないこと、不明入力では通常会話へ流さず確認を聞き直すことを確認する。
+LLM解釈はまだ実装しない。
+自動チェックでは実Webアクセス、実DB保存、LLM実行をしない。
 Ver2.18では、`check_ver2180.py` でMemory保存後の確認・表示フローを確認する。
 このcheckはfake保存とfake記憶確認を使い、保存内容プレビュー、直近保存したMemory、`今保存した記憶を確認して` の応答を確認する。
 DBスキーマ変更はしない。

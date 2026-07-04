@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.19
+
+開始内容:
+
+- 確認待ち状態の文脈解釈を改善
+- `core/confirmation_intent.py` を追加し、confirmation intentをルールベースで分離
+- Web Reader確認待ち中の `いいよ` / `お願いします` / `OKです` などを実行許可として扱う
+- Web Reader確認待ち中の `キャンセル` / `やめて` / `今回はいい` などを拒否として扱う
+- 確認待ち中に不明な入力が来た場合、通常会話へ流さず確認を聞き直す
+- Memory Candidate確認応答に、保存・拒否・保留・編集の自然表現を追加
+- Web Reader未対応という誤解を避ける返答へ調整
+- LLM解釈はまだ実装しない方針を維持
+- `scripts/check_ver2190.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2190.py` を追加
+
 ## Version 2.18
 
 開始内容:

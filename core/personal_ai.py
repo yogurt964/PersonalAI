@@ -609,7 +609,7 @@ class PersonalAI:
         self.last_web_reader_confirmation_result = result.to_dict()
         self.last_web_reader_tool_request_candidate = result.tool_request_candidate
 
-        if result.status in ["confirmed", "cancelled", "ignored"]:
+        if result.status in ["confirmed", "cancelled"]:
             self.pending_web_reader_confirmation = None
 
         if result.status == "confirmed" and result.tool_request_candidate:

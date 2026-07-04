@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.18
+現在バージョン: Ver2.19
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -77,7 +77,7 @@ Ver2.14以降、後から修正できる通常作業はユーザー確認なし�
 
 ## 現在の実装済み機能
 
-Ver2.18時点では、以下が実装済みである。
+Ver2.19時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -134,6 +134,7 @@ Ver2.15: ポートフォリオREADMEとデモログ整備
 Ver2.16: Memory Candidate編集dry-run
 Ver2.17: Memory Candidateのユーザー確認つき保存
 Ver2.18: Memory保存後の確認・表示フロー
+Ver2.19: 確認待ち状態の文脈解釈
 ```
 
 ## 現在の主要ファイル
@@ -157,11 +158,12 @@ core/tool_flow.py: ToolRequest / Registry / Permissionのdry-runプレビュー
 core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基礎
 core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
+core/confirmation_intent.py: 確認待ち状態の入力を確認Intentとして解釈するルールベースresolver
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
 core/memory_candidate.py: Reader結果からMemory Candidateを作るdry-run
 core/memory_candidate_confirmation.py: Memory Candidate確認応答と編集応答をdry-runで解釈
 core/memory_candidate_saver.py: Memory Candidateを既存の長期記憶保存機構へ渡す保存処理
-core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-run、pending_memory_candidate_edit、last_memory_candidate_save_result、last_saved_memory_candidate_resultを接続
+core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-run、pending_memory_candidate_edit、last_memory_candidate_save_result、last_saved_memory_candidate_result、確認待ち状態の文脈解釈を接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -257,6 +259,7 @@ scripts/check_ver2150.py
 scripts/check_ver2160.py
 scripts/check_ver2170.py
 scripts/check_ver2180.py
+scripts/check_ver2190.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -350,6 +353,12 @@ Ver2.18でMemory保存後の確認・表示フローを追加
 last_saved_memory_candidate_result に直近保存結果を保持する
 `今保存した記憶を確認して` で直近保存したMemoryを表示できる
 DBスキーマ変更はしない
+Ver2.19で確認待ち状態の文脈解釈を改善
+core/confirmation_intent.py で confirmation intent を分離
+Web Reader確認待ち中は `いいよ` や `お願いします` を許可、`キャンセル` を拒否として扱う
+確認待ち中に不明な入力が来た場合は通常会話へ流さず確認を聞き直す
+Web Reader未対応という誤解を避ける
+LLMによるIntent判定はまだ未実装
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -359,13 +368,14 @@ Reader結果全文のDB保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.18後の候補:
+Ver2.19後の候補:
 
 ```text
-Ver2.19: MIGRATION.md作成
-Ver2.19: READMEへの画像・GIF・図の追加
-Ver2.19: Memory検索の最小実用化
+Ver2.20: Memory検索の最小実用化
+Ver2.20: MIGRATION.md作成
+Ver2.x: READMEへの画像・GIF・図の追加
 Ver2.x: File / PDF Reader
+Ver2.x: LLM Intent Resolver設計
 ```
 
 ## Ver1.1以降の改善候補

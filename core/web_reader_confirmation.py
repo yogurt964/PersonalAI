@@ -1,7 +1,7 @@
 from dataclasses import dataclass
 from typing import Optional
-from urllib.parse import urlparse
 
+from core.confirmation_intent import resolve_confirmation_intent
 from core.web_reader_adapter import extract_url_from_text
 
 
@@ -97,9 +97,9 @@ def resolve_web_reader_confirmation_response(user_input, pending_confirmation=No
             reason="保留中のWeb Reader確認がありません。",
         )
 
-    text = str(user_input or "").strip()
+    intent = resolve_confirmation_intent(user_input, context_type="web_reader")
 
-    if _is_affirmative_response(text):
+    if intent.get("status") == "confirmed":
         candidate = build_web_reader_tool_request_candidate(pending_confirmation)
 
         return WebReaderConfirmationResult(
@@ -108,29 +108,32 @@ def resolve_web_reader_confirmation_response(user_input, pending_confirmation=No
             user_confirmed=True,
             tool_request_candidate=candidate,
             message=(
-                "Web Readerの実行接続はまだ未実装です。\n"
-                "現在は、確認応答を受け取り、実行候補を作るdry-runまで対応しています。"
+                "Web Readerの実行許可を確認しました。\n"
+                "このresolverではdry-runとして実行候補だけを作ります。"
             ),
-            reason="ユーザーはWeb Reader実行を許可しましたが、Ver2.4では候補作成までに留めます。",
+            reason="ユーザーはWeb Reader実行を許可しました。",
         )
 
-    if _is_negative_response(text):
+    if intent.get("status") == "rejected":
         return WebReaderConfirmationResult(
             status="cancelled",
             should_execute=False,
             user_confirmed=False,
             tool_request_candidate=None,
-            message="了解しました。Web Readerは実行しません。",
+            message=(
+                "Web Readerは実行しませんでした。\n"
+                "必要になったら、もう一度URLを送ってください。"
+            ),
             reason="ユーザーがWeb Reader実行をキャンセルしました。",
         )
 
     return WebReaderConfirmationResult(
-        status="ignored",
+        status="unclear",
         should_execute=False,
         user_confirmed=False,
         tool_request_candidate=None,
-        message="",
-        reason="確認応答ではないため、保留を解除して通常処理へ戻します。",
+        message=intent.get("message", ""),
+        reason="Web Reader確認待ち中の入力を確認応答として解釈できませんでした。",
     )
 
 
@@ -153,36 +156,19 @@ def build_web_reader_tool_request_candidate(pending_confirmation):
 
 
 def _is_affirmative_response(text):
-    normalized = str(text or "").strip()
-    return normalized in [
-        "はい",
-        "お願いします",
-        "お願い",
-        "OK",
-        "ok",
-        "Yes",
-        "yes",
-        "実行して",
-        "読んで",
-    ]
+    return resolve_confirmation_intent(text, context_type="web_reader").get("status") == "confirmed"
 
 
 def _is_negative_response(text):
-    normalized = str(text or "").strip()
-    return normalized in [
-        "いいえ",
-        "やめて",
-        "キャンセル",
-        "不要",
-        "しないで",
-        "no",
-        "No",
-    ]
+    return resolve_confirmation_intent(text, context_type="web_reader").get("status") == "rejected"
 
 
 def _is_http_url(url):
-    parsed = urlparse(str(url))
-    return parsed.scheme in {"http", "https"} and bool(parsed.netloc)
+    text = str(url or "").strip()
+    return (
+        (text.startswith("http://") or text.startswith("https://"))
+        and len(text.split("://", 1)[-1].split("/", 1)[0]) > 0
+    )
 
 
 def _get_value(obj, key, default=None):
