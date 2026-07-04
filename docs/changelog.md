@@ -10,6 +10,9 @@
 - README / project_handoff / development_workflow / check_workflow を移行方針に合わせて更新
 - `scripts/check_ver2210.py` を追加
 - `scripts/run_ver2_checks.py` に `check_ver2210.py` を追加
+- `MIGRATION.md` にPersonalAIの最終利用スコープを追加
+- 画像、音声、動画、Office、創作支援、予定管理、メールなどは将来スコープとして整理
+- 具体的な外部ツール名は固定ではなく、用途や開発段階に応じて選ぶ方針を明記
 
 ## Version 2.20
 

@@ -247,7 +247,127 @@ Example Domainについて覚えてる？
 - 関連Memoryがあれば表示
 - なければ自然に未発見を返す
 
-## 9. 未実装機能
+## 9. PersonalAIの最終利用スコープ
+
+この章は、現在実装済みの機能ではなく、将来的にPersonalAIで扱いたい利用範囲を整理するものである。
+
+現在実装済み:
+
+- Web Reader
+- Memory Candidate
+- Memory Candidateのユーザー確認つき保存
+- 直近保存Memory確認
+- Memory検索
+- PermissionManager
+- ToolRunner
+
+将来スコープ:
+
+- 画像、音声、動画などの入力
+- YouTube、PDF、Word、Excel、PowerPointなどのReader
+- Office操作、カレンダー連携、メール連携
+- アプリ開発、ゲーム開発、創作支援、データ分析、予定管理
+- コードエディタ、ゲームエンジン、イラスト制作ソフト、動画編集ソフト、音楽制作ツール、ノートアプリなどとの連携
+
+PersonalAIは、単なるチャットAIや開発補助AIではなく、ユーザーの日常・学習・開発・創作・予定管理まで広く支援する個人用総合AIアシスタントを目指す。
+
+### 主な使用場面
+
+- アプリ開発
+- ゲーム開発
+- 資料要約
+- 資料作成
+- Web検索
+- データ分析
+- 勉強
+- 雑談
+- アドバイス
+- Live2D
+- 動画制作
+- イラスト
+- 3Dモデリング
+- 音楽制作
+- 動画生成
+- 画像生成
+- 予定管理
+- メール
+
+### 将来的に扱いたい入力
+
+- 画像
+- 音声
+- 動画
+- YouTube
+- URL
+- PDF
+- Word
+- Excel
+- PowerPoint
+- 日本語文章
+- 英語文章
+- コード
+- アプリ画面
+- カレンダー
+- メール
+- Obsidianなどのノート
+
+### 将来的に連携・支援したい外部ツール
+
+PersonalAIは、将来的にコードエディタ、ゲームエンジン、イラスト制作ソフト、動画編集ソフト、データ分析ツール、Office系ツール、ノートアプリ、画像生成ツール、動画生成ツール、音楽制作ツールなどの支援を視野に入れる。
+
+以下の具体名は、固定ではない。
+あくまで各分野で想定される代表例・候補例であり、実際に使うツールは用途や開発段階に応じて選ぶ。
+
+#### 開発
+
+- VS Code
+- Unity
+- コードエディタ
+- ゲームプラットフォーム
+
+#### イラスト・創作
+
+- CLIP STUDIO PAINT / クリスタ
+- MediBang
+- Live2D
+- 3Dモデリングツール
+- 画像生成ツール
+- 動画生成ツール
+- 音楽制作ツール
+
+#### 動画制作
+
+- DaVinci Resolve
+- Adobe系ツール
+
+#### データ分析
+
+- R
+- 表計算
+- グラフ作成
+
+#### 資料・業務
+
+- Office
+- Word
+- Excel
+- PowerPoint
+- カレンダー
+- メール
+- Obsidian
+
+### 利用するAI
+
+現時点で主に想定しているAI:
+
+- Qwen
+- OpenAI
+
+将来的には、用途に応じてClaudeやGeminiなども候補にできる。
+
+ただし、Claude Codeは開発環境としての利用を想定しており、PersonalAI本体の実行モデルとして使うかは別途判断する。
+
+## 10. 未実装機能
 
 未実装:
 
@@ -272,7 +392,7 @@ Example Domainについて覚えてる？
 未実装機能は、できるように見せない。
 必要な場合は未実装であることを明確に伝え、代替案を出す。
 
-## 10. 安全ルール
+## 11. 安全ルール
 
 必ず守ること:
 
@@ -308,7 +428,7 @@ branch作成
 
 判断に迷う場合は、AGENTS.md と docs/development_workflow.md を優先する。
 
-## 11. 開発・検証コマンド
+## 12. 開発・検証コマンド
 
 起動:
 
@@ -340,7 +460,7 @@ git diff --check
 DB削除・初期化はしない。
 権限付き再実行で通る場合は、既知の環境問題として扱う。
 
-## 12. Claude Code開始時の手順
+## 13. Claude Code開始時の手順
 
 Claude Codeが最初に行うこと:
 
@@ -371,7 +491,7 @@ docs/memory_candidate_ui_policy.md
 docs/demo_logs/web_reader_memory_candidate_demo.md
 ```
 
-## 13. 作業完了時の報告フォーマット
+## 14. 作業完了時の報告フォーマット
 
 ```text
 【VerX.X 完了まとめ】
@@ -385,7 +505,7 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 7. 次に進めるVer候補
 ```
 
-## 14. ポートフォリオ方針
+## 15. ポートフォリオ方針
 
 PersonalAIは就活ポートフォリオとして使う予定である。
 
@@ -409,7 +529,7 @@ docs/portfolio_notes.md
 docs/demo_logs/web_reader_memory_candidate_demo.md
 ```
 
-## 15. 次に進める候補
+## 16. 次に進める候補
 
 ```text
 Ver2.22: READMEへの画像・GIF・図の追加

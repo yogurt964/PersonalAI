@@ -126,6 +126,52 @@ def main():
     )
 
     failures += check_words(
+        "MIGRATION.md final scope",
+        migration,
+        [
+            "最終利用スコープ",
+            "アプリ開発",
+            "ゲーム開発",
+            "資料要約",
+            "資料作成",
+            "Web検索",
+            "データ分析",
+            "勉強",
+            "雑談",
+            "Live2D",
+            "動画制作",
+            "イラスト",
+            "3Dモデリング",
+            "音楽制作",
+            "動画生成",
+            "画像生成",
+            "予定管理",
+            "メール",
+            "画像",
+            "音声",
+            "YouTube",
+            "PDF",
+            "Word",
+            "Excel",
+            "PowerPoint",
+            "VS Code",
+            "Unity",
+            "CLIP STUDIO PAINT",
+            "MediBang",
+            "DaVinci Resolve",
+            "Adobe",
+            "R",
+            "Office",
+            "Obsidian",
+            "Qwen",
+            "OpenAI",
+            "例",
+            "固定ではない",
+            "用途や開発段階に応じて選ぶ",
+        ],
+    )
+
+    failures += check_words(
         "project_handoff.md",
         project_handoff,
         [
@@ -134,6 +180,9 @@ def main():
             "MIGRATION.md",
             "Claude Code",
             "Cursor",
+            "最終スコープ",
+            "個人用総合AIアシスタント",
+            "固定ではなく",
         ],
     )
 
@@ -148,6 +197,9 @@ def main():
             "開発環境移行",
             "引継書",
             "scripts/check_ver2210.py",
+            "最終利用スコープ",
+            "将来スコープ",
+            "用途や開発段階に応じて選ぶ",
         ],
     )
 
@@ -179,6 +231,10 @@ def main():
             "MIGRATION.md",
             "開発環境移行",
             "現在はVer2.21です。",
+            "将来的に扱いたい領域",
+            "資料要約",
+            "創作支援",
+            "具体的なアプリは固定せず",
         ],
     )
 
