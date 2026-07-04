@@ -60,7 +60,6 @@ PersonalAIでは、会話履歴、長期記憶、Reader、Permission、Tool実�
 - GUI
 - PC操作
 - 自律的な外部送信
-- MIGRATION.md
 
 ## 技術スタック
 
@@ -187,8 +186,11 @@ PersonalAIは、小さなバージョン単位で設計、実装、チェック�
 - `docs/check_workflow.md`: チェック運用
 - `docs/development_workflow.md`: AIエージェントによる開発自走方針
 - `AGENTS.md`: AIエージェント向けの短い運用ルール
+- `MIGRATION.md`: Claude Code / Cursorなど新しい開発環境へ移行するための引継書
 
 各バージョンで専用のcheckスクリプトを追加し、既存機能を壊さないように確認しています。
+
+開発環境移行やAIエージェント向けの詳細な引継ぎは MIGRATION.md を参照してください。
 
 ## 今後のロードマップ
 
@@ -196,7 +198,7 @@ PersonalAIは、小さなバージョン単位で設計、実装、チェック�
 
 - ポートフォリオ用READMEとデモ資料の継続改善
 - Memory Candidate保存フローの改善
-- MIGRATION.md作成
+- Claude Code移行テスト
 
 将来の予定:
 
@@ -213,9 +215,9 @@ PersonalAIは、小さなバージョン単位で設計、実装、チェック�
 
 ## 現在の開発状況
 
-現在はVer2.20です。
+現在はVer2.21です。
 
-Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索まで実装済みです。
+Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索、Claude Code移行用MIGRATION.mdまで整備済みです。
 Web Reader確認待ち中は、`いいよ` や `お願いします` も実行許可として扱えます。
 ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
 

@@ -359,7 +359,7 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.20",
+            "現在バージョン: Ver2.21",
             "Ver2.19: 確認待ち状態の文脈解釈",
             "core/confirmation_intent.py",
             "いいよ",
@@ -398,7 +398,7 @@ def main():
         "README.md",
         PROJECT_ROOT / "README.md",
         [
-            "現在はVer2.20です。",
+            "現在はVer2.21です。",
             "確認待ち状態の文脈解釈",
             "いいよ",
             "お願いします",

@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 2.21
+
+開始内容:
+
+- `MIGRATION.md` を追加
+- Claude Code / Cursor への開発環境移行用の引継書を作成
+- 実装済み機能、未実装機能、安全ルール、開発コマンドを整理
+- README / project_handoff / development_workflow / check_workflow を移行方針に合わせて更新
+- `scripts/check_ver2210.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2210.py` を追加
+
 ## Version 2.20
 
 開始内容:

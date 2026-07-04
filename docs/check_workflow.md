@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2210.py`
 - `scripts/check_ver2200.py`
 - `scripts/check_ver2190.py`
 - `scripts/check_ver2180.py`
@@ -94,6 +95,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.21では、`check_ver2210.py` でClaude Code移行用MIGRATION.mdと関連docsを確認する。
+このcheckはdocs確認のみを行い、実Webアクセス、LLM実行、Memory保存、DBスキーマ変更をしない。
 Ver2.20では、`check_ver2200.py` でMemory検索の最小実用化を確認する。
 このcheckはfake検索を使い、`覚えてる？` などの入力からqueryを取り出すこと、保存済みMemoryの検索結果表示、結果なし表示、既存Web Reader保存フロー維持を確認する。
 DBスキーマ変更はしない。

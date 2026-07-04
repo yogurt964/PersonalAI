@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.20
+現在バージョン: Ver2.21
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -77,7 +77,7 @@ Ver2.14以降、後から修正できる通常作業はユーザー確認なし�
 
 ## 現在の実装済み機能
 
-Ver2.20時点では、以下が実装済みである。
+Ver2.21時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -136,12 +136,14 @@ Ver2.17: Memory Candidateのユーザー確認つき保存
 Ver2.18: Memory保存後の確認・表示フロー
 Ver2.19: 確認待ち状態の文脈解釈
 Ver2.20: Memory検索の最小実用化
+Ver2.21: Claude Code移行用MIGRATION.md
 ```
 
 ## 現在の主要ファイル
 
 ```text
 AGENTS.md: AIエージェントが最初に読む短い開発運用ルール
+MIGRATION.md: Claude Code / Cursorなど別開発環境へ移行するための包括的な引継書
 README.md: 就活ポートフォリオ向けのプロジェクト概要
 app.py: CLI起動入口
 core/personal_ai.py: PersonalAI本体
@@ -263,6 +265,7 @@ scripts/check_ver2170.py
 scripts/check_ver2180.py
 scripts/check_ver2190.py
 scripts/check_ver2200.py
+scripts/check_ver2210.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -367,6 +370,8 @@ Ver2.20でMemory検索の最小実用化を追加
 core/memory_search.py でread-onlyの簡易キーワード検索を分離
 DBスキーマ変更はしない
 LLMによる検索query生成はまだ未実装
+Ver2.21でClaude Code移行用MIGRATION.mdを追加
+MIGRATION.md に Claude Code / Cursor 移行用の役割分担、実装済み機能、未実装機能、安全ルール、開発コマンドを整理
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -376,12 +381,13 @@ Reader結果全文のDB保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.20後の候補:
+Ver2.21後の候補:
 
 ```text
-Ver2.21: MIGRATION.md作成
-Ver2.21: READMEへの画像・GIF・図の追加
-Ver2.21: LLM Intent Resolver設計
+Ver2.22: READMEへの画像・GIF・図の追加
+Ver2.22: LLM Intent Resolver設計
+Ver2.22: File Reader最小実装
+Ver2.x: Claude Code移行テスト
 Ver2.x: File / PDF Reader
 ```
 

@@ -178,7 +178,7 @@ PersonalAIは、単なる個人用スクリプトではなく、ポートフォ�
 
 そのために、AIエージェントが最初に読む `AGENTS.md` と、詳しい開発方針である `docs/development_workflow.md` をリポジトリに置く。
 
-MIGRATION.mdは、Claude Codeなど別環境へ本格移行する直前に作成する。
-Ver2.14では、その前段階として、AIエージェントが自走しやすい開発方針をリポジトリに反映する。
+Ver2.14では、その前段階として、AIエージェントが自走しやすい開発方針をリポジトリに反映した。
 
-Ver2.14では、まだ `MIGRATION.md` は作らない。
+Ver2.21では、Claude Code / Cursor など別環境へ移行するための包括的な引継書として `MIGRATION.md` を追加した。
+Claude Code移行時は、AGENTS.md、MIGRATION.md、README.md、docs/development_workflow.md、docs/project_handoff.md、docs/check_workflow.md を最初に確認する。

@@ -12,15 +12,6 @@ def check_file_exists(label, path):
     return 1
 
 
-def check_file_missing(label, path):
-    if not path.exists():
-        print(f"[OK] {label} is not created")
-        return 0
-
-    print(f"[NG] {label} must not be created yet -> {path}")
-    return 1
-
-
 def check_true(label, condition):
     if condition:
         print(f"[OK] {label}")
@@ -108,14 +99,13 @@ def main():
         ("project_handoff.md", project_handoff),
         ("changelog.md", changelog),
         ("check_workflow.md", check_workflow),
+        ("MIGRATION.md", migration),
         ("check_ver2150.py", check_ver2150),
         ("run_ver2_checks.py", run_ver2_checks),
     ]
 
     for label, path in files:
         failures += check_file_exists(label, path)
-
-    failures += check_file_missing("MIGRATION.md", migration)
 
     failures += check_words(
         "README.md",

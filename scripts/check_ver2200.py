@@ -325,7 +325,7 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.20",
+            "現在バージョン: Ver2.21",
             "Ver2.20: Memory検索の最小実用化",
             "core/memory_search.py",
             "覚えてる？",
@@ -339,7 +339,6 @@ def main():
         ("reader_memory_policy.md", docs / "reader_memory_policy.md"),
         ("memory_candidate_ui_policy.md", docs / "memory_candidate_ui_policy.md"),
         ("web_reader_memory_candidate_demo.md", demo_logs / "web_reader_memory_candidate_demo.md"),
-        ("README.md", PROJECT_ROOT / "README.md"),
     ]:
         failures += check_words(
             label,
@@ -359,7 +358,7 @@ def main():
             "保存済みMemoryを簡易キーワード検索する基礎",
             "ベクトル検索",
             "LLMによる高度な文脈検索",
-            "現在はVer2.20です。",
+            "現在はVer2.21です。",
         ],
     )
 
