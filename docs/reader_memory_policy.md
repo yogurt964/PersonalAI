@@ -140,6 +140,9 @@ Memory Candidate確認UI方針
 Ver2.13:
 Memory Candidate確認応答のdry-run
 
+Ver2.16:
+Memory Candidate編集dry-run
+
 次以降:
 ユーザー確認つき保存
 Project Stateへの反映
@@ -177,6 +180,13 @@ Ver2.13では、Memory Candidate確認応答のdry-runを追加する。
 DBスキーマ変更はしない。
 Memory CandidateのDB保存もしない。
 自動チェックでは実Webアクセス・LLM実行・DB書き込みをしない。
+
+Ver2.16では、Memory Candidate編集dry-runを追加する。
+`編集して保存` の後にユーザーから編集内容を受け取り、編集済み候補としてdry-run保持する。
+編集内容を受け取っても、まだMemory保存はしない。
+DBスキーマ変更はしない。
+Memory CandidateのDB保存もしない。
+Reader結果のDB保存もしない。
 
 ## Ver2.9で実装しないこと
 

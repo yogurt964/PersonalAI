@@ -19,7 +19,10 @@ from core.capability_manager import CapabilityManager
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
 from core.memory_candidate import build_memory_candidate_from_reader_result
-from core.memory_candidate_confirmation import resolve_memory_candidate_confirmation_response
+from core.memory_candidate_confirmation import (
+    resolve_memory_candidate_confirmation_response,
+    resolve_memory_candidate_edit_response,
+)
 from core.permission_manager import PermissionManager
 from core.planner import Planner
 from core.router import Router
@@ -178,6 +181,7 @@ class PersonalAI:
         self.last_memory_candidate_confirmation_result = None
         self.pending_preference_confirmation = None
         self.pending_memory_candidate_confirmation = None
+        self.pending_memory_candidate_edit = None
         self.pending_web_reader_confirmation = None
         self.last_response = None
 
@@ -212,6 +216,13 @@ class PersonalAI:
             self.save_assistant_message(pending_response)
             return pending_response
 
+        pending_memory_candidate_edit_response = self.handle_pending_memory_candidate_edit(user_input)
+
+        if pending_memory_candidate_edit_response:
+            self.last_response = pending_memory_candidate_edit_response
+            self.save_assistant_message(pending_memory_candidate_edit_response)
+            return pending_memory_candidate_edit_response
+
         pending_memory_candidate_response = self.handle_pending_memory_candidate_confirmation(user_input)
 
         if pending_memory_candidate_response:
@@ -242,6 +253,7 @@ class PersonalAI:
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
         self.last_memory_candidate_confirmation_result = None
+        self.pending_memory_candidate_edit = None
         web_reader_response = build_web_reader_confirmation_response(
             user_input,
             input_analysis=input_analysis,
@@ -385,6 +397,44 @@ class PersonalAI:
         # Ver2.13では保存せず、完了系の応答だけpendingを解除します。
         if result.get("status") in ["confirmed", "rejected", "postponed"]:
             self.pending_memory_candidate_confirmation = None
+            self.pending_memory_candidate_edit = None
+
+        if result.get("status") == "edit_requested":
+            self.pending_memory_candidate_edit = dict(pending_candidate)
+
+        return result.get("message")
+
+    def handle_pending_memory_candidate_edit(self, user_input):
+        """Memory Candidateの編集内容をdry-runで受け取ります。"""
+        pending_candidate = getattr(self, "pending_memory_candidate_edit", None)
+
+        if not pending_candidate:
+            return None
+
+        result = resolve_memory_candidate_edit_response(
+            user_input,
+            pending_candidate,
+        )
+        self.last_memory_candidate_confirmation_result = result
+
+        if result.get("status") == "edit_empty":
+            return result.get("message")
+
+        if result.get("status") == "edit_cancelled":
+            self.pending_memory_candidate_edit = None
+            self.pending_memory_candidate_confirmation = None
+            return result.get("message")
+
+        if result.get("status") == "edited_dry_run":
+            edited_candidate = result.get("edited_candidate") or {}
+            self.last_memory_candidate = edited_candidate
+            self.pending_memory_candidate_edit = None
+            self.pending_memory_candidate_confirmation = None
+
+            return (
+                f"{result.get('message')}\n\n"
+                f"{self.format_edited_memory_candidate_dry_run(result)}"
+            )
 
         return result.get("message")
 
@@ -511,6 +561,7 @@ class PersonalAI:
         if not getattr(result, "executed", False):
             self.last_memory_candidate = None
             self.pending_memory_candidate_confirmation = None
+            self.pending_memory_candidate_edit = None
             reason = getattr(result, "message", "") or getattr(result, "error", "")
             return (
                 "Web Readerは実行されませんでした。\n\n"
@@ -521,6 +572,7 @@ class PersonalAI:
         if not getattr(result, "success", False):
             self.last_memory_candidate = None
             self.pending_memory_candidate_confirmation = None
+            self.pending_memory_candidate_edit = None
             reason = getattr(result, "error", None) or getattr(result, "message", "")
             return (
                 "Web Readerで読み取りを試みましたが、失敗しました。\n\n"
@@ -542,6 +594,7 @@ class PersonalAI:
         )
         self.last_memory_candidate = memory_candidate
         self.pending_memory_candidate_confirmation = dict(memory_candidate)
+        self.pending_memory_candidate_edit = None
         memory_candidate_text = self.format_memory_candidate_dry_run(memory_candidate)
 
         return (
@@ -578,6 +631,22 @@ class PersonalAI:
             f"確認必要: {self.format_boolean_label(candidate.get('requires_user_confirmation'))}\n"
             "理由:\n"
             f"{chr(10).join(reason_lines) if reason_lines else '- 理由なし'}"
+        )
+
+    def format_edited_memory_candidate_dry_run(self, result):
+        """編集済みMemory Candidateを、保存しないdry-run情報として表示します。"""
+        edited_candidate = result.get("edited_candidate") or {}
+        edited_summary = result.get("edited_summary") or edited_candidate.get("summary") or ""
+
+        return (
+            "編集済みMemory Candidate dry-run:\n"
+            f"保存候補タイプ: {edited_candidate.get('candidate_type', 'unknown')}\n"
+            f"重要度: {edited_candidate.get('importance', 'unknown')}\n"
+            f"リスク: {edited_candidate.get('risk_level', 'unknown')}\n"
+            "編集後要約:\n"
+            f"{edited_summary or '(編集後要約なし)'}\n"
+            f"保存実行: {self.format_boolean_label(edited_candidate.get('should_save'), true_label='する', false_label='しない')}\n"
+            f"確認必要: {self.format_boolean_label(edited_candidate.get('requires_user_confirmation'))}"
         )
 
     def format_boolean_label(self, value, true_label="はい", false_label="いいえ"):

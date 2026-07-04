@@ -2,6 +2,7 @@ SAVE_WORDS = ["保存する", "はい", "yes", "ok", "1"]
 REJECT_WORDS = ["保存しない", "いいえ", "no", "3"]
 POSTPONE_WORDS = ["後で確認", "後で", "あとで", "4"]
 EDIT_WORDS = ["編集して保存", "編集", "2"]
+CANCEL_EDIT_WORDS = ["キャンセル", "やめる", "保存しない"]
 
 
 def resolve_memory_candidate_confirmation_response(user_input, pending_candidate):
@@ -35,7 +36,8 @@ def resolve_memory_candidate_confirmation_response(user_input, pending_candidate
             requires_followup=True,
             message=(
                 "編集して保存する意図を確認しました。"
-                "ただしVer2.13ではまだ保存しません。"
+                "編集内容を送ってください。"
+                "ただしVer2.16ではまだMemory保存しません。"
             ),
             candidate=candidate,
         )
@@ -57,6 +59,59 @@ def resolve_memory_candidate_confirmation_response(user_input, pending_candidate
     )
 
 
+def resolve_memory_candidate_edit_response(user_input, pending_candidate):
+    """Memory Candidateの編集内容をdry-runで受け取ります。
+
+    Ver2.16では編集済み候補を作るだけで、Memory保存やDB保存は行いません。
+    """
+    original_input = str(user_input or "").strip()
+    normalized_input = _normalize_user_input(original_input)
+    candidate = _normalize_candidate(pending_candidate)
+
+    if not original_input:
+        return _build_edit_result(
+            status="edit_empty",
+            action="ask_edit_content",
+            message=(
+                "編集内容が空でした。"
+                "Memory Candidateに反映したい内容を送ってください。"
+                "Ver2.16ではまだMemory保存しません。"
+            ),
+            candidate=candidate,
+            edited_candidate=dict(candidate),
+            edited_summary="",
+            requires_followup=True,
+        )
+
+    if _matches_any(normalized_input, CANCEL_EDIT_WORDS):
+        return _build_edit_result(
+            status="edit_cancelled",
+            action="cancel_edit_candidate",
+            message="Memory Candidateの編集をキャンセルしました。保存はしていません。",
+            candidate=candidate,
+            edited_candidate=dict(candidate),
+            edited_summary="",
+        )
+
+    edited_candidate = dict(candidate)
+    edited_candidate["summary"] = original_input
+    edited_candidate["edited"] = True
+    edited_candidate["edit_source"] = "user_input"
+    edited_candidate["should_save"] = False
+
+    return _build_edit_result(
+        status="edited_dry_run",
+        action="edit_candidate_content_dry_run",
+        message=(
+            "編集内容を受け取りました。"
+            "Ver2.16ではまだMemory保存せず、編集済み候補としてdry-run保持します。"
+        ),
+        candidate=candidate,
+        edited_candidate=edited_candidate,
+        edited_summary=original_input,
+    )
+
+
 def _build_result(
     status,
     action,
@@ -72,6 +127,28 @@ def _build_result(
         "requires_followup": requires_followup,
         "message": message,
         "candidate": candidate,
+    }
+
+
+def _build_edit_result(
+    status,
+    action,
+    message,
+    candidate,
+    edited_candidate,
+    edited_summary,
+    requires_followup=False,
+):
+    return {
+        "status": status,
+        "action": action,
+        "should_save": False,
+        "should_execute": False,
+        "requires_followup": requires_followup,
+        "message": message,
+        "candidate": candidate,
+        "edited_candidate": edited_candidate,
+        "edited_summary": edited_summary,
     }
 
 

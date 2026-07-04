@@ -165,7 +165,6 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.15",
             "Ver2.15: ポートフォリオREADME",
             "docs/portfolio_notes.md",
             "docs/demo_logs/web_reader_memory_candidate_demo.md",

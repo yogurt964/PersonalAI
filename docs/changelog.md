@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.16
+
+開始内容:
+
+- Memory Candidate編集dry-runを追加
+- `編集して保存` の後に、次のユーザー入力を編集内容として受け取る流れを追加
+- 編集内容を反映した編集済みMemory Candidateをdry-run保持
+- `pending_memory_candidate_edit` で編集待ち状態を管理
+- `core/memory_candidate_confirmation.py` に編集応答解釈を追加
+- まだMemory保存はしない方針を維持
+- Memory CandidateのDB保存もしない方針を維持
+- DBスキーマ変更はしない方針を維持
+- `scripts/check_ver2160.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2160.py` を追加
+
 ## Version 2.15
 
 開始内容:

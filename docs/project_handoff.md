@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.15
+現在バージョン: Ver2.16
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -77,7 +77,7 @@ Ver2.14以降、後から修正できる通常作業はユーザー確認なし�
 
 ## 現在の実装済み機能
 
-Ver2.15時点では、以下が実装済みである。
+Ver2.16時点では、以下が実装済みである。
 
 ```text
 Ver0.9.1: 状態整理・安定化
@@ -131,6 +131,7 @@ Ver2.12: Memory Candidate確認UI方針
 Ver2.13: Memory Candidate確認応答のdry-run
 Ver2.14: 開発自走方針
 Ver2.15: ポートフォリオREADMEとデモログ整備
+Ver2.16: Memory Candidate編集dry-run
 ```
 
 ## 現在の主要ファイル
@@ -156,8 +157,8 @@ core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
 core/memory_candidate.py: Reader結果からMemory Candidateを作るdry-run
-core/memory_candidate_confirmation.py: Memory Candidate確認応答をdry-runで解釈
-core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-runを接続
+core/memory_candidate_confirmation.py: Memory Candidate確認応答と編集応答をdry-runで解釈
+core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-run、pending_memory_candidate_editを接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -250,6 +251,7 @@ scripts/check_ver2120.py
 scripts/check_ver2130.py
 scripts/check_ver2140.py
 scripts/check_ver2150.py
+scripts/check_ver2160.py
 scripts/run_ver1_checks.py
 scripts/run_ver2_checks.py
 ```
@@ -327,6 +329,11 @@ Ver2.15でREADME.mdをポートフォリオ向けに整理
 docs/portfolio_notes.md を追加
 docs/demo_logs/web_reader_memory_candidate_demo.md を追加
 Web ReaderからMemory Candidate確認応答dry-runまでのデモを説明可能にした
+Ver2.16でMemory Candidate編集dry-runを追加
+`編集して保存` の後に編集内容を受け取り、編集済み候補としてdry-run保持できる
+pending_memory_candidate_edit で編集待ち状態を管理
+ただし、まだMemory保存はしない
+DBスキーマ変更もしない
 ただしPDF/Image/YouTube/File Readerはまだ未実装
 自動checkでは実Webアクセスしない
 URL検出だけでは自動Webアクセスしない
@@ -336,16 +343,13 @@ Reader結果のMemory保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
 ```
 
-Ver2.15後の候補:
+Ver2.16後の候補:
 
 ```text
-Ver2.16: MIGRATION.md作成
-Ver2.16: Memory Candidate編集dry-run
-Ver2.16: Memory Candidateのユーザー確認つき保存設計
+Ver2.17: Memory Candidateのユーザー確認つき保存設計
+Ver2.17: MIGRATION.md作成
 Ver2.x: READMEへの画像・GIF・図の追加
-Ver2.x: PDF Reader または File Reader
-Ver2.x: Image / YouTube Reader
-Ver2.x: Reader結果のMemory保存方針
+Ver2.x: File / PDF Reader
 ```
 
 ## Ver1.1以降の改善候補
