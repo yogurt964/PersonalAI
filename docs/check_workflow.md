@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2180.py`
 - `scripts/check_ver2170.py`
 - `scripts/check_ver2160.py`
 - `scripts/check_ver2150.py`
@@ -91,6 +92,10 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.18では、`check_ver2180.py` でMemory保存後の確認・表示フローを確認する。
+このcheckはfake保存とfake記憶確認を使い、保存内容プレビュー、直近保存したMemory、`今保存した記憶を確認して` の応答を確認する。
+DBスキーマ変更はしない。
+自動チェックでは実DB保存しない。
 Ver2.17では、`check_ver2170.py` でMemory Candidateのユーザー確認つき保存を確認する。
 このcheckはfake保存関数を使い、`保存する` と明示された低リスク候補だけが既存の長期記憶保存機構へ渡されることを確認する。
 自動チェックでは実DB保存しない。

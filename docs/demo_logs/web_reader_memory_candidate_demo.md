@@ -9,6 +9,8 @@ Ver2.17以降では、ユーザーが明示的に「保存する」と答えた�
 DBスキーマ変更はしない。
 自動チェックでは実DB保存しない。
 
+Ver2.18では、Memory保存後の確認として、直近保存したMemoryを会話内で表示できるようにする。
+
 ## デモログ
 
 ```text
@@ -49,9 +51,41 @@ Memory Candidate dry-run:
 PersonalAI:
 Memory Candidateを長期記憶に保存しました。
 
+保存内容:
+タイトル:
+Example Domain
+
+URL:
+https://example.com/
+
+要約:
+Example Domain This domain is for use in documentation examples...
+
+保存元:
+web_reader
+
 保存結果:
 - 保存先: 既存の長期記憶
 - DBスキーマ変更: なし
+
+ユーザー:
+今保存した記憶を確認して
+
+PersonalAI:
+直近保存したMemoryは以下です。
+
+保存内容:
+タイトル:
+Example Domain
+
+URL:
+https://example.com/
+
+要約:
+Example Domain This domain is for use in documentation examples...
+
+保存元:
+web_reader
 ```
 
 ## このデモで分かること
@@ -62,6 +96,7 @@ Memory Candidateを長期記憶に保存しました。
 - Reader結果からMemory Candidateを作る
 - Memory Candidate dry-runとして保存候補を表示する
 - `保存する` と明示された場合だけ、低リスク候補を既存の長期記憶保存機構へ渡す
+- 保存後に、直近保存したMemoryを会話内で確認できる
 - 高リスク候補や保存不可時は保存しない
 - 完成済み機能と未実装機能を分けて扱っている
 

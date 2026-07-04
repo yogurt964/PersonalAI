@@ -146,8 +146,11 @@ Memory Candidate編集dry-run
 Ver2.17:
 Memory Candidateのユーザー確認つき保存
 
+Ver2.18:
+Memory保存後の確認・表示フロー
+
 次以降:
-Memory保存後の検索・表示確認
+Memory検索の最小実用化
 Project Stateへの反映
 重複・矛盾管理
 ```
@@ -198,6 +201,13 @@ Ver2.17では、Memory Candidateのユーザー確認つき保存を追加する
 DBスキーマ変更はしない。
 Memory Candidate専用テーブルは作らない。
 Reader結果全文のDB保存はしない。
+
+Ver2.18では、Memory保存後の確認・表示フローを追加する。
+保存成功後に保存内容プレビューを表示し、直近保存したMemoryを会話内で確認できるようにする。
+`今保存した記憶を確認して` と聞かれた場合は、直近保存結果を表示する。
+本格的なMemory検索UIにはまだ踏み込まない。
+DBスキーマ変更はしない。
+自動チェックではfake保存・fake記憶確認を使い、実DB保存しない。
 
 ## Ver2.9で実装しないこと
 

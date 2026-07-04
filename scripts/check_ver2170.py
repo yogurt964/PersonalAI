@@ -313,7 +313,6 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.17",
             "Ver2.17: Memory Candidateのユーザー確認つき保存",
             "core/memory_candidate_saver.py",
             "last_memory_candidate_save_result",

@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.18
+
+開始内容:
+
+- Memory保存後の確認・表示フローを追加
+- Memory Candidate保存成功後の返答に保存内容プレビューを表示
+- 直近保存したMemoryを会話内で確認できる基礎を追加
+- `今保存した記憶を確認して` などの入力で直近保存内容を表示
+- `last_saved_memory_candidate_result` で保存成功結果を保持
+- 編集済みMemory Candidate保存後も編集後summaryを確認表示に反映
+- DBスキーマ変更はしない方針を維持
+- 自動チェックではfake保存・fake記憶確認を使い、実DB保存しない
+- `scripts/check_ver2180.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2180.py` を追加
+
 ## Version 2.17
 
 開始内容:

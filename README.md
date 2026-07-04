@@ -37,6 +37,7 @@ PersonalAIでは、会話履歴、長期記憶、Reader、Permission、Tool実�
 - Memory Candidateのdry-run表示
 - 保存する / 保存しない / 編集して保存 / 後で確認 の確認応答dry-run
 - Memory Candidateをユーザー確認つきで長期記憶へ保存する基礎
+- 保存したMemory Candidateの内容を直近保存結果として確認する基礎
 - ToolRunner / PermissionManager による安全な実行設計
 - Verごとのチェックスクリプト
 - 開発自走方針
@@ -45,6 +46,8 @@ PersonalAIでは、会話履歴、長期記憶、Reader、Permission、Tool実�
 
 - Memory Candidate専用テーブル
 - Reader結果全文のDB保存
+- 本格的なMemory検索UI
+- Memory編集・削除UI
 - PDF Reader
 - Image Reader
 - YouTube Reader
@@ -136,9 +139,15 @@ Memory Candidate dry-run:
 
 PersonalAI:
 Memory Candidateを長期記憶に保存しました。
+
+ユーザー:
+今保存した記憶を確認して
+
+PersonalAI:
+直近保存したMemoryは以下です。
 ```
 
-このデモでは、外部Webアクセス前に確認を挟み、読み取り結果から保存候補を作り、ユーザーが明示的に保存を選んだ場合だけ既存の長期記憶保存機構へ渡す流れを示しています。
+このデモでは、外部Webアクセス前に確認を挟み、読み取り結果から保存候補を作り、ユーザーが明示的に保存を選んだ場合だけ既存の長期記憶保存機構へ渡し、その後に直近保存内容を確認する流れを示しています。
 
 ## 安全設計
 
@@ -149,6 +158,7 @@ PersonalAIでは、安全設計を初期段階から分けて考えています�
 - 失敗時に読めたふりをしない
 - Memory Candidateは勝手に保存しない
 - `保存する` と明示された場合だけ低リスク候補を保存する
+- 保存後に直近保存内容を確認できる
 - 高リスク候補は自動保存しない
 - DBスキーマ変更はしていない
 - PermissionManagerで高リスク操作を止める土台を用意
@@ -171,7 +181,7 @@ PersonalAIは、小さなバージョン単位で設計、実装、チェック�
 近い予定:
 
 - ポートフォリオ用READMEとデモ資料の継続改善
-- Memory保存後の検索・表示確認
+- Memory検索の最小実用化
 - Memory Candidate保存フローの改善
 - MIGRATION.md作成
 
@@ -188,9 +198,9 @@ PersonalAIは、小さなバージョン単位で設計、実装、チェック�
 
 ## 現在の開発状況
 
-現在はVer2.17です。
+現在はVer2.18です。
 
-Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存の基礎まで実装済みです。
-ただし、Reader結果全文のDB保存やMemory Candidate専用テーブルはまだ行っていません。
+Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認まで実装済みです。
+ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UIはまだ行っていません。
 
 このリポジトリは、就活ポートフォリオとして、AIエージェント設計、責務分離、安全設計、段階的な開発プロセスを見せることを意識して整備しています。

@@ -43,6 +43,13 @@ from database.models import create_database
 
 WEB_READER_PREVIEW_MAX_CHARS = 360
 WEB_READER_PREVIEW_LINE_WIDTH = 90
+SAVED_MEMORY_PREVIEW_MAX_CHARS = 420
+RECENT_SAVED_MEMORY_REQUEST_WORDS = [
+    "今保存した記憶",
+    "直近保存した記憶",
+    "保存したmemory",
+    "今の記憶",
+]
 
 
 def build_web_reader_confirmation_response(user_input, input_analysis=None, confirmation=None):
@@ -181,6 +188,7 @@ class PersonalAI:
         self.last_memory_candidate = None
         self.last_memory_candidate_confirmation_result = None
         self.last_memory_candidate_save_result = None
+        self.last_saved_memory_candidate_result = None
         self.pending_preference_confirmation = None
         self.pending_memory_candidate_confirmation = None
         self.pending_memory_candidate_edit = None
@@ -217,6 +225,13 @@ class PersonalAI:
             self.last_response = pending_response
             self.save_assistant_message(pending_response)
             return pending_response
+
+        recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
+
+        if recent_saved_memory_response:
+            self.last_response = recent_saved_memory_response
+            self.save_assistant_message(recent_saved_memory_response)
+            return recent_saved_memory_response
 
         pending_memory_candidate_edit_response = self.handle_pending_memory_candidate_edit(user_input)
 
@@ -403,6 +418,8 @@ class PersonalAI:
                 save_memory,
             )
             self.last_memory_candidate_save_result = save_result
+            if save_result.get("status") == "saved":
+                self.last_saved_memory_candidate_result = dict(save_result)
             self.pending_memory_candidate_confirmation = None
             self.pending_memory_candidate_edit = None
             return self.build_memory_candidate_save_response(save_result)
@@ -458,6 +475,7 @@ class PersonalAI:
         if status == "saved":
             return (
                 f"{save_result.get('message')}\n\n"
+                f"{self.format_saved_memory_candidate_preview(save_result)}\n\n"
                 "保存結果:\n"
                 "- 保存先: 既存の長期記憶\n"
                 "- DBスキーマ変更: なし"
@@ -475,6 +493,54 @@ class PersonalAI:
             return f"{save_result.get('message')}\n理由: {error}"
 
         return save_result.get("message", "Memory Candidateの保存結果を確認できませんでした。")
+
+    def handle_recent_saved_memory_request(self, user_input):
+        """直近保存したMemory Candidateの確認依頼に答えます。"""
+        if not self.is_recent_saved_memory_request(user_input):
+            return None
+
+        if not self.last_saved_memory_candidate_result:
+            return "この会話中に確認できる直近保存Memoryはまだありません。"
+
+        return (
+            "直近保存したMemoryは以下です。\n\n"
+            f"{self.format_saved_memory_candidate_preview(self.last_saved_memory_candidate_result)}"
+        )
+
+    def is_recent_saved_memory_request(self, user_input):
+        """ユーザーが直近保存Memoryの確認を求めているか判定します。"""
+        normalized_input = str(user_input or "").lower()
+        return any(word.lower() in normalized_input for word in RECENT_SAVED_MEMORY_REQUEST_WORDS)
+
+    def format_saved_memory_candidate_preview(self, save_result):
+        """保存済みMemory Candidateの内容を短く見やすく表示します。"""
+        candidate = save_result.get("candidate") or {}
+        memory_text = save_result.get("memory_text") or ""
+        title = _clean_web_reader_display_text(candidate.get("title")) or "(タイトルなし)"
+        source_url = _clean_web_reader_display_text(candidate.get("source_url")) or "(URLなし)"
+        summary = _clean_web_reader_display_text(candidate.get("summary")) or "(要約なし)"
+        source_tool = _clean_web_reader_display_text(candidate.get("source_tool")) or "unknown"
+        candidate_type = _clean_web_reader_display_text(candidate.get("candidate_type")) or "unknown"
+        risk_level = _clean_web_reader_display_text(candidate.get("risk_level")) or "unknown"
+        memory_text_preview = _shorten_web_reader_preview(memory_text, SAVED_MEMORY_PREVIEW_MAX_CHARS)
+
+        return (
+            "保存内容:\n"
+            "タイトル:\n"
+            f"{title}\n\n"
+            "URL:\n"
+            f"{source_url}\n\n"
+            "要約:\n"
+            f"{summary}\n\n"
+            "保存元:\n"
+            f"{source_tool}\n\n"
+            "保存候補タイプ:\n"
+            f"{candidate_type}\n\n"
+            "リスク:\n"
+            f"{risk_level}\n\n"
+            "memory_text preview:\n"
+            f"{memory_text_preview or '(保存テキストなし)'}"
+        )
 
     def extract_and_save_memories(self, user_input):
         """ユーザー発言から長期記憶を抽出し、保存します。"""
