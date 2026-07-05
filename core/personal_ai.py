@@ -1,7 +1,7 @@
 import re
 import textwrap
 
-from ai.llm import SYSTEM_PROMPT
+from ai.llm import SYSTEM_PROMPT, ask_llm
 from ai.conversation_quality_policy import (
     build_conversation_quality_guidance,
     classify_conversation_mode,
@@ -54,6 +54,8 @@ from database.models import create_database
 WEB_READER_PREVIEW_MAX_CHARS = 360
 WEB_READER_PREVIEW_LINE_WIDTH = 90
 SAVED_MEMORY_PREVIEW_MAX_CHARS = 420
+LAST_READ_DOCUMENT_CONTEXT_MAX_CHARS = 4000
+DOCUMENT_TASK_TYPES = ("summarize", "question")
 RECENT_SAVED_MEMORY_REQUEST_WORDS = [
     "今保存した記憶",
     "直近保存した記憶",
@@ -176,6 +178,7 @@ class PersonalAI:
         self.executor = Executor()
         self.web_reader_fetcher = web_reader_fetcher
         self.memory_search_func = memory_search_func
+        self.ask_llm_func = ask_llm
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -200,6 +203,7 @@ class PersonalAI:
         self.last_file_reader_tool_request_candidate = None
         self.last_file_reader_tool_run_result = None
         self.last_file_reader_tool_result = None
+        self.last_read_document = None
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
         self.last_memory_candidate_confirmation_result = None
@@ -736,7 +740,9 @@ class PersonalAI:
         self.last_file_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        return self.build_file_reader_tool_response(run_result.result)
+        original_input = (candidate.get("input_data") or {}).get("original_input", "")
+
+        return self.build_file_reader_tool_response(run_result.result, original_input=original_input)
 
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
@@ -765,7 +771,9 @@ class PersonalAI:
         self.last_web_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        return self.build_web_reader_tool_response(run_result.result)
+        original_input = (candidate.get("input_data") or {}).get("original_input", "")
+
+        return self.build_web_reader_tool_response(run_result.result, original_input=original_input)
 
     def build_tool_request_from_candidate(self, candidate):
         """dict形式の候補から、既存のToolRequestへ変換します。"""
@@ -779,8 +787,12 @@ class PersonalAI:
             risk_level=candidate.get("risk_level", "medium"),
         )
 
-    def build_web_reader_tool_response(self, result):
-        """ToolResultを、ユーザーに見せる短い返答へ変換します。"""
+    def build_web_reader_tool_response(self, result, original_input=""):
+        """ToolResultを、ユーザーに見せる短い返答へ変換します。
+
+        Ver2.31では、読み取り依頼に要約・質問などの目的が含まれていた場合、
+        読み取った本文をもとにQwenで直接答えるようにします。
+        """
         if not getattr(result, "executed", False):
             self.last_memory_candidate = None
             self.pending_memory_candidate_confirmation = None
@@ -809,8 +821,13 @@ class PersonalAI:
         data = getattr(result, "data", {}) or {}
         title = _clean_web_reader_display_text(data.get("title")) or "(タイトルなし)"
         final_url = _clean_web_reader_display_text(data.get("final_url") or data.get("url"))
-        text_preview = data.get("text_preview") or data.get("text") or ""
-        formatted_preview = _format_web_reader_preview(text_preview, title=title)
+        full_text = data.get("text") or data.get("text_preview") or ""
+        self.remember_last_read_document(
+            source_tool="web_reader",
+            title=title,
+            location=final_url,
+            text=full_text,
+        )
         memory_candidate = build_memory_candidate_from_reader_result(
             result,
             source_tool="web_reader",
@@ -819,6 +836,22 @@ class PersonalAI:
         self.pending_memory_candidate_confirmation = dict(memory_candidate)
         self.pending_memory_candidate_edit = None
         memory_candidate_text = self.format_memory_candidate_dry_run(memory_candidate)
+
+        task_response = self.build_document_task_response_if_requested(
+            original_input,
+            full_text,
+            title,
+        )
+
+        if task_response is not None:
+            return (
+                "Web Readerで読み取りました。\n\n"
+                f"{task_response}\n\n"
+                f"{memory_candidate_text}"
+            )
+
+        text_preview = data.get("text_preview") or full_text
+        formatted_preview = _format_web_reader_preview(text_preview, title=title)
 
         return (
             "Web Readerで読み取りました。\n\n"
@@ -831,10 +864,12 @@ class PersonalAI:
             f"{memory_candidate_text}"
         )
 
-    def build_file_reader_tool_response(self, result):
+    def build_file_reader_tool_response(self, result, original_input=""):
         """File ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
 
         Ver2.29ではMemory Candidateへの接続はまだ行いません。
+        Ver2.31では、読み取り依頼に要約・質問などの目的が含まれていた場合、
+        読み取った本文をもとにQwenで直接答えるようにします。
         """
         if not getattr(result, "executed", False):
             reason = getattr(result, "message", "") or getattr(result, "error", "")
@@ -858,7 +893,24 @@ class PersonalAI:
         data = getattr(result, "data", {}) or {}
         file_name = _clean_web_reader_display_text(data.get("file_name")) or "(ファイル名なし)"
         resolved_path = _clean_web_reader_display_text(data.get("resolved_path") or data.get("path"))
-        text_preview = data.get("text_preview") or data.get("text") or ""
+        full_text = data.get("text") or data.get("text_preview") or ""
+        self.remember_last_read_document(
+            source_tool="file_reader",
+            title=file_name,
+            location=resolved_path,
+            text=full_text,
+        )
+
+        task_response = self.build_document_task_response_if_requested(
+            original_input,
+            full_text,
+            file_name,
+        )
+
+        if task_response is not None:
+            return f"File Readerで読み取りました。\n\n{task_response}"
+
+        text_preview = data.get("text_preview") or full_text
         formatted_preview = _format_web_reader_preview(text_preview, title=file_name)
 
         return (
@@ -916,6 +968,93 @@ class PersonalAI:
         """True/Falseを、ユーザーに見せやすい日本語へ変換します。"""
         return true_label if bool(value) else false_label
 
+    def remember_last_read_document(self, source_tool, title, location, text):
+        """Web Reader / File Readerで読み取った本文を、後続の会話で使えるように保持します。"""
+        cleaned_text = _clean_web_reader_display_text(text)
+
+        if not cleaned_text:
+            return
+
+        self.last_read_document = {
+            "source_tool": source_tool,
+            "title": title,
+            "location": location,
+            "text": cleaned_text,
+        }
+
+    def build_last_read_document_context(self):
+        """直近に読み取ったReader結果を、LLMが参照できるsystem messageにします。
+
+        フォローアップの質問や要約依頼に、本文プレビューだけでなく
+        読み取った本文（上限あり）をもとに答えられるようにします。
+        """
+        document = getattr(self, "last_read_document", None)
+
+        if not document:
+            return None
+
+        text = str(document.get("text") or "")[:LAST_READ_DOCUMENT_CONTEXT_MAX_CHARS]
+
+        if not text:
+            return None
+
+        source_label = "Web Reader" if document.get("source_tool") == "web_reader" else "File Reader"
+        title = document.get("title") or "(タイトルなし)"
+        location = document.get("location") or "(場所不明)"
+
+        return (
+            f"直近{source_label}で読み取った資料があります。\n"
+            f"タイトル/ファイル名: {title}\n"
+            f"場所: {location}\n"
+            "本文（長い場合は途中までです）:\n"
+            f"{text}\n\n"
+            "この資料について聞かれた場合は、この本文をもとに答えてください。"
+            "本文に書かれていないことは推測せず、書かれていないと伝えてください。"
+        )
+
+    def build_document_task_messages(self, original_input, document_text, title):
+        """読み取った本文をもとに、ユーザーの依頼へ直接答えるためのmessagesを作ります。"""
+        return [
+            {
+                "role": "system",
+                "content": SYSTEM_PROMPT,
+            },
+            {
+                "role": "system",
+                "content": (
+                    "直前に読み取った資料をもとに、ユーザーの依頼に答えてください。\n"
+                    f"タイトル/ファイル名: {title}\n"
+                    "本文:\n"
+                    f"{document_text}\n\n"
+                    "資料に書かれていないことは推測せず、書かれていないと正直に伝えてください。"
+                ),
+            },
+            {
+                "role": "user",
+                "content": original_input,
+            },
+        ]
+
+    def build_document_task_response_if_requested(self, original_input, document_text, title):
+        """読み取り依頼に要約・質問などの目的が含まれる場合、Qwenで直接答えます。
+
+        目的が読み取りだけの場合はNoneを返し、呼び出し側は従来のプレビュー表示にします。
+        """
+        original_input = str(original_input or "").strip()
+
+        if not original_input or not document_text:
+            return None
+
+        task_type = self.input_analyzer.analyze(original_input).get("task_type")
+
+        if task_type not in DOCUMENT_TASK_TYPES:
+            return None
+
+        ask_llm_func = getattr(self, "ask_llm_func", None) or ask_llm
+        messages = self.build_document_task_messages(original_input, document_text, title)
+
+        return ask_llm_func(messages)
+
     def build_messages(
         self,
         memory_usage=None,
@@ -948,6 +1087,16 @@ class PersonalAI:
                 "content": memory_context,
             },
         ]
+
+        last_read_document_context = self.build_last_read_document_context()
+
+        if last_read_document_context:
+            messages.append(
+                {
+                    "role": "system",
+                    "content": last_read_document_context,
+                }
+            )
 
         for message in recent_messages:
             messages.append(

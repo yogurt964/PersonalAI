@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.30
+現在バージョン: Ver2.31
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -159,6 +159,7 @@ Ver2.27: project_handoff.mdの現在バージョン固定依存の解消
 Ver2.28: OpenAI利用方針の見直し（月間上限額制・都度確認省略）
 Ver2.29: File Reader最小実装
 Ver2.30: 「ワード」/「キーワード」誤判定バグ修正
+Ver2.31: Reader結果をQwenでの応答に接続
 ```
 
 ## 現在の主要ファイル
@@ -485,12 +486,22 @@ File Readerの実機テストで「テストキーワードを教えて」と聞
 File Reader自体のロジックは変更していない
 `scripts/check_ver2300.py` を追加
 `scripts/run_ver2_checks.py` に `check_ver2300.py` を追加
+Ver2.31でReader結果をQwenでの応答に接続
+File Reader実機テストで、読み取った内容について追加質問できない、「読んで要約して」を同時に実行できないという課題が見つかった
+`core/personal_ai.py` に `last_read_document`（直近に読み取ったWeb Reader / File Readerの本文）を保持する仕組みを追加
+`build_messages()` に `last_read_document` の内容をsystem messageとして注入し、読み取り後の別ターンでの追加質問にも、本文（上限4000文字）をもとに答えられるようにした
+読み取り依頼に要約・質問などの目的（InputAnalyzerのtask_type）が含まれていた場合、読み取った本文全文をもとにQwenへ直接問い合わせて回答する `build_document_task_response_if_requested` を追加し、「読んで要約して」を同一ターンで実行できるようにした
+単なる「読んで」だけの依頼は、従来通りの本文プレビュー表示を維持する
+自動チェックで実LLMを呼ばないよう、`PersonalAI.ask_llm_func`（デフォルトは実際の`ask_llm`）を注入可能にした
+`scripts/check_ver2310.py` を追加し、fakeのLLM関数を使って、読み取り+要約の同時実行、プレーンな読み取りの現状維持、別ターンでの文脈利用、未読み取り時に文脈が注入されないことを確認する
+`scripts/run_ver2_checks.py` に `check_ver2310.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.30後の候補:
+Ver2.31後の候補:
 
 ```text
-Ver2.x: Reader結果をQwenでの応答に接続する（要約・追加質問への対応）
+Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

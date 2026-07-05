@@ -42,6 +42,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - File Reader実行前の確認
 - 確認待ち状態の文脈解釈（Web Reader / File Reader共通）
 - 読み取り結果の整形表示
+- Reader結果をQwenでの応答に接続（読んで要約・読んだ内容への追加質問）
 - Reader結果からMemory Candidateを生成
 - Memory Candidateのdry-run表示
 - Memory Candidate編集dry-run

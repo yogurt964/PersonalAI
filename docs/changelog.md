@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.31
+
+開始内容:
+
+- Reader結果をQwenでの応答に接続
+- File Reader実機テストで、読み取った内容について追加質問できない、「読んで要約して」を同時に実行できないという課題が見つかった
+- `core/personal_ai.py` に `last_read_document`（直近に読み取ったWeb Reader / File Readerの本文）を保持する仕組みを追加
+- `build_messages()` に `last_read_document` の内容をsystem messageとして注入し、読み取り後の別ターンでの追加質問にも、本文（上限4000文字）をもとに答えられるようにした
+- 読み取り依頼に要約・質問などの目的（InputAnalyzerのtask_type）が含まれていた場合、読み取った本文全文をもとにQwenへ直接問い合わせて回答するようにし、「読んで要約して」を同一ターンで実行できるようにした
+- 単なる「読んで」だけの依頼は、従来通りの本文プレビュー表示を維持する
+- 自動チェックで実LLMを呼ばないよう、`PersonalAI.ask_llm_func`（デフォルトは実際の`ask_llm`）を注入可能にした
+- `scripts/check_ver2310.py` を追加し、fakeのLLM関数を使って各シナリオを確認
+- `scripts/run_ver2_checks.py` に `check_ver2310.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.30
 
 開始内容:
