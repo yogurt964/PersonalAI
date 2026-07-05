@@ -154,8 +154,8 @@ def main():
             "1回の試行",
             "1日の上限",
             "1か月の上限",
-            "Ver2.26: LLM Intent Resolver設計",
-            "Ver2.27: File Reader最小実装",
+            "Ver2.27: project_handoff.mdの現在バージョン固定依存の解消",
+            "Ver2.28: File Reader最小実装",
         ],
     )
 
@@ -186,7 +186,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.25",
+            "現在バージョン: Ver2.26",
             "Ver2.24: Claude Code引継ぎ確認結果の反映",
             "Ver2.26: LLM Intent Resolver設計",
         ],

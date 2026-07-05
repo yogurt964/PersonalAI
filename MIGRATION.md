@@ -875,8 +875,8 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.26: LLM Intent Resolver設計
-Ver2.27: File Reader最小実装
+Ver2.27: project_handoff.mdの現在バージョン固定依存の解消
+Ver2.28: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

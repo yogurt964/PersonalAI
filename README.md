@@ -80,9 +80,8 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 近い候補:
 
-- Claude Code引継ぎ確認
-- LLM Intent Resolver設計
 - File Reader最小実装
+- LLM Intent Resolverの段階的実装
 
 将来候補:
 

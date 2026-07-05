@@ -155,7 +155,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.25",
+            "現在バージョン: Ver2.26",
             "Ver2.22: READMEのポートフォリオ見せ方強化",
             "README",
             "Mermaid",

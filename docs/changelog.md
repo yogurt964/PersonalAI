@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.26
+
+開始内容:
+
+- LLM Intent Resolver設計を追加
+- `docs/llm_intent_resolver_design.md` を新規作成
+- LLMは解釈のみを担当し、実行可否はPermissionManager / ToolRunner / 状態管理が最終判断する方針を明記
+- 既存のルールベースresolver（`core/confirmation_intent.py`、`core/memory_candidate_confirmation.py`）をLLM呼び出し失敗時のフォールバックとして残す方針を明記
+- 固定語彙で判定できる入力はLLMを呼ばないハイブリッド判定で、無駄なAPI消費を避ける方針を明記
+- モデル選定はQwenを優先し、精度不足時にOpenAI利用を検討する方針（ユーザー確認必須）を明記
+- プロンプト設計 → dry-run → Qwen接続 → 精度確認 → OpenAI検討、という段階的な実装ステップ案を整理
+- Ver2.26では設計のみを行い、`core/confirmation_intent.py` / `core/memory_candidate_confirmation.py` の実装変更、LLM呼び出し追加、DBスキーマ変更、Memory保存・検索ロジック変更、OpenAI/Claude/Gemini接続は行わない方針を維持
+- `scripts/check_ver2260.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2260.py` を追加
+
 ## Version 2.25
 
 開始内容:

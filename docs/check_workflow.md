@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2260.py`
 - `scripts/check_ver2250.py`
 - `scripts/check_ver2240.py`
 - `scripts/check_ver2230.py`
@@ -99,6 +100,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.26では、`check_ver2260.py` でLLM Intent Resolver設計docsの整備を確認する。
+このcheckは `docs/llm_intent_resolver_design.md` の存在と必須語句、`core/confirmation_intent.py` / `core/memory_candidate_confirmation.py` に実装変更がないこと、project_handoff.md / changelog.mdの内容、run_ver2_checks.pyへの登録を確認する。
+実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.25では、`check_ver2250.py` でClaude Code自走運用モードの整備を確認する。
 このcheckは `CLAUDE.md` の存在と必須語句、AGENTS.md / MIGRATION.md / docs/claude_code_start.mdからの `CLAUDE.md` 参照、README.mdに固定Ver表記が残っていないこと、project_handoff.md / changelog.mdの内容、run_ver2_checks.pyへの登録を確認する。
 実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。

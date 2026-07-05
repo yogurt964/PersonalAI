@@ -238,7 +238,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.25",
+            "現在バージョン: Ver2.26",
             "Ver2.21: Claude Code移行用MIGRATION.md",
             "MIGRATION.md",
             "Claude Code",

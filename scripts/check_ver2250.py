@@ -199,7 +199,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.25",
+            "現在バージョン: Ver2.26",
             "Ver2.25: Claude Code自走運用モード整備",
             "Ver2.26: LLM Intent Resolver設計",
         ],

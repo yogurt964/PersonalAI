@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.25
+現在バージョン: Ver2.26
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -154,6 +154,7 @@ Ver2.22: READMEのポートフォリオ見せ方強化
 Ver2.23: Claude Code移行準備パッケージ
 Ver2.24: Claude Code引継ぎ確認結果の反映
 Ver2.25: Claude Code自走運用モード整備
+Ver2.26: LLM Intent Resolver設計
 ```
 
 ## 現在の主要ファイル
@@ -429,13 +430,24 @@ README.mdの固定Ver番号にひもづいていた過去check（check_ver2190.p
 `scripts/check_ver2250.py` を追加
 `scripts/run_ver2_checks.py` に `check_ver2250.py` を追加
 新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.26でLLM Intent Resolver設計を追加
+`docs/llm_intent_resolver_design.md` を新規作成
+LLMは解釈のみを担当し、実行可否はPermissionManager / ToolRunner / 状態管理が最終判断する方針を明記
+既存のルールベースresolver（core/confirmation_intent.py、core/memory_candidate_confirmation.py）をフォールバックとして残す方針を明記
+固定語彙で判定できる入力はLLMを呼ばないハイブリッド判定でコストを抑える方針を明記
+モデル選定はQwenを優先し、精度不足時にOpenAI利用を検討する方針（ユーザー確認必須）を明記
+段階的な実装ステップ案（プロンプト設計→dry-run→Qwen接続→精度確認→OpenAI検討）を整理
+`scripts/check_ver2260.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2260.py` を追加
+core/confirmation_intent.py、core/memory_candidate_confirmation.pyの実装変更はしない
+LLM呼び出し追加、DBスキーマ変更、Memory保存・検索ロジック変更、OpenAI/Claude/Gemini接続はしない
 ```
 
-Ver2.25後の候補:
+Ver2.26後の候補:
 
 ```text
-Ver2.26: LLM Intent Resolver設計
-Ver2.27: File Reader最小実装
+Ver2.27: project_handoff.mdの現在バージョン固定依存の解消（過去checkのバージョン文字列メンテナンス負担を軽減）
+Ver2.28: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader
