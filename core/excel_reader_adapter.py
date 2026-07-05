@@ -162,16 +162,26 @@ class ExcelReaderAdapter(ToolAdapter):
 
             for sheet_name in sheet_names:
                 sheet = workbook[sheet_name]
+                all_rows = list(sheet.iter_rows(values_only=True))
+                limited_rows = all_rows[: self.max_rows_per_sheet]
                 row_texts = []
 
-                for row in list(sheet.iter_rows(values_only=True))[: self.max_rows_per_sheet]:
+                for row in limited_rows:
                     cell_values = [str(value) for value in row if value is not None]
 
                     if cell_values:
                         row_texts.append(" | ".join(cell_values))
 
-                if row_texts:
-                    sheet_texts.append(f"[{sheet_name}]\n" + "\n".join(row_texts))
+                if not row_texts:
+                    continue
+
+                # 集計値は行データより先に置き、文字数上限で切り詰められても
+                # 正確な合計・平均などが残るようにします。
+                row_block = f"[{sheet_name}]\n" + "\n".join(row_texts)
+                summary_block = self._build_numeric_column_summary(sheet_name, all_rows)
+
+                sheet_block = f"{summary_block}\n\n{row_block}" if summary_block else row_block
+                sheet_texts.append(sheet_block)
 
             return len(sheet_names), "\n\n".join(sheet_texts)
         finally:
@@ -180,6 +190,63 @@ class ExcelReaderAdapter(ToolAdapter):
 
             if callable(close):
                 close()
+
+    def _build_numeric_column_summary(self, sheet_name, all_rows):
+        """1行目をヘッダーとみなし、数値だけの列について合計・平均・最小・最大・件数を
+        Pythonで正確に計算します。
+
+        LLMにテキストから合計や平均を再計算させると誤りやすいため、
+        よく聞かれる集計値はここで確定させ、資料の一部として渡します。
+        """
+        if len(all_rows) < 2:
+            return ""
+
+        header_row = all_rows[0]
+        data_rows = all_rows[1:]
+        summary_lines = []
+
+        for column_index, column_name in enumerate(header_row):
+            if column_name is None:
+                continue
+
+            numeric_values = []
+            non_empty_count = 0
+
+            for row in data_rows:
+                if column_index >= len(row):
+                    continue
+
+                value = row[column_index]
+
+                if value is None:
+                    continue
+
+                non_empty_count += 1
+
+                if isinstance(value, (int, float)) and not isinstance(value, bool):
+                    numeric_values.append(value)
+
+            if not numeric_values or len(numeric_values) != non_empty_count:
+                # 数値以外が混ざっている列は、誤った集計を避けるため対象にしません。
+                continue
+
+            total = sum(numeric_values)
+            average = total / len(numeric_values)
+            summary_lines.append(
+                f"列「{column_name}」: 合計={total:g}, 平均={average:.2f}, "
+                f"最小={min(numeric_values):g}, 最大={max(numeric_values):g}, "
+                f"件数={len(numeric_values)}"
+            )
+
+        if not summary_lines:
+            return ""
+
+        return (
+            f"[{sheet_name} 自動集計（数値列のみ、Pythonで正確に計算済み）]\n"
+            "合計・平均・最小・最大を聞かれた場合は、この値をそのまま使ってください。"
+            "本文の行データから自分で再計算しないでください。\n"
+            + "\n".join(summary_lines)
+        )
 
     def _build_workbook_reader(self, path):
         if self._workbook_reader_factory is not None:

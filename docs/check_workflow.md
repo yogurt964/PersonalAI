@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2380.py`
 - `scripts/check_ver2370.py`
 - `scripts/check_ver2360.py`
 - `scripts/check_ver2350.py`
@@ -111,6 +112,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.38では、`check_ver2380.py` でExcel Readerの数値列自動集計を確認する。
+このcheckは実際の売上データに近いテストケースで合計・平均が正しく計算されること、集計値が行データより先に配置され切り詰めに強いこと、文字列だけの列を誤って集計しないこと、同一ターンでの要約・別ターンでの追加質問の両方で正しい集計値を参照できることを確認する。
+実Webアクセス、DB書き込み、実LLM実行はしない。
 Ver2.37では、`check_ver2370.py` でExcel Reader最小実装を確認する。
 このcheckはopenpyxlで実際に生成した.xlsxファイルでの実テキスト抽出、fakeのLLM関数を使ったPersonalAI結合フロー、ファイル名に「excel」を含むケースで文書作成判定と衝突しないこと、requirements.txtの内容を確認する。
 実Webアクセス、DB書き込み、実LLM実行はしない。

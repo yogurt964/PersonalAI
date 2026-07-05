@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.37
+現在バージョン: Ver2.38
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -166,6 +166,7 @@ Ver2.34: last_read_documentの誤解答防止
 Ver2.35: 将来の記憶アーキテクチャ方針をdocs化
 Ver2.36: Word Reader最小実装
 Ver2.37: Excel Reader最小実装
+Ver2.38: Excel Readerに数値列の自動集計を追加
 ```
 
 ## 現在の主要ファイル
@@ -564,12 +565,23 @@ Windowsで`load_workbook(read_only=True)`のファイルハンドルが残る問
 `scripts/check_ver2290.py` の「対応外拡張子」テストを、.xlsxが実装済みになったため.pptxに変更
 `scripts/run_ver2_checks.py` に `check_ver2370.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.38でExcel Readerに数値列の自動集計を追加
+実機テストで、「総売上はいくら」「平均満足度は」のような集計質問に対し、AIが実際に計算せず一般的な説明を繰り返すだけの問題が見つかった
+原因は、行データをそのままテキストで渡すだけで、合計・平均などの値がどこにも計算されておらず、LLMにテキストから再計算させるのは精度が低いこと、かつ大きな表では文字数上限で本文が途中で切れ、全行を見られない場合があること
+`core/excel_reader_adapter.py` に `_build_numeric_column_summary()` を追加し、1行目をヘッダーとみなして数値だけの列（テキストが混在する列は対象外）について合計・平均・最小・最大・件数をPythonで正確に計算するようにした
+計算結果は行データより先に配置し、文字数上限で本文が切り詰められても正確な集計値が残るようにした
+「列名」「店舗」のような文字列だけの列は誤って集計しないことを確認した
+`scripts/check_ver2380.py` を追加し、実際の売上データに近いテストケースで合計・平均が正しく計算されること、同一ターンでの要約・別ターンでの追加質問の両方で集計値を参照できることを確認する
+「一番売上が高い店舗はどこか」のようなグループ集計（店舗ごとの合計比較）は今回のスコープ外とし、今後の課題として残す
+`scripts/run_ver2_checks.py` に `check_ver2380.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.37後の候補（PowerPointを追加予定）:
+Ver2.38後の候補（PowerPointを追加予定）:
 
 ```text
 Ver2.x: PowerPoint Reader（.pptx）
+Ver2.x: Excel Readerのグループ集計対応（店舗ごとの合計比較など）
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader
