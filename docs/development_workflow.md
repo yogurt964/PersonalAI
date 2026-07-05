@@ -202,3 +202,6 @@ Ver2.14では、その前段階として、AIエージェントが自走しや�
 
 Ver2.21では、Claude Code / Cursor など別環境へ移行するための包括的な引継書として `MIGRATION.md` を追加した。
 Claude Code移行時は、AGENTS.md、MIGRATION.md、README.md、docs/development_workflow.md、docs/project_handoff.md、docs/check_workflow.md を最初に確認する。
+
+Ver2.23では、Claude Code移行時の短い入口として `docs/claude_code_start.md` を追加した。
+Claude Codeへ移行した直後は、いきなり実装せず、まず `docs/claude_code_start.md` の引継ぎ確認タスクを行う。

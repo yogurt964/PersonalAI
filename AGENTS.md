@@ -10,6 +10,7 @@ PersonalAI is a local Python AI assistant that aims to become the user's main wo
 
 Before working, read these docs when relevant:
 
+- `docs/claude_code_start.md`
 - `docs/project_handoff.md`
 - `docs/development_workflow.md`
 - `docs/check_workflow.md`
@@ -63,6 +64,7 @@ Do not send API keys, personal information, or confidential information outside 
 
 ## User adaptation policy
 
+- For Claude Code migration, start from `docs/claude_code_start.md`, then read `MIGRATION.md` and `README.md`.
 - The user prefers action-oriented development once the goal is clear.
 - Ask necessary questions proactively, but do not stop progress with excessive confirmations.
 - Report completed behavior, checks, and user-facing verification points rather than detailed diffs.

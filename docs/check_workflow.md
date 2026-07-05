@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2230.py`
 - `scripts/check_ver2220.py`
 - `scripts/check_ver2210.py`
 - `scripts/check_ver2200.py`
@@ -96,6 +97,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.23では、`check_ver2230.py` でClaude Code移行準備パッケージを確認する。
+このcheckはdocs/claude_code_start.md、MIGRATION.md、AGENTS.md、README.md、project_handoff、changelog、run_ver2_checks.pyを確認し、実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.22では、`check_ver2220.py` でREADMEのポートフォリオ見せ方を確認する。
 このcheckはREADME、Mermaid、デモ導線、アーキテクチャ図、docs/portfolio_readme_policy.md、project_handoff、changelog、run_ver2_checks.pyを確認し、実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.21では、`check_ver2210.py` でClaude Code移行用MIGRATION.mdと関連docsを確認する。

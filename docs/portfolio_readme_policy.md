@@ -16,6 +16,7 @@ READMEは、GitHub閲覧者や面接官が短時間でPersonalAIの目的、実�
 - 技術的工夫を面接で説明しやすくする
 - 具体アプリ名は固定しない
 - 致命的リスク中心の安全管理を強みとして説明する
+- Claude Code移行時の入口として `docs/claude_code_start.md` へ誘導する
 
 ## 見せたいポイント
 

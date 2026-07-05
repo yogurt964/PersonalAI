@@ -13,6 +13,7 @@ AIエージェントは、実装、チェック、修正、docs更新、commit�
 README.md はGitHub閲覧者・就活ポートフォリオ向けである。
 AGENTS.md はAIエージェント向けの短い運用ルールである。
 docs/development_workflow.md は開発方針の詳細である。
+docs/claude_code_start.md は Claude Code 移行時に最初に読む短い開始手順である。
 MIGRATION.md は Claude Code / Cursor など別環境へ移行するための包括的な引継書である。
 
 ## 2. プロジェクト概要
@@ -133,6 +134,7 @@ data/
 README.md
 AGENTS.md
 MIGRATION.md
+docs/claude_code_start.md
 app.py
 ```
 
@@ -168,6 +170,7 @@ docs/development_workflow.md: 開発自走方針
 docs/check_workflow.md: check運用
 docs/final_product_vision.md: 完成形ビジョン
 docs/conversation_policy.md: 会話方針
+docs/claude_code_start.md: Claude Codeへ移行する際の開始手順
 docs/reader_memory_policy.md: Reader結果のMemory保存方針
 docs/memory_candidate_ui_policy.md: Memory Candidate確認UI方針
 docs/demo_logs/web_reader_memory_candidate_demo.md: デモログ
@@ -754,10 +757,13 @@ git log --oneline -5
 venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 ```
 
+Claude Code移行時の入口として、まず `docs/claude_code_start.md` を読む。
+
 その後に読むファイル:
 
 ```text
 AGENTS.md
+docs/claude_code_start.md
 MIGRATION.md
 README.md
 docs/development_workflow.md

@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.23
+
+開始内容:
+
+- Claude Code移行準備を整理
+- `docs/claude_code_start.md` を追加
+- Claude Codeが最初に実行するコマンドと読むファイル順を明記
+- ユーザー対応方針、コスト方針、失敗時対応、致命的リスクを短い開始手順として整理
+- 移行後の最初の作業を「引継ぎ確認」にする方針を明記
+- `scripts/check_ver2230.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2230.py` を追加
+
 ## Version 2.22
 
 開始内容:

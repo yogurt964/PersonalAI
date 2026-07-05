@@ -80,9 +80,9 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 近い候補:
 
+- Claude Code引継ぎ確認
 - LLM Intent Resolver設計
 - File Reader最小実装
-- Claude Code移行テスト
 
 将来候補:
 
@@ -319,6 +319,7 @@ Codex環境ではSQLiteの `disk I/O error` が出る場合があります。
 ## 開発・移行ドキュメント
 
 - `AGENTS.md`: AIエージェント向けの短い運用ルール
+- `docs/claude_code_start.md`: Claude Codeへ移行する際の開始手順
 - `MIGRATION.md`: Claude Code / Cursorなど新しい開発環境移行のための引継書
 - `docs/development_workflow.md`: AIエージェントによる開発自走方針
 - `docs/project_handoff.md`: プロジェクト再開用の引継ぎ
@@ -334,9 +335,10 @@ PersonalAIは、就活ポートフォリオとして使うことも想定して�
 
 ローカルLLM、長期記憶、Web Reader、Memory Candidate、安全な確認フロー、GitHubでの段階的開発履歴を通じて、AIエージェントを設計・実装・改善するプロセスを示すことを目的としています。
 
-現在はVer2.22です。
+現在はVer2.23です。
 
 Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索、Claude Code移行用MIGRATION.mdまで整備済みです。
+Claude Code移行時の開始手順として `docs/claude_code_start.md` も追加済みです。
 ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
 
 Mermaid図、デモ導線、技術的に工夫した点をREADME上で確認できるようにし、GitHub閲覧者や面接官に開発意図が伝わりやすい構成にしています。
