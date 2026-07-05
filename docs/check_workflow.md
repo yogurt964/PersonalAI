@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2320.py`
 - `scripts/check_ver2310.py`
 - `scripts/check_ver2300.py`
 - `scripts/check_ver2290.py`
@@ -105,6 +106,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.32では、`check_ver2320.py` でPDF Reader最小実装を確認する。
+このcheckは手書きで生成した実PDFバイナリでのpypdf抽出、fakeのPDF ReaderでのPersonalAI結合フロー（確認・実行・キャンセル・存在しないファイル・要約同時実行）、requirements.txtの内容を確認する。
+実Webアクセス、DB書き込み、実LLM実行はしない。
 Ver2.31では、`check_ver2310.py` でReader結果をQwenでの応答に接続したことを確認する。
 このcheckはfakeのLLM関数を使い、読み取り+要約の同時実行、プレーンな読み取りの現状維持、別ターンでの文脈利用、未読み取り時に文脈が注入されないことを確認する。
 実Webアクセス、実ファイルアクセス（一時テストファイルのみ使用）、DB書き込み、実LLM実行はしない。

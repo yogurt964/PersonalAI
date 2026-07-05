@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.32
+
+開始内容:
+
+- PDF Reader最小実装を追加
+- `requirements.txt` を新規作成し、実際に使用しているパッケージ（ollama、SQLAlchemy、pypdf）を記録
+- `core/pdf_reader_adapter.py` を追加し、ユーザーが指定した単一のPDFファイルからpypdfでテキストを抽出できるようにした
+- ページ数上限（デフォルト50ページ）・ファイルサイズ上限（デフォルト20MB）を設け、暗号化・破損PDFや画像だけのスキャンPDF（テキストなし）は読めたふりをせず正直に失敗を返す
+- `core/pdf_reader_confirmation.py` を追加し、Web/File Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` に `context_type="pdf_reader"` を追加し、既存の「はい/いいえ」語彙を再利用
+- `core/personal_ai.py` にPDF Readerを接続し、Web/File Readerと同じ「確認 → ToolRunner経由実行 → 本文プレビュー、または要約・質問への直接回答」の流れを追加
+- 自動チェックでは、手書きで生成した実PDFバイナリを使いpypdfでの実テキスト抽出を確認し、PersonalAI経由の会話フローもfakeのPDF Readerで確認する
+- `scripts/check_ver2320.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2320.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+- 次はWord Reader（.docx）、Excel Reader（.xlsx）、PowerPoint Reader（.pptx）を同じ設計パターンで順次追加予定
+
 ## Version 2.31
 
 開始内容:

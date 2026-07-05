@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.31
+現在バージョン: Ver2.32
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -160,6 +160,7 @@ Ver2.28: OpenAI利用方針の見直し（月間上限額制・都度確認省�
 Ver2.29: File Reader最小実装
 Ver2.30: 「ワード」/「キーワード」誤判定バグ修正
 Ver2.31: Reader結果をQwenでの応答に接続
+Ver2.32: PDF Reader最小実装
 ```
 
 ## 現在の主要ファイル
@@ -496,13 +497,26 @@ File Reader実機テストで、読み取った内容について追加質問で
 `scripts/check_ver2310.py` を追加し、fakeのLLM関数を使って、読み取り+要約の同時実行、プレーンな読み取りの現状維持、別ターンでの文脈利用、未読み取り時に文脈が注入されないことを確認する
 `scripts/run_ver2_checks.py` に `check_ver2310.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.32でPDF Reader最小実装を追加
+`requirements.txt` を新規作成し、実際に使用しているパッケージ（ollama、SQLAlchemy、pypdf）を記録
+`core/pdf_reader_adapter.py` を追加し、ユーザーが指定した単一のPDFファイルからpypdfでテキストを抽出できるようにした
+ページ数上限（デフォルト50ページ）・ファイルサイズ上限（デフォルト20MB）を設け、暗号化・破損PDFや画像だけのスキャンPDF（テキストなし）は読めたふりをせず正直に失敗を返す
+`core/pdf_reader_confirmation.py` を追加し、Web/File Reader同様に実行前確認を必須にした
+`core/confirmation_intent.py` に `context_type="pdf_reader"` を追加し、既存の「はい/いいえ」語彙を再利用
+`core/personal_ai.py` にPDF Readerを接続し、Web/File Readerと同じ「確認 → ToolRunner経由実行 → 本文プレビュー、または要約・質問への直接回答」の流れを追加（`remember_last_read_document` / `build_document_task_response_if_requested` を共通利用）
+自動チェックでは、手書きで生成した実PDFバイナリを使いpypdfでの実テキスト抽出を確認し、PersonalAI経由の会話フローもfakeのPDF Readerで確認する
+`scripts/check_ver2320.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2320.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.31後の候補:
+Ver2.32後の候補（Word/Excel/PowerPointを順次追加予定）:
 
 ```text
+Ver2.x: Word Reader（.docx）
+Ver2.x: Excel Reader（.xlsx）
+Ver2.x: PowerPoint Reader（.pptx）
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
-Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader
 Ver2.x: README用スクリーンショット/GIF追加
