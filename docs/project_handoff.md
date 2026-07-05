@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.28
+現在バージョン: Ver2.29
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -157,6 +157,7 @@ Ver2.25: Claude Code自走運用モード整備
 Ver2.26: LLM Intent Resolver設計
 Ver2.27: project_handoff.mdの現在バージョン固定依存の解消
 Ver2.28: OpenAI利用方針の見直し（月間上限額制・都度確認省略）
+Ver2.29: File Reader最小実装
 ```
 
 ## 現在の主要ファイル
@@ -181,13 +182,15 @@ core/tool_flow.py: ToolRequest / Registry / Permissionのdry-runプレビュー
 core/tool_execution_log.py: Tool実行ログと結果記録のインメモリ基礎
 core/tool_runner.py: Permission確認後にToolRequestを実行する入口
 core/web_reader_adapter.py: Web Reader最小実用版
-core/confirmation_intent.py: 確認待ち状態の入力を確認Intentとして解釈するルールベースresolver
+core/confirmation_intent.py: 確認待ち状態の入力をweb_reader/file_reader共通で確認Intentとして解釈するルールベースresolver
 core/web_reader_confirmation.py: URL入力からWeb Reader確認メッセージと確認応答dry-run結果を作る
+core/file_reader_adapter.py: File Reader最小実用版（単一txt/mdファイルのみ）
+core/file_reader_confirmation.py: ファイルパス入力からFile Reader確認メッセージと確認応答結果を作る
 core/memory_candidate.py: Reader結果からMemory Candidateを作るdry-run
 core/memory_candidate_confirmation.py: Memory Candidate確認応答と編集応答をdry-runで解釈
 core/memory_candidate_saver.py: Memory Candidateを既存の長期記憶保存機構へ渡す保存処理
 core/memory_search.py: 保存済みMemoryを簡易キーワード検索するread-only検索基礎
-core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、Memory Candidate dry-run、pending_memory_candidate_edit、last_memory_candidate_save_result、last_saved_memory_candidate_result、確認待ち状態の文脈解釈を接続
+core/personal_ai.py: URL確認、確認応答、ToolRunner経由Web Reader実行、File Reader確認・実行、Memory Candidate dry-run、pending_memory_candidate_edit、last_memory_candidate_save_result、last_saved_memory_candidate_result、確認待ち状態の文脈解釈を接続
 ai/llm.py: Qwen呼び出しとSYSTEM_PROMPT
 ai/memory_extract.py: 汎用記憶抽出
 ai/memory_context.py: MemoryContext生成
@@ -460,12 +463,24 @@ MIGRATION.md / CLAUDE.md / AGENTS.md / README.md / docs/claude_code_start.md / d
 `scripts/check_ver2280.py` を追加
 `scripts/run_ver2_checks.py` に `check_ver2280.py` を追加
 OpenAI実接続、APIキー設定、DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.29でFile Reader最小実装を追加
+`core/file_reader_adapter.py` を追加し、ユーザーが指定した単一のtxt/mdファイルだけを読み取れるようにした
+対応拡張子はtxt/mdに限定し、ディレクトリ探索・ワイルドカード・書き込み・実行は行わない
+ファイルサイズ上限（デフォルト1MB）を超える場合は読み取らない方針を追加
+`core/file_reader_confirmation.py` を追加し、Web Reader同様に実行前確認を必須にした
+`core/confirmation_intent.py` を汎用化し、`context_type="file_reader"` でもWeb Readerと同じ「はい/いいえ」語彙を再利用できるようにした（Web Reader側の挙動は変更なし）
+`core/personal_ai.py` にFile Readerを接続し、確認→ToolRunner経由実行→本文プレビュー表示の流れをWeb Readerと同じ設計で追加
+Ver2.29ではMemory Candidateへの接続は行わない（Web ReaderがVer2.0で辿った段階と同じ最小スコープ）
+対応外拡張子（pdfなど）は、既存のCapabilityManagerによる「未実装」応答にそのまま委ねる
+`scripts/check_ver2290.py` を追加し、一時ディレクトリ内のfakeファイルのみを使って、パス検出・確認・ToolRunner実行・キャンセル・存在しないファイル・対応外拡張子・PersonalAI結合の各シナリオを確認する
+自動チェックでは実際のユーザーファイルへはアクセスせず、一時テスト用ファイルのみを使う
+`scripts/run_ver2_checks.py` に `check_ver2290.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更、PDF/Image/YouTube Readerの実装はしない
 ```
 
-Ver2.28後の候補:
+Ver2.29後の候補:
 
 ```text
-Ver2.29: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

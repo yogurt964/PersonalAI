@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.29
+
+開始内容:
+
+- File Reader最小実装を追加
+- `core/file_reader_adapter.py` を追加し、ユーザーが指定した単一のtxt/mdファイルだけを読み取れるようにした
+- 対応拡張子はtxt/mdに限定し、ディレクトリ探索・ワイルドカード・書き込み・実行は行わない
+- ファイルサイズ上限（デフォルト1MB）を超える場合は読み取らない方針を追加
+- `core/file_reader_confirmation.py` を追加し、Web Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` を汎用化し、`context_type="file_reader"` でもWeb Readerと同じ「はい/いいえ」語彙を再利用できるようにした（Web Reader側の挙動・語彙は変更なし）
+- `core/personal_ai.py` にFile Readerを接続し、確認 → ToolRunner経由実行 → 本文プレビュー表示、の流れをWeb Readerと同じ設計で追加
+- Ver2.29ではMemory Candidateへの接続はまだ行わない（Web ReaderがVer2.0で辿った最小スコープと同じ段階）
+- 対応外拡張子（PDFなど）は、既存のCapabilityManagerによる「未実装」応答にそのまま委ねる
+- `scripts/check_ver2290.py` を追加し、一時ディレクトリ内のfakeファイルのみを使ってパス検出・確認・ToolRunner実行・キャンセル・存在しないファイル・対応外拡張子・PersonalAI結合の各シナリオを確認
+- 自動チェックでは実際のユーザーファイルへアクセスせず、一時テスト用ファイルのみを使う
+- `scripts/run_ver2_checks.py` に `check_ver2290.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更、PDF/Image/YouTube Readerの実装は行わない方針を維持
+
 ## Version 2.28
 
 開始内容:

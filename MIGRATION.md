@@ -887,7 +887,6 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.29: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

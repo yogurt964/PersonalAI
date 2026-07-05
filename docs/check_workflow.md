@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2290.py`
 - `scripts/check_ver2280.py`
 - `scripts/check_ver2270.py`
 - `scripts/check_ver2260.py`
@@ -102,6 +103,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.29では、`check_ver2290.py` でFile Reader最小実装を確認する。
+このcheckは一時ディレクトリ内のfakeファイルのみを使い、パス検出、確認メッセージ、ToolRunner経由の実行・未実行、キャンセル、存在しないファイル、対応外拡張子、PersonalAI結合フローを確認する。
+実際のユーザーファイルへのアクセス、DB書き込み、LLM実行はしない。
 Ver2.28では、`check_ver2280.py` でOpenAI利用方針の見直し（月間上限額制）を確認する。
 このcheckは`MIGRATION.md` / `CLAUDE.md` / `AGENTS.md` / `README.md` / `docs/claude_code_start.md` / `docs/llm_intent_resolver_design.md`に月間上限額の運用方針が反映されていること、project_handoff.md / changelog.mdの内容、run_ver2_checks.pyへの登録を確認する。
 実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。

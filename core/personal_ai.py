@@ -36,6 +36,11 @@ from core.tool_adapter import ToolRequest
 from core.tool_execution_log import ToolExecutionLogger
 from core.tool_registry import ToolRegistry
 from core.tool_runner import run_tool_request
+from core.file_reader_adapter import FileReaderAdapter
+from core.file_reader_confirmation import (
+    build_file_reader_confirmation,
+    resolve_file_reader_confirmation_response,
+)
 from core.web_reader_adapter import WebReaderAdapter
 from core.web_reader_confirmation import (
     build_web_reader_confirmation,
@@ -190,6 +195,11 @@ class PersonalAI:
         self.last_web_reader_tool_request_candidate = None
         self.last_web_reader_tool_run_result = None
         self.last_web_reader_tool_result = None
+        self.last_file_reader_confirmation = None
+        self.last_file_reader_confirmation_result = None
+        self.last_file_reader_tool_request_candidate = None
+        self.last_file_reader_tool_run_result = None
+        self.last_file_reader_tool_result = None
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
         self.last_memory_candidate_confirmation_result = None
@@ -201,12 +211,14 @@ class PersonalAI:
         self.pending_memory_candidate_confirmation = None
         self.pending_memory_candidate_edit = None
         self.pending_web_reader_confirmation = None
+        self.pending_file_reader_confirmation = None
         self.last_response = None
 
     def build_tool_registry(self, web_reader_fetcher=None):
         """会話UIから使うToolRegistryを用意します。"""
         registry = ToolRegistry()
         registry.register(WebReaderAdapter(fetcher=web_reader_fetcher))
+        registry.register(FileReaderAdapter())
         return registry
 
     def run(self):
@@ -255,6 +267,13 @@ class PersonalAI:
             self.save_assistant_message(pending_web_reader_response)
             return pending_web_reader_response
 
+        pending_file_reader_response = self.handle_pending_file_reader_confirmation(user_input)
+
+        if pending_file_reader_response:
+            self.last_response = pending_file_reader_response
+            self.save_assistant_message(pending_file_reader_response)
+            return pending_file_reader_response
+
         recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
 
         if recent_saved_memory_response:
@@ -299,6 +318,22 @@ class PersonalAI:
             self.last_response = web_reader_response
             self.save_assistant_message(web_reader_response)
             return web_reader_response
+
+        # Ver2.29では、ユーザーが指定した単一のtxt/mdファイルに限り、確認後に読み取ります。
+        # ここではファイルへ一切アクセスせず、確認メッセージだけを返します。
+        file_reader_confirmation = build_file_reader_confirmation(user_input)
+        self.last_file_reader_confirmation = file_reader_confirmation
+        self.last_file_reader_confirmation_result = None
+        self.last_file_reader_tool_request_candidate = None
+        self.last_file_reader_tool_run_result = None
+        self.last_file_reader_tool_result = None
+
+        if file_reader_confirmation.needs_confirmation:
+            self.pending_file_reader_confirmation = file_reader_confirmation.to_dict()
+            self.pending_file_reader_confirmation["original_input"] = user_input
+            self.last_response = file_reader_confirmation.message
+            self.save_assistant_message(file_reader_confirmation.message)
+            return file_reader_confirmation.message
 
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
@@ -650,6 +685,59 @@ class PersonalAI:
 
         return result.message or None
 
+    def handle_pending_file_reader_confirmation(self, user_input):
+        """File Reader確認後の返答を扱います。"""
+        pending_confirmation = getattr(self, "pending_file_reader_confirmation", None)
+
+        if not pending_confirmation:
+            return None
+
+        result = resolve_file_reader_confirmation_response(
+            user_input,
+            pending_confirmation,
+        )
+        self.last_file_reader_confirmation_result = result.to_dict()
+        self.last_file_reader_tool_request_candidate = result.tool_request_candidate
+
+        if result.status in ["confirmed", "cancelled"]:
+            self.pending_file_reader_confirmation = None
+
+        if result.status == "confirmed" and result.tool_request_candidate:
+            return self.execute_file_reader_tool_request_candidate(
+                result.tool_request_candidate,
+            )
+
+        return result.message or None
+
+    def execute_file_reader_tool_request_candidate(self, candidate):
+        """File Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        request = self.build_tool_request_from_candidate(candidate)
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        run_result = run_tool_request(
+            request,
+            registry=registry,
+            user_confirmed=user_confirmed,
+            logger=logger,
+        )
+
+        self.last_file_reader_tool_run_result = run_result
+        self.last_file_reader_tool_result = run_result.result
+        self.last_tool_execution_record = run_result.execution_record
+
+        return self.build_file_reader_tool_response(run_result.result)
+
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
         request = self.build_tool_request_from_candidate(candidate)
@@ -741,6 +829,46 @@ class PersonalAI:
             "本文プレビュー:\n"
             f"{formatted_preview}\n\n"
             f"{memory_candidate_text}"
+        )
+
+    def build_file_reader_tool_response(self, result):
+        """File ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
+
+        Ver2.29ではMemory Candidateへの接続はまだ行いません。
+        """
+        if not getattr(result, "executed", False):
+            reason = getattr(result, "message", "") or getattr(result, "error", "")
+            return (
+                "File Readerは実行されませんでした。\n\n"
+                "理由:\n"
+                f"{reason or 'ユーザー確認がないため、ローカルファイルへアクセスしませんでした。'}"
+            )
+
+        if not getattr(result, "success", False):
+            reason = getattr(result, "error", None) or getattr(result, "message", "")
+            return (
+                "File Readerで読み取りを試みましたが、失敗しました。\n\n"
+                "理由:\n"
+                f"{reason or '原因は特定できませんでした。'}\n\n"
+                "次にできること:\n"
+                "- ファイルパスが正しいか確認する\n"
+                "- 対応拡張子（txt / md）のファイルか確認する"
+            )
+
+        data = getattr(result, "data", {}) or {}
+        file_name = _clean_web_reader_display_text(data.get("file_name")) or "(ファイル名なし)"
+        resolved_path = _clean_web_reader_display_text(data.get("resolved_path") or data.get("path"))
+        text_preview = data.get("text_preview") or data.get("text") or ""
+        formatted_preview = _format_web_reader_preview(text_preview, title=file_name)
+
+        return (
+            "File Readerで読み取りました。\n\n"
+            "ファイル名:\n"
+            f"{file_name}\n\n"
+            "パス:\n"
+            f"{resolved_path or '(パスなし)'}\n\n"
+            "本文プレビュー:\n"
+            f"{formatted_preview}"
         )
 
     def format_memory_candidate_dry_run(self, candidate):

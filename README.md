@@ -38,7 +38,9 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - URL入力の検出
 - Web Reader
 - Web Reader実行前の確認
-- 確認待ち状態の文脈解釈
+- File Reader（単一のtxt/mdファイル）
+- File Reader実行前の確認
+- 確認待ち状態の文脈解釈（Web Reader / File Reader共通）
 - 読み取り結果の整形表示
 - Reader結果からMemory Candidateを生成
 - Memory Candidateのdry-run表示
@@ -60,7 +62,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - PDF Reader
 - Image Reader
 - YouTube Reader
-- File Reader
+- File Reader（txt/md以外の拡張子、複数ファイル、ディレクトリ読み取り）
 - Office連携
 - メール連携
 - カレンダー連携
@@ -80,7 +82,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 近い候補:
 
-- File Reader最小実装
 - LLM Intent Resolverの段階的実装
 
 将来候補:
