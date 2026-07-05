@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 2.47
+
+開始内容:
+
+- Image Reader最小実装（ローカルvision）を追加
+- ローカルvisionモデル `qwen2.5vl:7b` をOllamaに追加（6GB、実機確認済み）
+- `core/vision_router.py` を追加。`choose_vision_backend()`は現時点で常に"local"を返すが、将来OpenAI vision接続時にここへ判定ロジックを追加できる設計にした
+- `core/image_reader_adapter.py` を追加し、単一の画像ファイル（.png/.jpg/.jpeg/.bmp/.gif/.webp）をローカルvisionモデルで解析し、日本語で詳しい説明を生成できるようにした
+- 破損画像・非対応形式・vision呼び出し失敗時は読めたふりをせず正直に失敗を返す
+- `core/image_reader_confirmation.py` を追加し、他Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` に `context_type="image_reader"` を追加
+- `core/personal_ai.py` にImage Readerを接続し、capability_managerのimage_read_required（未実装扱い）より先に判定されるようにした
+- 実機で赤い正方形・青い円を描いたテスト画像を読み取らせ、正しく認識できることを確認した
+- `scripts/check_ver2470.py` を追加（fakeのvision_describerを使用、実際のOllama呼び出しはしない）
+- `scripts/check_ver2290.py` の「対応外拡張子」テストを、.pngが実装済みになったため.mp4に変更
+- `scripts/run_ver2_checks.py` に `check_ver2470.py` を追加
+- OpenAI vision（クラウド併用）は未接続のまま。接続時はAPIキー設定・費用面を含め改めてユーザーに確認する
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.46
 
 開始内容:

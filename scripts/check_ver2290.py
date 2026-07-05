@@ -364,7 +364,7 @@ def check_personal_ai_flow(tmp_path):
     )
 
     ai_unsupported = build_lightweight_personal_ai()
-    unsupported_response = ai_unsupported.handle_user_input("このファイルを読んで photo.png")
+    unsupported_response = ai_unsupported.handle_user_input("このファイルを読んで video.mp4")
     failures += check_true(
         "unsupported extension falls back to capability gate",
         "未実装" in unsupported_response,

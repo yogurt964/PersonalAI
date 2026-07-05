@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.46
+現在バージョン: Ver2.47
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -175,6 +175,7 @@ Ver2.43: YouTube Reader最小実装
 Ver2.44: 確認判定にハイブリッド方式（固定語彙優先＋不明時のみLLM）を導入
 Ver2.45: SYSTEM_PROMPTに日本語回答の指示を追加
 Ver2.46: SYSTEM_PROMPTの日本語指示に、明示指定があれば他言語に従う例外を追加
+Ver2.47: Image Reader最小実装（ローカルvision、qwen2.5vl:7b）
 ```
 
 ## 現在の主要ファイル
@@ -709,10 +710,33 @@ DBスキーマ変更、Memory保存・検索ロジック変更はしない
 
 READMEスクリーンショットについては、提出が近づいたタイミングで現時点の動作として数枚貼る方針で合意（今は急がない）
 
-Ver2.46後の候補:
+Ver2.47でImage Reader最小実装（ローカルvision）を追加
 
 ```text
-Ver2.x: Image Reader（ローカル/OpenAI併用のvision router設計、着手前にユーザーと相談済みの方針で進める）
+ローカルvisionモデル qwen2.5vl:7b をOllamaに追加（6GB、ユーザーのRTX 4070 SUPER・メモリ32GBで実機確認済み）
+core/vision_router.py を追加。choose_vision_backend()は現時点で常に"local"を返すが、
+将来OpenAI vision接続時にここへ難易度・安全性判定を追加できる設計にした
+（ユーザーの「機能を道具として使い分ける設計にしてほしい」というフィードバックに沿った実装）
+core/image_reader_adapter.py を追加し、ユーザーが指定した単一の画像ファイル（.png/.jpg/.jpeg/.bmp/.gif/.webp）を
+ローカルvisionモデルで解析し、日本語で詳しい説明を生成できるようにした
+画像と一緒に具体的な質問が来ている場合、元のメッセージを解析プロンプトに含め、最初の解析でできるだけ
+具体的に答えるようにした（後続ターンでは画像そのものを再度見られないため）
+破損画像・非対応形式・vision呼び出し失敗時は読めたふりをせず正直に失敗を返す
+core/image_reader_confirmation.py を追加し、他Reader同様に実行前確認を必須にした
+core/confirmation_intent.py に context_type="image_reader" を追加
+core/personal_ai.py にImage Readerを接続し、capability_managerのimage_read_required（未実装扱い）より先に判定されるようにした
+実機で赤い正方形・青い円を描いたテスト画像を読み取らせ、正しく形状・色を認識できることを確認した
+scripts/check_ver2470.py を追加（fakeのvision_describerを使い、実際のOllama呼び出しはしない）
+scripts/check_ver2290.py の「対応外拡張子」テストを、.pngが実装済みになったため.mp4に変更
+scripts/run_ver2_checks.py に check_ver2470.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+OpenAI vision（クラウド側の併用）は未接続のまま。接続する際はAPIキー設定・費用面を含め改めてユーザーに確認する
+```
+
+Ver2.47後の候補:
+
+```text
+Ver2.x: OpenAI visionをvision_routerに接続（着手前にAPIキー・月間上限額をユーザーと相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

@@ -50,7 +50,10 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - PowerPoint Reader実行前の確認
 - YouTube Reader（単一動画の既存字幕・自動生成トランスクリプト取得）
 - YouTube Reader実行前の確認
-- 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）
+- Image Reader（単一画像ファイルをローカルvisionモデルqwen2.5vl:7bで解析）
+- Image Reader実行前の確認
+- Vision Router（現時点はローカルのみ選択、将来のOpenAI vision併用への拡張口）
+- 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader / Image Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）
 - 読み取り結果の整形表示
 - Reader結果をQwenでの応答に接続（読んで要約・読んだ内容への追加質問）
 - Reader結果からMemory Candidateを生成
@@ -70,7 +73,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 以下は将来構想であり、現時点では未実装です。
 
-- Image Reader
 - File Reader（txt/md以外の拡張子、複数ファイル、ディレクトリ読み取り）
 - PDF Reader（複数ファイル、ディレクトリ読み取り）
 - Office連携（作成・編集）
@@ -92,7 +94,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 近い候補:
 
-- Image Reader（ローカル/OpenAI併用のvision router設計）
+- OpenAI visionをvision_routerに接続（着手前にAPIキー・月間上限額をユーザーと相談）
 - LLM Intent Resolverの段階的実装（確認判定のハイブリッド化は完了、他領域への拡張は今後）
 
 将来候補:

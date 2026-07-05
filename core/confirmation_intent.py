@@ -129,6 +129,18 @@ GENERIC_CONFIRMATION_CONTEXTS = {
             "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
         ),
     },
+    "image_reader": {
+        "confirm_action": "confirm_image_reader",
+        "cancel_action": "cancel_image_reader",
+        "unclear_action": "ask_image_reader_confirmation_again",
+        "confirm_message": "Image Reader実行を許可する意図として解釈しました。",
+        "cancel_message": "Image Reader実行をキャンセルする意図として解釈しました。",
+        "unclear_message": (
+            "画像を解析するか確認中です。\n"
+            "実行する場合は「はい」「いいよ」「お願いします」など、\n"
+            "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
+        ),
+    },
 }
 
 
