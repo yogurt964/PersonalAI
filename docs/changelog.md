@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.22
+
+開始内容:
+
+- READMEをポートフォリオ向けに整理
+- Mermaidによるアーキテクチャ図と処理フローを追加
+- Web Reader → Memory Candidate → 保存 → 検索 のデモ導線を強化
+- 技術的に工夫した点を面接で説明しやすい形に整理
+- `docs/portfolio_readme_policy.md` を追加
+- `scripts/check_ver2220.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2220.py` を追加
+
 ## Version 2.21
 
 開始内容:

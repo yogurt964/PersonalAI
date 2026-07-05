@@ -188,6 +188,10 @@ PersonalAIは、単なる個人用スクリプトではなく、ポートフォ�
 - 実装の段階が追える
 - commit履歴で成長が分かる
 
+Ver2.22では、README.mdをGitHub閲覧者や面接官が読みやすいポートフォリオ入口として整理する。
+READMEでは、現在できること、未実装の機能、デモ導線、Mermaidによるアーキテクチャ図、技術的に工夫した点を分けて示す。
+詳細方針は `docs/portfolio_readme_policy.md` にまとめる。
+
 ## Claude Code / Cursor移行方針
 
 今後、Claude Code / Cursor など別のAI開発環境へ移行しても、同じ方針で開発できるようにする。

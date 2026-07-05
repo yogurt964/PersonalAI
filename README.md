@@ -1,10 +1,12 @@
 # PersonalAI
 
-## PersonalAIとは
+## 概要
 
-PersonalAIは、ローカルLLMとPythonを使って開発している、長期記憶・外部情報読み取り・安全な確認フローを持つ個人AIアシスタントです。
+PersonalAIは、ローカルLLM、長期記憶、Web Reader、Memory Candidate、安全な確認フローを組み合わせた、個人用AIアシスタント開発プロジェクトです。
 
-単なるチャットボットではなく、ユーザーの作業を理解し、必要な情報を読み取り、記憶候補を作り、安全確認を挟みながら作業を支援するAIエージェントを目指しています。
+単なるチャットボットではなく、ユーザーの情報を読み取り、必要に応じて記憶し、あとから検索して活用できるAIを目指しています。
+
+現在はCLI中心のローカル実行プロジェクトとして、Qwen / Ollama、SQLite、Pythonを使って段階的に開発しています。
 
 ## 開発背景
 
@@ -12,67 +14,84 @@ ChatGPTや開発支援AIを使う中で、会話履歴や作業文脈が切れ�
 
 PersonalAIでは、会話履歴、長期記憶、Reader、Permission、Tool実行ログを段階的に組み合わせ、ユーザーの作業を継続的に支援できるローカルAIアシスタントを作っています。
 
-## 目指しているもの
+## 何を目指しているか
+
+PersonalAIは、ユーザーの作業入口になるAIを目指しています。
 
 - ユーザーの目的を理解する
 - 必要な情報を読み取る
-- 長期的に役立つ情報をMemory候補として整理する
-- 危険な操作や外部アクセスでは確認を挟む
+- 長期的に役立つ情報をMemory Candidateとして整理する
+- 保存前にユーザー確認を挟む
+- 保存したMemoryをあとから確認・検索できるようにする
 - 未実装機能をできたふりしない
-- ローカル環境を中心に、安全に拡張できるAIエージェントに育てる
+- 後から拡張しやすいAIエージェント基盤に育てる
 
-## 将来的に扱いたい領域
-
-PersonalAIは、開発補助だけでなく、資料要約・資料作成・Web検索・データ分析・勉強・創作支援・予定管理・メール支援まで広く扱える個人AIアシスタントを目指しています。
-
-将来的には、PDF / Word / Excel / PowerPoint、画像、音声、動画、YouTubeなどの入力やReaderも視野に入れています。
-また、コードエディタ、ゲームエンジン、Office系ツール、ノートアプリ、画像・動画・音楽制作ツールなどとの連携も視野に入れています。具体的なアプリは固定せず、用途や開発段階に応じて選びます。
-
-## ポートフォリオとしての位置づけ
-
-PersonalAIは、就活ポートフォリオとして使うことも想定して開発しています。
-
-ローカルLLM、長期記憶、Web Reader、Memory Candidate、安全な確認フロー、GitHubでの段階的開発履歴を通じて、AIエージェントを設計・実装・改善するプロセスを示すことを目的としています。
 
 ## 現在できること
 
 実装済みの主な機能:
 
-- Qwen / Ollamaを使ったローカルAI会話
+- Qwen / Ollamaを使ったローカル会話
 - 会話履歴の保存
-- 長期記憶の基礎
+- 長期記憶基盤
 - ユーザー入力の分析
 - URL入力の検出
+- Web Reader
 - Web Reader実行前の確認
-- Web Readerによるページ読み取り
+- 確認待ち状態の文脈解釈
 - 読み取り結果の整形表示
 - Reader結果からMemory Candidateを生成
 - Memory Candidateのdry-run表示
-- 保存する / 保存しない / 編集して保存 / 後で確認 の確認応答dry-run
+- Memory Candidate編集dry-run
+- 保存する / 保存しない / 編集して保存 / 後で確認 の確認応答
 - Memory Candidateをユーザー確認つきで長期記憶へ保存する基礎
 - 保存したMemory Candidateの内容を直近保存結果として確認する基礎
+- Memory検索
 - 保存済みMemoryを簡易キーワード検索する基礎
-- 確認待ち状態の文脈解釈
 - ToolRunner / PermissionManager による安全な実行設計
 - Verごとのチェックスクリプト
 - 開発自走方針
+- MIGRATION.mdによるClaude Code / Cursor移行引継ぎ
 
-まだ実装していないもの:
+## 未実装の機能
 
-- Memory Candidate専用テーブル
-- Reader結果全文のDB保存
-- 本格的なMemory検索UI
-- ベクトル検索
-- LLMによる高度な文脈検索
-- Memory編集・削除UI
+以下は将来構想であり、現時点では未実装です。
+
 - PDF Reader
 - Image Reader
 - YouTube Reader
 - File Reader
+- Office連携
+- メール連携
+- カレンダー連携
+- LLM Intent Resolver
+- ModelRouter
+- ToolRouter
 - OpenAI / Claude / Gemini 接続
 - GUI
 - PC操作
-- 自律的な外部送信
+- ベクトル検索
+- 高度なMemory検索
+- Memory編集・削除UI
+- Reader結果全文のDB保存
+- Memory Candidate専用テーブル
+
+## 今後のロードマップ
+
+近い候補:
+
+- LLM Intent Resolver設計
+- File Reader最小実装
+- Claude Code移行テスト
+
+将来候補:
+
+- PDF Reader
+- YouTube Reader
+- Office連携
+- メール・カレンダー連携
+- 高度なMemory検索
+- README用スクリーンショット/GIF追加
 
 ## 技術スタック
 
@@ -88,6 +107,22 @@ PersonalAIは、就活ポートフォリオとして使うことも想定して�
 ## アーキテクチャ概要
 
 現在のPersonalAIは、以下のような責務分離を進めています。
+
+```mermaid
+flowchart TD
+    U[User] --> P[PersonalAI]
+    P --> IA[InputAnalyzer]
+    P --> CI[Confirmation Intent]
+    P --> WR[Web Reader]
+    WR --> MC[Memory Candidate]
+    MC --> CONF[User Confirmation]
+    CONF --> SAVE[Long-term Memory]
+    P --> SEARCH[Memory Search]
+    SEARCH --> SAVE
+    P --> LLM[Qwen / Ollama]
+```
+
+補助的な処理の流れ:
 
 ```text
 User Input
@@ -127,50 +162,90 @@ Response
 - `docs/`: 設計方針と開発履歴
 - `scripts/`: バージョンごとの自動チェック
 
-## デモ
+## デモ: Web Reader → Memory Candidate → 保存 → 検索
 
 Web ReaderからMemory Candidate確認応答までの流れは、以下に記録しています。
 
 - `docs/demo_logs/web_reader_memory_candidate_demo.md`
 
-概要:
+### Web Reader → Memory保存 → 直近確認
 
 ```text
-ユーザー:
 このURLを読んで https://example.com
-
-PersonalAI:
-Web Readerで読み取ってもよいですか？
-
-ユーザー:
 いいよ
-
-PersonalAI:
-Web Readerで読み取りました。
-Memory Candidate dry-run:
-保存候補タイプ: reader_summary
-保存実行: しない
-
-ユーザー:
 保存する
-
-PersonalAI:
-Memory Candidateを長期記憶に保存しました。
-
-ユーザー:
 今保存した記憶を確認して
-
-PersonalAI:
-直近保存したMemoryは以下です。
-
-ユーザー:
-Example Domainについて覚えてる？
-
-PersonalAI:
-保存済みMemoryから関連しそうな内容を見つけました。
 ```
 
-このデモでは、外部Webアクセス前に確認を挟み、読み取り結果から保存候補を作り、ユーザーが明示的に保存を選んだ場合だけ既存の長期記憶保存機構へ渡し、その後に直近保存内容や保存済みMemory検索を確認する流れを示しています。
+期待される動作:
+
+1. Web Reader実行前に確認する
+2. `いいよ` を確認許可として解釈する
+3. URLを読み取る
+4. Memory Candidateを表示する
+5. `保存する` で長期記憶に保存する
+6. 直近保存Memoryを確認できる
+
+### Memory検索
+
+```text
+Example Domainについて覚えてる？
+```
+
+期待される動作:
+
+1. 保存済みMemoryを検索する
+2. 関連Memoryがあれば表示する
+3. 見つからない場合は自然に未発見を伝える
+
+## 処理フロー
+
+Web Readerで読み取った内容をすぐ長期記憶へ入れず、Memory Candidateとして確認してから保存します。
+
+```mermaid
+sequenceDiagram
+    participant User
+    participant PersonalAI
+    participant WebReader
+    participant MemoryCandidate
+    participant Memory
+
+    User->>PersonalAI: このURLを読んで
+    PersonalAI->>User: Web Readerを実行してよいですか？
+    User->>PersonalAI: いいよ
+    PersonalAI->>WebReader: URL読み取り
+    WebReader-->>PersonalAI: Reader result
+    PersonalAI->>MemoryCandidate: Candidate生成
+    PersonalAI->>User: 保存候補を表示
+    User->>PersonalAI: 保存する
+    PersonalAI->>Memory: 長期記憶へ保存
+    User->>PersonalAI: Example Domainについて覚えてる？
+    PersonalAI->>Memory: Memory検索
+    Memory-->>PersonalAI: 関連Memory
+    PersonalAI-->>User: 検索結果を表示
+```
+
+## 技術的に工夫した点
+
+- Reader結果をすぐ保存せず、Memory Candidateとして一度ユーザー確認を挟む設計
+- 確認待ち状態では、通常会話に流す前に文脈に応じて確認応答として解釈する設計
+- 保存・検索・直近確認を分けることで、Memoryの扱いを段階的に実装
+- 自動チェックではfake reader / fake saveを使い、実DBや外部通信への影響を避ける
+- Web ReaderはURL検出だけでは実行せず、ユーザー確認後に実行する
+- 失敗時に読めたふり、保存したふり、実行したふりをしない
+- AGENTS.md / MIGRATION.mdにより、AIエージェントが開発方針を引き継げる構成
+- 実装済みと未実装を分け、ポートフォリオとして正直に説明できる構成
+
+安全設計は、開発を止めるためではなく、外部アクセス、DB破壊、Memory物理削除、Git履歴破壊、課金、外部送信などの致命的リスクを避けながら通常開発を自走しやすくするために整理しています。
+
+## 将来的に扱いたい領域
+
+PersonalAIは、開発補助だけでなく、資料要約・資料作成・Web検索・データ分析・勉強・創作支援・予定管理・メール支援まで広く扱える個人AIアシスタントを目指しています。
+
+将来的には、画像、音声、動画、YouTube、PDF / Word / Excel / PowerPoint、コードエディタ、ゲームエンジン、Office系ツール、ノートアプリ、画像・動画・音楽制作ツールなどとの連携も視野に入れています。
+
+具体的なアプリ名は固定せず、用途や開発段階に応じて選びます。
+具体的なアプリは固定せず、必要なツールは目的に合わせて選びます。
 
 ## 安全設計
 
@@ -190,48 +265,78 @@ PersonalAIでは、安全設計を初期段階から分けて考えています�
 - PermissionManagerで高リスク操作を止める土台を用意
 - DB削除、Memory物理削除、Git履歴書き換え、課金、外部送信は確認必須
 
-## 開発プロセス
+## セットアップ
 
-PersonalAIは、小さなバージョン単位で設計、実装、チェック、docs更新を進めています。
+前提:
 
-- `docs/changelog.md`: 変更履歴
-- `docs/project_handoff.md`: 引き継ぎ用まとめ
-- `docs/check_workflow.md`: チェック運用
-- `docs/development_workflow.md`: AIエージェントによる開発自走方針
+- Windows
+- PowerShell
+- Python 3.10系
+- Python venv
+- Ollama
+- Qwenモデル
+
+依存関係は既存の仮想環境を使います。
+
+```powershell
+venv\Scripts\python.exe --version
+```
+
+## 実行方法
+
+CLIでPersonalAIを起動します。
+
+```powershell
+venv\Scripts\python.exe -B app.py
+```
+
+終了するときは、会話内で `exit` を入力します。
+
+## チェック方法
+
+Ver2.xの標準チェック:
+
+```powershell
+venv\Scripts\python.exe -B scripts\run_ver2_checks.py
+```
+
+Ver2.22固有チェック:
+
+```powershell
+venv\Scripts\python.exe -B scripts\check_ver2220.py
+```
+
+補助確認:
+
+```powershell
+git diff --check
+git status
+```
+
+Codex環境ではSQLiteの `disk I/O error` が出る場合があります。
+その場合もDBを削除・初期化せず、権限付き再実行で通るかを確認します。
+
+## 開発・移行ドキュメント
+
 - `AGENTS.md`: AIエージェント向けの短い運用ルール
-- `MIGRATION.md`: Claude Code / Cursorなど新しい開発環境へ移行するための引継書
+- `MIGRATION.md`: Claude Code / Cursorなど新しい開発環境移行のための引継書
+- `docs/development_workflow.md`: AIエージェントによる開発自走方針
+- `docs/project_handoff.md`: プロジェクト再開用の引継ぎ
+- `docs/check_workflow.md`: チェック運用
+- `docs/changelog.md`: 変更履歴
+- `docs/portfolio_readme_policy.md`: READMEをポートフォリオとして見せる方針
 
 各バージョンで専用のcheckスクリプトを追加し、既存機能を壊さないように確認しています。
 
-開発環境移行やAIエージェント向けの詳細な引継ぎは MIGRATION.md を参照してください。
+## ポートフォリオとしての位置づけ
 
-## 今後のロードマップ
+PersonalAIは、就活ポートフォリオとして使うことも想定して開発しています。
 
-近い予定:
+ローカルLLM、長期記憶、Web Reader、Memory Candidate、安全な確認フロー、GitHubでの段階的開発履歴を通じて、AIエージェントを設計・実装・改善するプロセスを示すことを目的としています。
 
-- ポートフォリオ用READMEとデモ資料の継続改善
-- Memory Candidate保存フローの改善
-- Claude Code移行テスト
-
-将来の予定:
-
-- PDF Reader
-- Image Reader
-- YouTube Reader
-- File Reader
-- OpenAI / Claude / Gemini 接続
-- GUI
-- PC操作
-- ベクトル検索
-- LLMによる高度な文脈検索
-- Project Knowledge / Archive / User Preferenceの整理強化
-
-## 現在の開発状況
-
-現在はVer2.21です。
+現在はVer2.22です。
 
 Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索、Claude Code移行用MIGRATION.mdまで整備済みです。
-Web Reader確認待ち中は、`いいよ` や `お願いします` も実行許可として扱えます。
 ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
 
-このリポジトリは、就活ポートフォリオとして、AIエージェント設計、責務分離、安全設計、段階的な開発プロセスを見せることを意識して整備しています。
+Mermaid図、デモ導線、技術的に工夫した点をREADME上で確認できるようにし、GitHub閲覧者や面接官に開発意図が伝わりやすい構成にしています。
