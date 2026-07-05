@@ -290,7 +290,7 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.26",
+            "現在バージョン:",  # version-agnostic: avoid pinning an exact VerX.X that future bumps must chase
             "Ver2.18: Memory保存後の確認・表示フロー",
             "last_saved_memory_candidate_result",
             "今保存した記憶を確認して",

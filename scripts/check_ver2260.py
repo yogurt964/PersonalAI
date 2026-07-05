@@ -144,7 +144,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.26",
+            "現在バージョン:",  # version-agnostic: avoid pinning an exact VerX.X that future bumps must chase
             "Ver2.26: LLM Intent Resolver設計",
             "Ver2.27: project_handoff.mdの現在バージョン固定依存の解消",
         ],

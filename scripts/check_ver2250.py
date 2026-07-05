@@ -199,7 +199,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.26",
+            "現在バージョン:",  # version-agnostic: avoid pinning an exact VerX.X that future bumps must chase
             "Ver2.25: Claude Code自走運用モード整備",
             "Ver2.26: LLM Intent Resolver設計",
         ],

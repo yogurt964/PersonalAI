@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.27
+
+開始内容:
+
+- project_handoff.mdの現在バージョン固定依存を解消
+- `scripts/check_ver2180.py`〜`scripts/check_ver2260.py`（9本）が`docs/project_handoff.md`の「現在バージョン: VerX.X」を厳密な文字列一致で要求しており、バージョンを上げるたびに過去checkを機械的に追随修正する必要があった問題を解消
+- 該当する9本のcheckを、「現在バージョン:」という項目の存在確認に緩和し、具体的なバージョン番号には依存しないよう修正
+- 過去の実績を記録する行（例:「Ver2.24: Claude Code引継ぎ確認結果の反映」）は、履歴として引き続き要求する方針を維持
+- `scripts/check_ver2270.py` を追加し、対象9本のcheckに固定バージョン番号への依存が残っていないことを継続的に確認
+- `scripts/run_ver2_checks.py` に `check_ver2270.py` を追加
+- 新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.26
 
 開始内容:

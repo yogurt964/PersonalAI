@@ -325,7 +325,7 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.26",
+            "現在バージョン:",  # version-agnostic: avoid pinning an exact VerX.X that future bumps must chase
             "Ver2.20: Memory検索の最小実用化",
             "core/memory_search.py",
             "覚えてる？",

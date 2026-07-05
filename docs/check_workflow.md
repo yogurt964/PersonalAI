@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2270.py`
 - `scripts/check_ver2260.py`
 - `scripts/check_ver2250.py`
 - `scripts/check_ver2240.py`
@@ -100,6 +101,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.27では、`check_ver2270.py` でproject_handoff.mdの現在バージョン固定依存の解消を確認する。
+このcheckは`check_ver2180.py`〜`check_ver2260.py`の9本に、project_handoff.mdの具体的なバージョン番号（現在バージョン: VerX.X）への固定依存が残っていないこと、run_ver2_checks.pyへの登録を確認する。
+実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.26では、`check_ver2260.py` でLLM Intent Resolver設計docsの整備を確認する。
 このcheckは `docs/llm_intent_resolver_design.md` の存在と必須語句、`core/confirmation_intent.py` / `core/memory_candidate_confirmation.py` に実装変更がないこと、project_handoff.md / changelog.mdの内容、run_ver2_checks.pyへの登録を確認する。
 実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。

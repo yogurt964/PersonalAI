@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.26
+現在バージョン: Ver2.27
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -155,6 +155,7 @@ Ver2.23: Claude Code移行準備パッケージ
 Ver2.24: Claude Code引継ぎ確認結果の反映
 Ver2.25: Claude Code自走運用モード整備
 Ver2.26: LLM Intent Resolver設計
+Ver2.27: project_handoff.mdの現在バージョン固定依存の解消
 ```
 
 ## 現在の主要ファイル
@@ -441,12 +442,18 @@ LLMは解釈のみを担当し、実行可否はPermissionManager / ToolRunner /
 `scripts/run_ver2_checks.py` に `check_ver2260.py` を追加
 core/confirmation_intent.py、core/memory_candidate_confirmation.pyの実装変更はしない
 LLM呼び出し追加、DBスキーマ変更、Memory保存・検索ロジック変更、OpenAI/Claude/Gemini接続はしない
+Ver2.27でproject_handoff.mdの現在バージョン固定依存を解消
+`scripts/check_ver2180.py`〜`check_ver2260.py`が`project_handoff.md`の「現在バージョン: VerX.X」を厳密な文字列一致で要求していたため、バージョンを上げるたびに過去checkを機械的に追随修正する必要があった
+該当する9本のcheckを、「現在バージョン:」という項目自体の存在確認に緩和し、具体的なバージョン番号には依存しないようにした
+過去の実績記録（例:「Ver2.24: Claude Code引継ぎ確認結果の反映」のような達成済みVerの説明文）は、履歴として引き続き要求する
+`scripts/check_ver2270.py` を追加し、対象9本のcheckに固定バージョン番号への依存が残っていないことを継続的に確認する
+`scripts/run_ver2_checks.py` に `check_ver2270.py` を追加
+新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.26後の候補:
+Ver2.27後の候補:
 
 ```text
-Ver2.27: project_handoff.mdの現在バージョン固定依存の解消（過去checkのバージョン文字列メンテナンス負担を軽減）
 Ver2.28: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
