@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.35
+現在バージョン: Ver2.36
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -164,6 +164,7 @@ Ver2.32: PDF Reader最小実装
 Ver2.33: ファイルパス抽出のスペース対応バグ修正
 Ver2.34: last_read_documentの誤解答防止
 Ver2.35: 将来の記憶アーキテクチャ方針をdocs化
+Ver2.36: Word Reader最小実装
 ```
 
 ## 現在の主要ファイル
@@ -535,12 +536,24 @@ Ver2.35で将来の記憶アーキテクチャ方針をdocs化
 現在のFile Reader / PDF ReaderはMemory Candidateへ未接続であること、`last_read_document`（Ver2.31）は長期Memoryとは別の暫定キャッシュであることを明記した
 記憶機能を本格的に作り直すタイミングで、あらためてユーザーと設計を確認する方針とし、それまでの暫定対応はAIエージェントの判断に委ねられた
 コード実装は行っていない
+Ver2.36でWord Reader最小実装を追加
+`requirements.txt` に `python-docx` / `lxml` を追加
+`core/word_reader_adapter.py` を追加し、ユーザーが指定した単一の.docxファイルからpython-docxで段落・表のテキストを抽出できるようにした
+古い.doc形式（バイナリ）や破損ファイルは読めたふりをせず正直に失敗を返す
+`core/word_reader_confirmation.py` を追加し、Web/File/PDF Reader同様に実行前確認を必須にした
+`core/confirmation_intent.py` に `context_type="word_reader"` を追加
+`core/personal_ai.py` にWord Readerを接続し、既存Reader群と同じ「確認 → ToolRunner経由実行 → 本文プレビュー、または要約・質問への直接回答」の流れを追加
+開発中に、`core/input_analyzer.py` / `core/capability_manager.py` / `core/tool_request_builder.py` の文書作成判定にある素の「Word」「word」「Excel」「excel」キーワードが、`word_report (1).docx` のようなファイル名自体に含まれる「word」と衝突し、読み取り+要約の同時実行が誤って文書作成モードに入ってしまう不具合を発見
+Ver2.30の「ワード」/「キーワード」衝突と同種の問題であったため、3ファイルすべてで該当キーワードをより具体的な語（"Word file"、"Word document"、"in Word"、"Wordで"、"Excel file"、"Excel document"、"in Excel"）に置き換えて修正（Excelも同時に予防的に修正）
+`scripts/check_ver2360.py` を追加し、ファイル名にword/excelを含むケースでの結合テストも含めて確認する
+`scripts/check_ver2290.py` の「対応外拡張子」テストを、.docxが実装済みになったため.xlsxに変更
+`scripts/run_ver2_checks.py` に `check_ver2360.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.32後の候補（Word/Excel/PowerPointを順次追加予定）:
+Ver2.36後の候補（Excel/PowerPointを順次追加予定）:
 
 ```text
-Ver2.x: Word Reader（.docx）
 Ver2.x: Excel Reader（.xlsx）
 Ver2.x: PowerPoint Reader（.pptx）
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）

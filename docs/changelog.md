@@ -1,5 +1,24 @@
 # Changelog
 
+## Version 2.36
+
+開始内容:
+
+- Word Reader最小実装を追加
+- `requirements.txt` に `python-docx` / `lxml` を追加
+- `core/word_reader_adapter.py` を追加し、ユーザーが指定した単一の.docxファイルからpython-docxで段落・表のテキストを抽出できるようにした
+- 古い.doc形式（バイナリ）や破損ファイルは読めたふりをせず正直に失敗を返す
+- `core/word_reader_confirmation.py` を追加し、Web/File/PDF Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` に `context_type="word_reader"` を追加
+- `core/personal_ai.py` にWord Readerを接続し、既存Reader群と同じ「確認 → ToolRunner経由実行 → 本文プレビュー、または要約・質問への直接回答」の流れを追加
+- 開発中に、文書作成判定にある素の「Word」「word」「Excel」「excel」キーワードが、ファイル名自体に含まれる「word」と衝突し、読み取り+要約の同時実行が誤って文書作成モードに入ってしまう不具合を発見（Ver2.30の「ワード」/「キーワード」衝突と同種）
+- `core/input_analyzer.py` / `core/capability_manager.py` / `core/tool_request_builder.py` の該当キーワードを、より具体的な語（"Word file"、"Word document"、"in Word"、"Wordで"、"Excel file"、"Excel document"、"in Excel"）に置き換えて修正（Excelも予防的に修正）
+- `scripts/check_ver2360.py` を追加し、ファイル名にword/excelを含むケースでの結合テストも含めて確認する
+- `scripts/check_ver2290.py` の「対応外拡張子」テストを、.docxが実装済みになったため.xlsxに変更
+- `scripts/run_ver2_checks.py` に `check_ver2360.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+- 次はExcel Reader（.xlsx）、PowerPoint Reader（.pptx）を同じ設計パターンで順次追加予定
+
 ## Version 2.35
 
 開始内容:
