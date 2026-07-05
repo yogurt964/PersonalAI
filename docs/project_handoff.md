@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.48
+現在バージョン: Ver2.49
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -177,6 +177,7 @@ Ver2.45: SYSTEM_PROMPTに日本語回答の指示を追加
 Ver2.46: SYSTEM_PROMPTの日本語指示に、明示指定があれば他言語に従う例外を追加
 Ver2.47: Image Reader最小実装（ローカルvision、qwen2.5vl:7b）
 Ver2.48: File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張
+Ver2.49: File Readerの複数ファイル同時読み取りに対応
 ```
 
 ## 現在の主要ファイル
@@ -751,9 +752,40 @@ DBスキーマ変更、Memory保存・検索ロジック変更はしない
 外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
 ```
 
-Ver2.48後の候補:
+Ver2.49でFile Readerの複数ファイル同時読み取りに対応
 
 ```text
+ユーザーへ「PDF/File Readerの複数ファイル・ディレクトリ読み取り対応」について確認したところ、
+「複数ファイルを一気に読み取れる方がいい」との回答。ただしディレクトリ丸ごとの読み取りは対象外とし、
+ユーザーが名指ししたファイルだけを対象にする設計とした
+core/file_path_extraction.py に extract_multiple_file_paths_from_text() を追加。
+既存の3パターン（引用符 / Windows絶対パス / 素のパス）を出現順に走査し、重複を除いて
+最大5件まで返す。既存のextract_single_file_path_from_text()は無変更
+core/file_reader_confirmation.py の FileReaderConfirmation に paths（リスト）フィールドを追加。
+1件の場合はVer2.49以前と完全に同じ文言・挙動を維持し、2件以上の場合だけ複数ファイル用の
+確認文言・action="read_files"に切り替える（既存の単一ファイルフローへの回帰は一切なし）
+core/personal_ai.py の execute_file_reader_tool_request_candidate() で、複数パスの場合は
+1ファイルずつToolRunner経由で実行し、build_multi_file_reader_tool_response()で結果をまとめる
+（File Reader Adapter自体は単一ファイルのまま変更していない）
+成功したファイルの本文は「[ファイル名]\n本文」の形で連結し、1つのlast_read_documentとして記憶。
+一部のファイルが失敗した場合も、成功分は読み取りつつ失敗理由を個別に報告する
+scripts/check_ver2490.py を追加（単一ファイル挙動の完全な非回帰、複数ファイル読み取り、
+一部失敗時の挙動、同一ターン要約・別ターン追加質問での複数ファイル参照を確認）
+scripts/run_ver2_checks.py に check_ver2490.py を追加
+外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
+PDF/Word/Excel/PowerPoint/Image/YouTube Readerへの複数ファイル対応は今後、同じパターンで順次追加予定
+```
+
+ユーザーから、DBスキーマの追加変更（将来の忘却機能実装のため）を許可された。ただし修復不可能な操作（データ削除等）は引き続き都度確認する方針。
+これにより「Reader結果全文のDB保存」「Memory Candidate専用テーブル」「Memory編集・削除UI」（削除自体は都度確認）が着手可能になった。
+
+Ver2.49後の候補:
+
+```text
+Ver2.x: PDF/Word/Excel/PowerPoint/Image/YouTube Readerへの複数ファイル対応（File Readerと同じパターン）
+Ver2.x: Reader結果全文のDB保存（追加的なスキーマ変更、許可済み）
+Ver2.x: Memory Candidate専用テーブル（追加的なスキーマ変更、許可済み）
+Ver2.x: Memory編集・削除UI（削除の実行は都度確認）
 Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

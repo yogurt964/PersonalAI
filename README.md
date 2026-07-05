@@ -38,7 +38,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - URL入力の検出
 - Web Reader
 - Web Reader実行前の確認
-- File Reader（単一のtxt/md/csv/json/log/yaml/xml/ini/toml/tsvファイル）
+- File Reader（txt/md/csv/json/log/yaml/xml/ini/toml/tsvファイル、複数ファイル同時読み取り対応）
 - File Reader実行前の確認
 - PDF Reader（単一のPDFファイル）
 - PDF Reader実行前の確認
@@ -73,8 +73,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 以下は将来構想であり、現時点では未実装です。
 
-- File Reader（複数ファイル、ディレクトリ読み取り）
-- PDF Reader（複数ファイル、ディレクトリ読み取り）
+- PDF/Word/Excel/PowerPoint/Image/YouTube Readerの複数ファイル対応（File Readerと同じパターン、ディレクトリ丸ごとの読み取りは対象外）
 - Office連携（作成・編集）
 - メール連携
 - カレンダー連携

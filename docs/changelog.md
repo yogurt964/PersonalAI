@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.49
+
+開始内容:
+
+- File Readerの複数ファイル同時読み取りに対応
+- ユーザーの「複数ファイルを一気に読み取れる方がいい」との回答を受け、ディレクトリ丸ごとの読み取りは対象外とし、ユーザーが名指ししたファイルだけを対象にする設計で実装した
+- `core/file_path_extraction.py` に `extract_multiple_file_paths_from_text()` を追加。既存の3パターンを出現順に走査し、重複を除いて最大5件まで返す。既存の単一パス抽出は無変更
+- `core/file_reader_confirmation.py` の `FileReaderConfirmation` に `paths`（リスト）フィールドを追加。1件の場合はVer2.49以前と完全に同じ文言・挙動を維持し、2件以上の場合だけ複数ファイル用の確認文言に切り替える
+- `core/personal_ai.py` で複数パスの場合は1ファイルずつToolRunner経由で実行し、結果をまとめる。File Reader Adapter自体は単一ファイルのまま変更していない
+- 成功したファイルの本文を連結して1つのlast_read_documentとして記憶し、同一ターンでの要約・別ターンでの追加質問の両方で複数ファイルの内容を参照できるようにした
+- 一部のファイルが失敗した場合も、成功分は読み取りつつ失敗理由を個別に報告する
+- `scripts/check_ver2490.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2490.py` を追加
+- 外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
+- ユーザーからDBスキーマの追加変更（将来の忘却機能のため）を許可された。修復不可能な操作は引き続き都度確認する方針を確認した
+
 ## Version 2.48
 
 開始内容:

@@ -935,7 +935,20 @@ class PersonalAI:
         return result.message or None
 
     def execute_file_reader_tool_request_candidate(self, candidate):
-        """File Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        """File Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。
+
+        Ver2.49では、ユーザーが複数のファイルパスを列挙した場合、まとめて確認された
+        ファイルすべてを1件ずつToolRunner経由で読み取り、結果をまとめて返します。
+        （File Reader Adapter自体は単一ファイルのままで、ここでのオーケストレーションだけで対応します）
+        """
+        input_data = candidate.get("input_data") or {}
+        path = input_data.get("path")
+        paths = input_data.get("paths") or ([path] if path else [])
+        original_input = input_data.get("original_input", "")
+
+        if len(paths) > 1:
+            return self._execute_file_reader_multi(paths, original_input, candidate)
+
         request = self.build_tool_request_from_candidate(candidate)
         user_confirmed = bool(candidate.get("user_confirmed"))
         registry = getattr(self, "tool_registry", None)
@@ -961,9 +974,46 @@ class PersonalAI:
         self.last_file_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        original_input = (candidate.get("input_data") or {}).get("original_input", "")
-
         return self.build_file_reader_tool_response(run_result.result, original_input=original_input)
+
+    def _execute_file_reader_multi(self, paths, original_input, candidate):
+        """File Readerで複数ファイルを1件ずつ読み取り、結果をまとめます。"""
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        results = []
+
+        for path in paths:
+            request = ToolRequest(
+                tool_name="file_reader",
+                action="read_file",
+                input_data={"path": path, "original_input": original_input},
+                requires_permission=True,
+                risk_level="medium",
+            )
+            run_result = run_tool_request(
+                request,
+                registry=registry,
+                user_confirmed=user_confirmed,
+                logger=logger,
+            )
+            results.append((path, run_result.result))
+            self.last_tool_execution_record = run_result.execution_record
+
+        self.last_file_reader_tool_run_result = None
+        self.last_file_reader_tool_result = [result for _, result in results]
+
+        return self.build_multi_file_reader_tool_response(results, original_input=original_input)
 
     def handle_pending_pdf_reader_confirmation(self, user_input):
         """PDF Reader確認後の返答を扱います。"""
@@ -1479,6 +1529,64 @@ class PersonalAI:
             "本文プレビュー:\n"
             f"{formatted_preview}"
         )
+
+    def build_multi_file_reader_tool_response(self, results, original_input=""):
+        """複数ファイルのFile Reader ToolResultをまとめて、ユーザーに見せる返答へ変換します。
+
+        成功したファイルの本文を「[ファイル名]\\n本文」の形で連結し、1つの
+        last_read_documentとして記憶します。要約・質問などの目的が含まれていた場合は、
+        連結した本文をもとにQwenで直接答えます。
+        """
+        succeeded = []
+        failed = []
+
+        for path, result in results:
+            if getattr(result, "executed", False) and getattr(result, "success", False):
+                data = getattr(result, "data", {}) or {}
+                file_name = _clean_web_reader_display_text(data.get("file_name")) or path
+                text = data.get("text") or data.get("text_preview") or ""
+                succeeded.append((file_name, text))
+            else:
+                reason = (
+                    getattr(result, "error", None)
+                    or getattr(result, "message", "")
+                    or "原因は特定できませんでした。"
+                )
+                failed.append((path, reason))
+
+        if not succeeded:
+            failed_lines = "\n".join(f"- {path}: {reason}" for path, reason in failed)
+            return f"File Readerでの複数ファイル読み取りに失敗しました。\n\n{failed_lines}"
+
+        combined_text = "\n\n".join(f"[{file_name}]\n{text}" for file_name, text in succeeded)
+        combined_title = "、".join(file_name for file_name, _ in succeeded)
+
+        self.remember_last_read_document(
+            source_tool="file_reader",
+            title=combined_title,
+            location=None,
+            text=combined_text,
+        )
+
+        task_response = self.build_document_task_response_if_requested(
+            original_input,
+            combined_text,
+            combined_title,
+        )
+
+        summary_lines = "\n".join(f"- {file_name}" for file_name, _ in succeeded)
+        header = f"File Readerで{len(succeeded)}件のファイルを読み取りました。\n\n{summary_lines}"
+
+        if failed:
+            failed_lines = "\n".join(f"- {path}: {reason}" for path, reason in failed)
+            header += f"\n\n読み取れなかったファイル:\n{failed_lines}"
+
+        if task_response is not None:
+            return f"{header}\n\n{task_response}"
+
+        formatted_preview = _format_web_reader_preview(combined_text, title=combined_title)
+
+        return f"{header}\n\n本文プレビュー:\n{formatted_preview}"
 
     def build_pdf_reader_tool_response(self, result, original_input=""):
         """PDF ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。

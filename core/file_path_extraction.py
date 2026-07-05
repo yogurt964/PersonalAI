@@ -61,3 +61,51 @@ def extract_single_file_path_from_text(text, extensions):
         return bare_match.group(1)
 
     return None
+
+
+def _iter_pattern_matches(pattern, text):
+    for match in pattern.finditer(text):
+        groups = match.groups()
+        value = next((group for group in groups if group), None) if groups else match.group(0)
+
+        if value:
+            yield match.start(), match.end(), value
+
+
+def extract_multiple_file_paths_from_text(text, extensions, max_files=5):
+    """テキストから、ユーザーが名指しした複数ファイルのパスを、出現順に取り出します。
+
+    extract_single_file_path_from_textと同じ優先順位（引用符 > Windows絶対パス > 素のパス）で
+    パスを探し、既に見つかった範囲と重ならないものだけを拾います。
+    重複を除いて出現順に並べ、max_files件を超える場合は先頭からその件数までに切り詰めます。
+
+    ディレクトリ全体やワイルドカードには対応しません。ユーザーが明示的に列挙した
+    ファイルパスだけを対象にします。
+    """
+    if not text:
+        return []
+
+    text = str(text)
+    consumed_spans = []
+    ordered_paths = []
+    seen = set()
+
+    patterns = (
+        _build_quoted_pattern(extensions),
+        _build_windows_absolute_pattern(extensions),
+        _build_bare_pattern(extensions),
+    )
+
+    for pattern in patterns:
+        for start, end, value in _iter_pattern_matches(pattern, text):
+            if any(start < span_end and end > span_start for span_start, span_end in consumed_spans):
+                continue
+
+            consumed_spans.append((start, end))
+
+            if value not in seen:
+                seen.add(value)
+                ordered_paths.append((start, value))
+
+    ordered_paths.sort(key=lambda item: item[0])
+    return [path for _, path in ordered_paths][:max_files]

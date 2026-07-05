@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2490.py`
 - `scripts/check_ver2480.py`
 - `scripts/check_ver2470.py`
 - `scripts/check_ver2460.py`
@@ -122,6 +123,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.49では、`check_ver2490.py` でFile Readerの複数ファイル同時読み取りを確認する。
+このcheckは複数パス抽出、単一ファイル挙動の完全な非回帰（文言まで一致）、複数ファイルの確認・読み取り・結果統合、一部失敗時の挙動、同一ターン要約・別ターン追加質問での複数ファイル参照を確認する。
+実Webアクセス、DB書き込みはしない。
 Ver2.48では、`check_ver2480.py` でFile Readerの対応拡張子拡張を確認する。
 このcheckは新しい拡張子（csv/json/log/yaml/yml/xml/ini/toml/tsv）のパス抽出、実ファイルでの読み取り、インスタンスごとのallowed_extensions制限がパス抽出にも反映されること、PersonalAI結合フローを確認する。
 実Webアクセス、DB書き込みはしない。

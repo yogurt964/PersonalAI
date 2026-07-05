@@ -898,12 +898,19 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
+Ver2.x: PDF/Word/Excel/PowerPoint/Image/YouTube Readerへの複数ファイル対応（File Readerと同じパターン）
+Ver2.x: Reader結果全文のDB保存（追加的なスキーマ変更、許可済み）
+Ver2.x: Memory Candidate専用テーブル（追加的なスキーマ変更、許可済み）
+Ver2.x: Memory編集・削除UI（削除の実行は都度確認）
 Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 
+ユーザーから、DBスキーマの追加変更（将来の忘却機能実装のため）を許可された。ただし修復不可能な操作（データ削除等）は引き続き都度確認する。
+
 Ver2.47で、Image Reader最小実装（ローカルvision、qwen2.5vl:7b）を追加した。詳細は `docs/project_handoff.md` のVer2.47の項を参照。
 Ver2.48で、File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張した。詳細は `docs/project_handoff.md` のVer2.48の項を参照。
+Ver2.49で、File Readerの複数ファイル同時読み取りに対応した。詳細は `docs/project_handoff.md` のVer2.49の項を参照。
 
 Ver2.44で、confirmation intentの判定をハイブリッド方式（固定語彙優先＋不明時のみLLM）に更新した。詳細は `docs/project_handoff.md` のVer2.44の項を参照。
