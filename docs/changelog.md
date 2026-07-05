@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.30
+
+開始内容:
+
+- File Reader実機テストで見つかった「ワード」/「キーワード」誤判定バグを修正
+- ユーザーが実際にFile Readerを試した際、「テストキーワードを教えて」という質問が文書作成依頼として誤って扱われる不具合を発見
+- 原因は `core/input_analyzer.py` / `core/capability_manager.py` / `core/tool_request_builder.py` の文書作成判定が、単純な部分一致で「ワード」を検出しており、「キーワード」という単語自体に「ワード」が含まれるため誤爆していたこと
+- 3ファイルの該当キーワードを「ワード文書」「ワードで」「ワードファイル」というより具体的な語に修正し、「キーワード」との衝突を解消
+- 「Wordで文書を作って」のような実際のWord文書作成依頼は引き続き正しく検出されることを確認
+- File Reader自体のロジックは変更していない
+- `scripts/check_ver2300.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2300.py` を追加
+
 ## Version 2.29
 
 開始内容:

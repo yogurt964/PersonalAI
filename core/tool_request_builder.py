@@ -264,7 +264,9 @@ def _requires_document_creation(text, lowered_text, input_analysis):
         [
             "Word",
             "word",
-            "ワード",
+            "ワード文書",
+            "ワードで",
+            "ワードファイル",
             "Excel",
             "excel",
             "エクセル",

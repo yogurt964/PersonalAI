@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.29
+現在バージョン: Ver2.30
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -158,6 +158,7 @@ Ver2.26: LLM Intent Resolver設計
 Ver2.27: project_handoff.mdの現在バージョン固定依存の解消
 Ver2.28: OpenAI利用方針の見直し（月間上限額制・都度確認省略）
 Ver2.29: File Reader最小実装
+Ver2.30: 「ワード」/「キーワード」誤判定バグ修正
 ```
 
 ## 現在の主要ファイル
@@ -476,11 +477,20 @@ Ver2.29ではMemory Candidateへの接続は行わない（Web ReaderがVer2.0�
 自動チェックでは実際のユーザーファイルへはアクセスせず、一時テスト用ファイルのみを使う
 `scripts/run_ver2_checks.py` に `check_ver2290.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更、PDF/Image/YouTube Readerの実装はしない
+Ver2.30でFile Reader実機テスト中に見つかった「ワード」/「キーワード」誤判定バグを修正
+File Readerの実機テストで「テストキーワードを教えて」と聞くと文書作成モードに誤って入る不具合が見つかった
+原因は`core/input_analyzer.py`、`core/capability_manager.py`、`core/tool_request_builder.py`の文書作成判定が、単純な部分一致で「ワード」を検出しており、「キーワード」という単語自体に「ワード」が含まれるため誤爆していたこと
+3ファイルの該当キーワードを「ワード文書」「ワードで」「ワードファイル」という、より具体的な語に修正し、「キーワード」との衝突を解消した
+実際のWord文書作成依頼（例: 「Wordで文書を作って」）は引き続き正しく検出されることを確認した
+File Reader自体のロジックは変更していない
+`scripts/check_ver2300.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2300.py` を追加
 ```
 
-Ver2.29後の候補:
+Ver2.30後の候補:
 
 ```text
+Ver2.x: Reader結果をQwenでの応答に接続する（要約・追加質問への対応）
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

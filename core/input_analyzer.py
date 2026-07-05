@@ -123,7 +123,9 @@ class InputAnalyzer:
         create_document_keywords = [
             "Word",
             "word",
-            "ワード",
+            "ワード文書",
+            "ワードで",
+            "ワードファイル",
             "文書",
             "レポート",
             "資料",

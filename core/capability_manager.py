@@ -363,7 +363,9 @@ class CapabilityManager:
             [
                 "Word",
                 "word",
-                "ワード",
+                "ワード文書",
+                "ワードで",
+                "ワードファイル",
                 "Excel",
                 "excel",
                 "エクセル",
