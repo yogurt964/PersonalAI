@@ -1,36 +1,19 @@
-import re
 from pathlib import Path
 
+from core.file_path_extraction import extract_single_file_path_from_text
 from core.tool_adapter import ToolAdapter, ToolResult
 
 
 ALLOWED_EXTENSIONS = (".txt", ".md")
-
-# 引用符つき、またはスペースなしで拡張子まで含む1トークンのパスだけを対象にします。
-# ディレクトリ指定やワイルドカードは意図的にサポートしません。
-QUOTED_PATH_PATTERN = re.compile(r'"([^"]+\.(?:txt|md))"|\'([^\']+\.(?:txt|md))\'', re.IGNORECASE)
-BARE_PATH_PATTERN = re.compile(r'(\S+\.(?:txt|md))', re.IGNORECASE)
 
 
 def extract_file_path_from_text(text):
     """テキストから、ユーザーが指定した単一のtxt/mdファイルパスを取り出します。
 
     ディレクトリ全体やワイルドカードは対象にせず、拡張子で終わる1つのパスだけを拾います。
+    スペースを含むファイル名（例: Windowsの重複ダウンロードによる「 (1).txt」）にも対応します。
     """
-    if not text:
-        return None
-
-    quoted_match = QUOTED_PATH_PATTERN.search(str(text))
-
-    if quoted_match:
-        return quoted_match.group(1) or quoted_match.group(2)
-
-    bare_match = BARE_PATH_PATTERN.search(str(text))
-
-    if bare_match:
-        return bare_match.group(1)
-
-    return None
+    return extract_single_file_path_from_text(text, ALLOWED_EXTENSIONS)
 
 
 class FileReaderAdapter(ToolAdapter):

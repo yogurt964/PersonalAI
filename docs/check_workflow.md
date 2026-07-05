@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2330.py`
 - `scripts/check_ver2320.py`
 - `scripts/check_ver2310.py`
 - `scripts/check_ver2300.py`
@@ -106,6 +107,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.33では、`check_ver2330.py` でファイルパス抽出のスペース対応バグ修正を確認する。
+このcheckはスペースを含むWindows絶対パス（引用符なし）が正しく抽出されること、既存の引用符つきパス・単純パスの挙動が維持されていること、PersonalAI経由の読み取りが実際のバグ再現ケースで成功することを確認する。
+実Webアクセス、DB書き込み、実LLM実行はしない。
 Ver2.32では、`check_ver2320.py` でPDF Reader最小実装を確認する。
 このcheckは手書きで生成した実PDFバイナリでのpypdf抽出、fakeのPDF ReaderでのPersonalAI結合フロー（確認・実行・キャンセル・存在しないファイル・要約同時実行）、requirements.txtの内容を確認する。
 実Webアクセス、DB書き込み、実LLM実行はしない。

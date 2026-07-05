@@ -6,6 +6,7 @@ CONFIRMATION_INTENT_UNCLEAR = "unclear"
 WEB_READER_CONFIRMED_WORDS = [
     "はい",
     "うん",
+    "イエス",
     "いいよ",
     "いいです",
     "大丈夫",

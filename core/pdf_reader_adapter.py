@@ -1,32 +1,19 @@
-import re
 from pathlib import Path
 
+from core.file_path_extraction import extract_single_file_path_from_text
 from core.tool_adapter import ToolAdapter, ToolResult
 
 
-QUOTED_PDF_PATTERN = re.compile(r'"([^"]+\.pdf)"|\'([^\']+\.pdf)\'', re.IGNORECASE)
-BARE_PDF_PATTERN = re.compile(r'(\S+\.pdf)', re.IGNORECASE)
+PDF_EXTENSIONS = (".pdf",)
 
 
 def extract_pdf_path_from_text(text):
     """テキストから、ユーザーが指定した単一のPDFファイルパスを取り出します。
 
     ディレクトリ全体やワイルドカードは対象にせず、拡張子で終わる1つのパスだけを拾います。
+    スペースを含むファイル名（例: Windowsの重複ダウンロードによる「 (1).pdf」）にも対応します。
     """
-    if not text:
-        return None
-
-    quoted_match = QUOTED_PDF_PATTERN.search(str(text))
-
-    if quoted_match:
-        return quoted_match.group(1) or quoted_match.group(2)
-
-    bare_match = BARE_PDF_PATTERN.search(str(text))
-
-    if bare_match:
-        return bare_match.group(1)
-
-    return None
+    return extract_single_file_path_from_text(text, PDF_EXTENSIONS)
 
 
 class PDFReaderAdapter(ToolAdapter):

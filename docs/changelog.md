@@ -1,5 +1,20 @@
 # Changelog
 
+## Version 2.33
+
+開始内容:
+
+- ファイルパス抽出のスペース対応バグを修正
+- PDF Reader実機テストで、スペースを含むファイル名（Windowsの重複ダウンロードによる「curry_shop_reading_test (1).txt」形式）を指定すると、パスの一部（「(1).txt」）しか読み取られない不具合が見つかった
+- 原因は `core/file_reader_adapter.py` と `core/pdf_reader_adapter.py` が、スペースなしの1トークンだけを拾う正規表現（`\S+\.拡張子`）でパスを抽出していたこと
+- `core/file_path_extraction.py` を新規作成し、引用符つきパス・ドライブレター始まりのWindows絶対パス（スペースや括弧を含んでもよい）・スペースなしの単純パス、の優先順位で抽出する共通関数 `extract_single_file_path_from_text` を追加
+- `file_reader_adapter.py` / `pdf_reader_adapter.py` を、この共通関数を使うようリファクタリング（公開関数名・シグネチャは変更なし）し、同じバグを将来のWord/Excel/PowerPoint Readerで再発させない設計にした
+- `core/confirmation_intent.py` の `WEB_READER_CONFIRMED_WORDS` に「イエス」を追加（実機テストで確認できた語彙の抜け）
+- 実際のバグ再現ケース（スペースを含む絶対パス）でPersonalAI経由の読み取りが正しく動作することを確認した
+- `scripts/check_ver2330.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2330.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.32
 
 開始内容:
