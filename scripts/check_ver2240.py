@@ -154,7 +154,7 @@ def main():
             "1回の試行",
             "1日の上限",
             "1か月の上限",
-            "Ver2.x: Excel Reader（.xlsx）",
+            "Ver2.x: PowerPoint Reader（.pptx）",
         ],
     )
 

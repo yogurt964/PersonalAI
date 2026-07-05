@@ -1,5 +1,25 @@
 # Changelog
 
+## Version 2.37
+
+開始内容:
+
+- Excel Reader最小実装を追加
+- `requirements.txt` に `openpyxl` / `et-xmlfile` を追加
+- `core/excel_reader_adapter.py` を追加し、ユーザーが指定した単一の.xlsxファイルからopenpyxlでシート・セルのテキストを抽出できるようにした
+- 数式は評価値ではなく保存済みの計算済み値（data_only=True）を読み取り、マクロは実行しない
+- 古い.xls形式（バイナリ）や破損ファイルは読めたふりをせず正直に失敗を返す
+- Windowsで`load_workbook(read_only=True)`のファイルハンドルが残る問題を、明示的な`close()`で解消
+- `core/excel_reader_confirmation.py` を追加し、他Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` に `context_type="excel_reader"` を追加
+- `core/personal_ai.py` にExcel Readerを接続し、既存Reader群と同じ「確認 → ToolRunner経由実行 → 本文プレビュー、または要約・質問への直接回答」の流れを追加
+- ファイル名に「excel」を含むケース（例: excel_report (1).xlsx）でも、Ver2.36で修正済みのキーワード衝突対策により誤判定なく動作することを確認した
+- `scripts/check_ver2370.py` を追加
+- `scripts/check_ver2290.py` の「対応外拡張子」テストを、.xlsxが実装済みになったため.pptxに変更
+- `scripts/run_ver2_checks.py` に `check_ver2370.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+- 次はPowerPoint Reader（.pptx）を同じ設計パターンで追加予定
+
 ## Version 2.36
 
 開始内容:

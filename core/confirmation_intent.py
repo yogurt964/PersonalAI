@@ -93,6 +93,18 @@ GENERIC_CONFIRMATION_CONTEXTS = {
             "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
         ),
     },
+    "excel_reader": {
+        "confirm_action": "confirm_excel_reader",
+        "cancel_action": "cancel_excel_reader",
+        "unclear_action": "ask_excel_reader_confirmation_again",
+        "confirm_message": "Excel Reader実行を許可する意図として解釈しました。",
+        "cancel_message": "Excel Reader実行をキャンセルする意図として解釈しました。",
+        "unclear_message": (
+            "Excelファイルを読み取るか確認中です。\n"
+            "実行する場合は「はい」「いいよ」「お願いします」など、\n"
+            "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
+        ),
+    },
 }
 
 

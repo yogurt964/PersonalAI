@@ -44,7 +44,9 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - PDF Reader実行前の確認
 - Word Reader（単一の.docxファイル）
 - Word Reader実行前の確認
-- 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader共通）
+- Excel Reader（単一の.xlsxファイル）
+- Excel Reader実行前の確認
+- 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader共通）
 - 読み取り結果の整形表示
 - Reader結果をQwenでの応答に接続（読んで要約・読んだ内容への追加質問）
 - Reader結果からMemory Candidateを生成
@@ -68,7 +70,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - YouTube Reader
 - File Reader（txt/md以外の拡張子、複数ファイル、ディレクトリ読み取り）
 - PDF Reader（複数ファイル、ディレクトリ読み取り）
-- Excel / PowerPoint Reader
+- PowerPoint Reader
 - Office連携（作成・編集）
 - メール連携
 - カレンダー連携
@@ -88,7 +90,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 近い候補:
 
-- Excel Reader（.xlsx）
 - PowerPoint Reader（.pptx）
 - LLM Intent Resolverの段階的実装
 

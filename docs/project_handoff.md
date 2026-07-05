@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.36
+現在バージョン: Ver2.37
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -165,6 +165,7 @@ Ver2.33: ファイルパス抽出のスペース対応バグ修正
 Ver2.34: last_read_documentの誤解答防止
 Ver2.35: 将来の記憶アーキテクチャ方針をdocs化
 Ver2.36: Word Reader最小実装
+Ver2.37: Excel Reader最小実装
 ```
 
 ## 現在の主要ファイル
@@ -549,12 +550,25 @@ Ver2.30の「ワード」/「キーワード」衝突と同種の問題であっ
 `scripts/check_ver2290.py` の「対応外拡張子」テストを、.docxが実装済みになったため.xlsxに変更
 `scripts/run_ver2_checks.py` に `check_ver2360.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.37でExcel Reader最小実装を追加
+`requirements.txt` に `openpyxl` / `et-xmlfile` を追加
+`core/excel_reader_adapter.py` を追加し、ユーザーが指定した単一の.xlsxファイルからopenpyxlでシート・セルのテキストを抽出できるようにした
+数式は評価値ではなく保存済みの計算済み値（data_only=True）を読み取り、マクロは実行しない
+古い.xls形式（バイナリ）や破損ファイルは読めたふりをせず正直に失敗を返す
+Windowsで`load_workbook(read_only=True)`のファイルハンドルが残る問題を、明示的な`close()`で解消
+`core/excel_reader_confirmation.py` を追加し、他Reader同様に実行前確認を必須にした
+`core/confirmation_intent.py` に `context_type="excel_reader"` を追加
+`core/personal_ai.py` にExcel Readerを接続し、既存Reader群と同じ流れを追加
+ファイル名に「excel」を含むケース（例: excel_report (1).xlsx）でも、Ver2.36で修正済みのキーワード衝突対策により誤判定なく動作することを確認した
+`scripts/check_ver2370.py` を追加
+`scripts/check_ver2290.py` の「対応外拡張子」テストを、.xlsxが実装済みになったため.pptxに変更
+`scripts/run_ver2_checks.py` に `check_ver2370.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.36後の候補（Excel/PowerPointを順次追加予定）:
+Ver2.37後の候補（PowerPointを追加予定）:
 
 ```text
-Ver2.x: Excel Reader（.xlsx）
 Ver2.x: PowerPoint Reader（.pptx）
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
 Ver2.x: Image Reader

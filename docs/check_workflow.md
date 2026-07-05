@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2370.py`
 - `scripts/check_ver2360.py`
 - `scripts/check_ver2350.py`
 - `scripts/check_ver2340.py`
@@ -110,6 +111,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.37では、`check_ver2370.py` でExcel Reader最小実装を確認する。
+このcheckはopenpyxlで実際に生成した.xlsxファイルでの実テキスト抽出、fakeのLLM関数を使ったPersonalAI結合フロー、ファイル名に「excel」を含むケースで文書作成判定と衝突しないこと、requirements.txtの内容を確認する。
+実Webアクセス、DB書き込み、実LLM実行はしない。
 Ver2.36では、`check_ver2360.py` でWord Reader最小実装を確認する。
 このcheckはpython-docxで実際に生成した.docxファイルでの実テキスト抽出、fakeのLLM関数を使ったPersonalAI結合フロー、ファイル名に「word」を含むケースで文書作成判定と衝突しないこと、requirements.txtの内容を確認する。
 実Webアクセス、DB書き込み、実LLM実行はしない。
