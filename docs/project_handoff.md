@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.33
+現在バージョン: Ver2.34
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -162,6 +162,7 @@ Ver2.30: 「ワード」/「キーワード」誤判定バグ修正
 Ver2.31: Reader結果をQwenでの応答に接続
 Ver2.32: PDF Reader最小実装
 Ver2.33: ファイルパス抽出のスペース対応バグ修正
+Ver2.34: last_read_documentの誤解答防止
 ```
 
 ## 現在の主要ファイル
@@ -518,6 +519,14 @@ PDF Reader実機テストで、スペースを含むファイル名（Windowsの
 実際のバグ再現ケース（スペースを含む絶対パス）でPersonalAI経由の読み取りが正しく動作することを確認した
 `scripts/check_ver2330.py` を追加
 `scripts/run_ver2_checks.py` に `check_ver2330.py` を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.34でlast_read_documentの誤解答を防止
+実機テストで、2件目のファイル（PDF）を読んだ後に1件目のファイル（テキスト）の内容を聞くと、「他のファイルには記載されていません」と誤って断定する挙動が見つかった
+`last_read_document`は直近1件のみを保持する設計（Ver2.31時点の既知の制約）のため、以前のファイルの本文はもうLLMに渡っていないが、そのことをLLM側に明示していなかったため、不正確な断定応答になっていた
+`build_last_read_document_context()` のsystem message文言を修正し、「これより前に読み取った別のファイルの内容は、この会話ではもう保持していません」「別のファイルにも書かれていないと断定しないでください」を明記
+実際のバグ再現ケース（2件連続で読み取り、1件目について質問）で、context messageが正しく警告することを確認した
+`scripts/check_ver2340.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2340.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
