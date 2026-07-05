@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2250.py`
 - `scripts/check_ver2240.py`
 - `scripts/check_ver2230.py`
 - `scripts/check_ver2220.py`
@@ -98,6 +99,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.25では、`check_ver2250.py` でClaude Code自走運用モードの整備を確認する。
+このcheckは `CLAUDE.md` の存在と必須語句、AGENTS.md / MIGRATION.md / docs/claude_code_start.mdからの `CLAUDE.md` 参照、README.mdに固定Ver表記が残っていないこと、project_handoff.md / changelog.mdの内容、run_ver2_checks.pyへの登録を確認する。
+実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.24では、`check_ver2240.py` でClaude Code引継ぎ確認結果のdocs反映を確認する。
 このcheckはdocs/claude_code_start.md、MIGRATION.md、AGENTS.md、README.md、project_handoff.md、check_workflow.md、changelog.md、portfolio_readme_policy.md、run_ver2_checks.pyを確認し、MIGRATION.mdの古いロードマップ表記が残っていないこと、Qwen / OpenAIの利用方針が反映されていることも確認する。
 実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。

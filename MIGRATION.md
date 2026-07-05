@@ -16,6 +16,14 @@ docs/development_workflow.md は開発方針の詳細である。
 docs/claude_code_start.md は Claude Code 移行時に最初に読む短い開始手順である。
 MIGRATION.md は Claude Code / Cursor など別環境へ移行するための包括的な引継書である。
 
+Claude Codeが日常的にVer単位で自走開発するときの入口は `CLAUDE.md` である。
+`CLAUDE.md` / `AGENTS.md` / `MIGRATION.md` / `README.md` の役割分担は以下の通りである。
+
+- `CLAUDE.md`: Claude Code向けの短い運用ルール
+- `AGENTS.md`: AIエージェント共通の運用ルール
+- `MIGRATION.md`: 移行用の包括的な引継ぎ
+- `README.md`: GitHub閲覧者・ポートフォリオ向け概要
+
 ## 2. プロジェクト概要
 
 ```text
@@ -867,8 +875,8 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.25: LLM Intent Resolver設計
-Ver2.26: File Reader最小実装
+Ver2.26: LLM Intent Resolver設計
+Ver2.27: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

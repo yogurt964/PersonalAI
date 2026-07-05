@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.24
+現在バージョン: Ver2.25
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -153,6 +153,7 @@ Ver2.21: Claude Code移行用MIGRATION.md
 Ver2.22: READMEのポートフォリオ見せ方強化
 Ver2.23: Claude Code移行準備パッケージ
 Ver2.24: Claude Code引継ぎ確認結果の反映
+Ver2.25: Claude Code自走運用モード整備
 ```
 
 ## 現在の主要ファイル
@@ -420,13 +421,21 @@ MIGRATION.md / README.md / docs/claude_code_start.md にQwen / OpenAIの利用�
 `scripts/check_ver2240.py` を追加
 `scripts/run_ver2_checks.py` に `check_ver2240.py` を追加
 新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.25でClaude Code自走運用モードを整備
+`CLAUDE.md` を新規作成し、Claude Code向けの短い運用ルール（Project / Read first / Current development mode / User preferences / Autonomous development rules / Confirmation rules / Cost rules / Failure handling / Checks / Git rules / Report format / Next version policy）を整理
+`AGENTS.md` / `docs/claude_code_start.md` / `MIGRATION.md` から `CLAUDE.md` への参照を追加し、CLAUDE.md / AGENTS.md / MIGRATION.md / README.mdの役割分担を整理
+README.mdの「現在はVer2.23です。」という固定Ver表記を、`docs/project_handoff.md` / `docs/changelog.md` を参照する表現に変更
+README.mdの固定Ver番号にひもづいていた過去check（check_ver2190.py、check_ver2200.py、check_ver2210.py、check_ver2230.py）を、README内の固定文言ではなくdocs/project_handoff.md参照に緩和
+`scripts/check_ver2250.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2250.py` を追加
+新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.24後の候補:
+Ver2.25後の候補:
 
 ```text
-Ver2.25: LLM Intent Resolver設計
-Ver2.26: File Reader最小実装
+Ver2.26: LLM Intent Resolver設計
+Ver2.27: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

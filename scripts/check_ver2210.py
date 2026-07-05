@@ -238,7 +238,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.24",
+            "現在バージョン: Ver2.25",
             "Ver2.21: Claude Code移行用MIGRATION.md",
             "MIGRATION.md",
             "Claude Code",
@@ -305,7 +305,7 @@ def main():
         [
             "MIGRATION.md",
             "開発環境移行",
-            "現在はVer2.23です。",
+            "docs/project_handoff.md",
             "将来的に扱いたい領域",
             "資料要約",
             "創作支援",

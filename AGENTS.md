@@ -62,6 +62,15 @@ Never physically delete Memory without explicit user approval.
 Do not send API keys, personal information, or confidential information outside the local environment.
 課金, contract, and purchase actions always require confirmation.
 
+## Claude Code entrypoint
+
+Claude Code should start from `CLAUDE.md`.
+
+`CLAUDE.md` is the short operational entrypoint.
+`MIGRATION.md` is the full handoff.
+`README.md` is the portfolio-facing overview.
+`docs/claude_code_start.md` is the migration start guide.
+
 ## User adaptation policy
 
 - For Claude Code migration, start from `docs/claude_code_start.md`, then read `MIGRATION.md` and `README.md`.

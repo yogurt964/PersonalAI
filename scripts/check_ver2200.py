@@ -325,7 +325,7 @@ def main():
         "project_handoff.md",
         docs / "project_handoff.md",
         [
-            "現在バージョン: Ver2.24",
+            "現在バージョン: Ver2.25",
             "Ver2.20: Memory検索の最小実用化",
             "core/memory_search.py",
             "覚えてる？",
@@ -358,7 +358,7 @@ def main():
             "保存済みMemoryを簡易キーワード検索する基礎",
             "ベクトル検索",
             "LLMによる高度な文脈検索",
-            "現在はVer2.23です。",
+            "docs/project_handoff.md",
         ],
     )
 

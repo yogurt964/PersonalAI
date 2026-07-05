@@ -343,10 +343,10 @@ PersonalAIは、就活ポートフォリオとして使うことも想定して�
 
 ローカルLLM、長期記憶、Web Reader、Memory Candidate、安全な確認フロー、GitHubでの段階的開発履歴を通じて、AIエージェントを設計・実装・改善するプロセスを示すことを目的としています。
 
-現在はVer2.23です。
+現在の詳細な開発バージョンは `docs/project_handoff.md` と `docs/changelog.md` を参照してください。
 
 Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索、Claude Code移行用MIGRATION.mdまで整備済みです。
-Claude Code移行時の開始手順として `docs/claude_code_start.md` も追加済みです。
+Claude Code移行時の開始手順として `docs/claude_code_start.md` も、Claude Code自走運用の入口として `CLAUDE.md` も追加済みです。
 ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
 
 Mermaid図、デモ導線、技術的に工夫した点をREADME上で確認できるようにし、GitHub閲覧者や面接官に開発意図が伝わりやすい構成にしています。

@@ -139,7 +139,7 @@ def main():
         readme,
         [
             "docs/claude_code_start.md",
-            "現在はVer2.23です。",
+            "docs/project_handoff.md",
         ],
     )
 
@@ -178,7 +178,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.24",
+            "現在バージョン: Ver2.25",
             "Ver2.23: Claude Code移行準備パッケージ",
             "docs/claude_code_start.md",
             "Claude Code",

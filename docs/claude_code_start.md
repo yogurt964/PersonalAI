@@ -4,9 +4,15 @@
 
 このドキュメントは、Claude CodeがPersonalAI開発を引き継ぐための開始手順書である。
 
+Claude Code移行後の日常的な開発では、まず `CLAUDE.md` を読む。
+`CLAUDE.md` はClaude Code向けの短い運用ルールであり、Ver単位で自走開発するときの入口である。
+このファイル（`docs/claude_code_start.md`）は、Claude Codeへ初めて移行するときの一回限りの開始ガイドである。
+
 詳細な移行情報は `MIGRATION.md` を読む。
 開発方針は `AGENTS.md` と `docs/development_workflow.md` を読む。
 GitHub閲覧者向けの説明は `README.md` を読む。
+
+継続開発では `CLAUDE.md` と `docs/project_handoff.md` を中心に見る。
 
 このファイルは最初の入口であり、唯一の仕様書ではない。
 

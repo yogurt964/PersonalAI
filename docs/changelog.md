@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.25
+
+開始内容:
+
+- Claude Code自走運用モードを整備
+- `CLAUDE.md` を新規作成し、Claude Code向けの短い運用ルール（Project / Read first / Current development mode / User preferences / Autonomous development rules / Confirmation rules / Cost rules / Failure handling / Checks / Git rules / Report format / Next version policy）を整理
+- `AGENTS.md` に「Claude Code entrypoint」を追加し、`CLAUDE.md` を最初に読む入口として明記
+- `docs/claude_code_start.md` を更新し、初回移行時は本ファイル、継続開発では `CLAUDE.md` / `docs/project_handoff.md` を中心に見る方針を明記
+- `MIGRATION.md` に `CLAUDE.md` / `AGENTS.md` / `MIGRATION.md` / `README.md` の役割分担を追記
+- README固定Ver表記問題を解消:READMEの「現在はVer2.23です。」という固定文言を、`docs/project_handoff.md` / `docs/changelog.md` を参照する表現に変更
+- README内の固定Ver番号を厳密チェックしていた過去check（`check_ver2190.py` / `check_ver2200.py` / `check_ver2210.py` / `check_ver2230.py`）を、README内固定文言ではなく `docs/project_handoff.md` 参照へ緩和し、今後のバージョン更新で過去checkが壊れにくいようにした
+- `docs/project_handoff.md` の現在バージョンをVer2.25に更新し、次候補をVer2.26以降にそろえる
+- `scripts/check_ver2250.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2250.py` を追加
+- LLM Intent Resolver、File Reader、PDF Reader、Image Reader、YouTube Reader、Office/メール/カレンダー連携、DBスキーマ変更、Memory保存・検索ロジック変更、OpenAI/Claude/Gemini接続、GUI、PC操作は今回実装しない方針を維持
+
 ## Version 2.24
 
 開始内容:
