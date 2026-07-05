@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.39
+現在バージョン: Ver2.40
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -168,6 +168,7 @@ Ver2.36: Word Reader最小実装
 Ver2.37: Excel Reader最小実装
 Ver2.38: Excel Readerに数値列の自動集計を追加
 Ver2.39: CLIに考え中表示を追加
+Ver2.40: 応答の正直さ・Qwen性能・OpenAIエスカレーション方針をdocs化
 ```
 
 ## 現在の主要ファイル
@@ -586,11 +587,29 @@ Ver2.39でCLIに考え中表示を追加
 コード実装は表示追加のみで、応答生成ロジックやタイムアウト処理は変更していない
 ```
 
-Ver2.39後の候補（PowerPointを追加予定）:
+Ver2.40では、応答の正直さ・Qwen性能・OpenAIエスカレーション方針をdocs化した。
+
+実機テストで、Excel Reader経由の質問に対し、①事前計算済みの正しい集計値があるのに受け流すだけで使わない、②未実装のグループ集計（列をまたぐ集計・比較）をQwenが自己流に計算し、検証されていない値を断定的に答えてしまう、という2つの問題が見つかった。
+これはQwen（qwen3:8b）の推論能力・応答の一貫性に起因する部分が大きいと判断し、Ver2.40では修正しない（ユーザーの了承済み）。
+
+ユーザーから、将来的に以下を実現してほしいという方針を確認した。
+
+```text
+分からない・自信がない場合は断定せず正直に「分からない」と言えるようにする
+Qwen（ローカルモデル）自体の性能・推論能力を向上させる方法を検討する
+Qwenで精度が不十分な場合に、必要に応じてOpenAIを頼れるようにする（月間上限額制の実装を含む）
+```
+
+`docs/conversation_quality.md`に「データ分析・集計の正直さ」節を追加し、`MIGRATION.md`の「Qwen / OpenAIの利用方針」に「OpenAIエスカレーションの将来トリガー」節を追加した。
+これらは会話品質・ModelRouter・OpenAI接続に関わる本格的な設計判断であり、個別のReader実装ではなくPersonalAI本体の応答品質・モデル選択の仕組みとして扱う。着手する場合はあらためてユーザーと設計を確認する。
+コード実装は行っていない。
+
+Ver2.40後の候補（PowerPointを追加予定）:
 
 ```text
 Ver2.x: PowerPoint Reader（.pptx）
 Ver2.x: Excel Readerのグループ集計対応（店舗ごとの合計比較など）
+Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader
