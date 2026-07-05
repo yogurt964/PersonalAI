@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.50
+
+開始内容:
+
+- 複数ファイル対応をPDF/Word/Excel/PowerPoint/Image Readerへ展開
+- Ver2.49で確立したFile Readerの複数ファイルパターンを、他5つのReaderにも展開した（YouTube Readerは対象外）
+- `core/{pdf,word,excel,pptx,image}_reader_confirmation.py` それぞれに `paths` フィールドを追加。単一ファイルの場合はVer2.50以前と完全に同じ文言・挙動を維持する
+- `core/personal_ai.py` に複数パス時のオーケストレーション用ヘルパーを5つ追加。各Reader Adapter自体は単一ファイルのまま変更していない
+- `build_multi_X_reader_tool_response()` 5つを共通処理 `_build_multi_reader_tool_response()` にまとめた（File Reader実装も含めて6 Reader共通化）。Image Readerだけ文言（解析/画像/説明）が異なるため個別指定できるようにした
+- `scripts/check_ver2500.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2500.py` を追加
+- 外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
+
 ## Version 2.49
 
 開始内容:

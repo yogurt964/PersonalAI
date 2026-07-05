@@ -1,8 +1,12 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 from core.confirmation_intent import resolve_confirmation_intent
-from core.image_reader_adapter import extract_image_path_from_text
+from core.image_reader_adapter import IMAGE_EXTENSIONS
+from core.file_path_extraction import extract_multiple_file_paths_from_text
+
+
+MAX_FILES_PER_REQUEST = 5
 
 
 @dataclass
@@ -15,12 +19,14 @@ class ImageReaderConfirmation:
     action: Optional[str]
     message: str
     reason: str
+    paths: List[str] = field(default_factory=list)
 
     def to_dict(self):
         """checkやデバッグで扱いやすいdict形式にします。"""
         return {
             "needs_confirmation": self.needs_confirmation,
             "path": self.path,
+            "paths": list(self.paths),
             "tool_name": self.tool_name,
             "action": self.action,
             "message": self.message,
@@ -55,28 +61,50 @@ def build_image_reader_confirmation(user_input):
     """ユーザー入力からImage Reader実行前の確認メッセージを作ります。
 
     画像以外や、パスが見つからない場合は確認対象にしません。
+    複数の画像パスが列挙された場合は、まとめて確認しまとめて解析します
+    （ディレクトリ丸ごとの読み取りには対応しません）。
     この関数はローカルファイルへ一切アクセスせず、メッセージだけを作ります。
     """
-    path = extract_image_path_from_text(user_input)
+    paths = extract_multiple_file_paths_from_text(user_input, IMAGE_EXTENSIONS, max_files=MAX_FILES_PER_REQUEST)
 
-    if not path:
+    if not paths:
         return ImageReaderConfirmation(
             needs_confirmation=False,
             path=None,
+            paths=[],
             tool_name=None,
             action=None,
             message="",
             reason="読み取り対象の画像パスが見つかりませんでした。",
         )
 
+    if len(paths) == 1:
+        return ImageReaderConfirmation(
+            needs_confirmation=True,
+            path=paths[0],
+            paths=paths,
+            tool_name="image_reader",
+            action="read_image",
+            message=(
+                "この画像をImage Reader（ローカルvisionモデル）で解析してもよいですか？\n"
+                f"{paths[0]}\n\n"
+                "ローカルファイルへアクセスするため、実行前に確認が必要です。"
+                "現時点では外部（OpenAI等）への画像送信は行いません。"
+            ),
+            reason="ローカルファイルアクセスにはユーザー確認が必要です。",
+        )
+
+    path_list_text = "\n".join(paths)
+
     return ImageReaderConfirmation(
         needs_confirmation=True,
-        path=path,
+        path=paths[0],
+        paths=paths,
         tool_name="image_reader",
-        action="read_image",
+        action="read_images",
         message=(
-            "この画像をImage Reader（ローカルvisionモデル）で解析してもよいですか？\n"
-            f"{path}\n\n"
+            f"次の{len(paths)}件の画像をImage Reader（ローカルvisionモデル）で解析してもよいですか？\n"
+            f"{path_list_text}\n\n"
             "ローカルファイルへアクセスするため、実行前に確認が必要です。"
             "現時点では外部（OpenAI等）への画像送信は行いません。"
         ),
@@ -139,13 +167,15 @@ def resolve_image_reader_confirmation_response(user_input, pending_confirmation=
 def build_image_reader_tool_request_candidate(pending_confirmation):
     """将来の実行に渡せる候補情報だけをdictで作ります。"""
     path = _get_value(pending_confirmation, "path")
+    paths = _get_value(pending_confirmation, "paths") or ([path] if path else [])
     original_input = _get_value(pending_confirmation, "original_input", "")
 
     return {
         "tool_name": "image_reader",
-        "action": "read_image",
+        "action": "read_image" if len(paths) <= 1 else "read_images",
         "input_data": {
             "path": path,
+            "paths": paths,
             "original_input": original_input,
         },
         "risk_level": "medium",

@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.49
+現在バージョン: Ver2.50
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -178,6 +178,7 @@ Ver2.46: SYSTEM_PROMPTの日本語指示に、明示指定があれば他言語�
 Ver2.47: Image Reader最小実装（ローカルvision、qwen2.5vl:7b）
 Ver2.48: File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張
 Ver2.49: File Readerの複数ファイル同時読み取りに対応
+Ver2.50: 複数ファイル対応をPDF/Word/Excel/PowerPoint/Image Readerへ展開
 ```
 
 ## 現在の主要ファイル
@@ -779,10 +780,28 @@ PDF/Word/Excel/PowerPoint/Image/YouTube Readerへの複数ファイル対応は�
 ユーザーから、DBスキーマの追加変更（将来の忘却機能実装のため）を許可された。ただし修復不可能な操作（データ削除等）は引き続き都度確認する方針。
 これにより「Reader結果全文のDB保存」「Memory Candidate専用テーブル」「Memory編集・削除UI」（削除自体は都度確認）が着手可能になった。
 
-Ver2.49後の候補:
+Ver2.50でPDF/Word/Excel/PowerPoint/Image Readerに複数ファイル対応を展開
 
 ```text
-Ver2.x: PDF/Word/Excel/PowerPoint/Image/YouTube Readerへの複数ファイル対応（File Readerと同じパターン）
+Ver2.49で確立したFile Readerの複数ファイルパターンを、PDF/Word/Excel/PowerPoint/Image Readerにも展開した
+（YouTube ReaderはURLの性質が異なるため対象外。必要であれば別途検討する）
+core/{pdf,word,excel,pptx,image}_reader_confirmation.py それぞれに paths（リスト）フィールドを追加。
+単一ファイルの場合はVer2.50以前と完全に同じ文言・挙動を維持し、2件以上の場合だけ複数ファイル用の
+確認文言・action（read_pdfs/read_words/read_excels/read_pptxs/read_images）に切り替える
+core/personal_ai.py の execute_X_reader_tool_request_candidate() 5つに、複数パス時の
+_execute_X_reader_multi() ヘルパーを追加（各Reader Adapter自体は単一ファイルのまま変更していない）
+build_multi_X_reader_tool_response() 5つは、共通処理 _build_multi_reader_tool_response() に
+まとめた（File Readerの実装も含めて6 Reader共通化）。Image Readerだけ文言（「解析」「画像」「説明」）が
+異なるため、item_label/success_verb/failure_verb/failure_intro/content_labelを個別指定できるようにした
+scripts/check_ver2500.py を追加（5 Reader全ての単一ファイル非回帰、複数ファイル確認、
+Word/Imageでの実際の複数ファイル読み取り・結合・要約・一部失敗を確認）
+scripts/run_ver2_checks.py に check_ver2500.py を追加
+外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
+```
+
+Ver2.50後の候補:
+
+```text
 Ver2.x: Reader結果全文のDB保存（追加的なスキーマ変更、許可済み）
 Ver2.x: Memory Candidate専用テーブル（追加的なスキーマ変更、許可済み）
 Ver2.x: Memory編集・削除UI（削除の実行は都度確認）

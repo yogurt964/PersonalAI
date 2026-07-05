@@ -1042,6 +1042,14 @@ class PersonalAI:
 
     def execute_pdf_reader_tool_request_candidate(self, candidate):
         """PDF Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        input_data = candidate.get("input_data") or {}
+        path = input_data.get("path")
+        paths = input_data.get("paths") or ([path] if path else [])
+        original_input = input_data.get("original_input", "")
+
+        if len(paths) > 1:
+            return self._execute_pdf_reader_multi(paths, original_input, candidate)
+
         request = self.build_tool_request_from_candidate(candidate)
         user_confirmed = bool(candidate.get("user_confirmed"))
         registry = getattr(self, "tool_registry", None)
@@ -1067,9 +1075,46 @@ class PersonalAI:
         self.last_pdf_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        original_input = (candidate.get("input_data") or {}).get("original_input", "")
-
         return self.build_pdf_reader_tool_response(run_result.result, original_input=original_input)
+
+    def _execute_pdf_reader_multi(self, paths, original_input, candidate):
+        """PDF Readerで複数ファイルを1件ずつ読み取り、結果をまとめます。"""
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        results = []
+
+        for path in paths:
+            request = ToolRequest(
+                tool_name="pdf_reader",
+                action="read_pdf",
+                input_data={"path": path, "original_input": original_input},
+                requires_permission=True,
+                risk_level="medium",
+            )
+            run_result = run_tool_request(
+                request,
+                registry=registry,
+                user_confirmed=user_confirmed,
+                logger=logger,
+            )
+            results.append((path, run_result.result))
+            self.last_tool_execution_record = run_result.execution_record
+
+        self.last_pdf_reader_tool_run_result = None
+        self.last_pdf_reader_tool_result = [result for _, result in results]
+
+        return self.build_multi_pdf_reader_tool_response(results, original_input=original_input)
 
     def handle_pending_word_reader_confirmation(self, user_input):
         """Word Reader確認後の返答を扱います。"""
@@ -1098,6 +1143,14 @@ class PersonalAI:
 
     def execute_word_reader_tool_request_candidate(self, candidate):
         """Word Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        input_data = candidate.get("input_data") or {}
+        path = input_data.get("path")
+        paths = input_data.get("paths") or ([path] if path else [])
+        original_input = input_data.get("original_input", "")
+
+        if len(paths) > 1:
+            return self._execute_word_reader_multi(paths, original_input, candidate)
+
         request = self.build_tool_request_from_candidate(candidate)
         user_confirmed = bool(candidate.get("user_confirmed"))
         registry = getattr(self, "tool_registry", None)
@@ -1123,9 +1176,46 @@ class PersonalAI:
         self.last_word_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        original_input = (candidate.get("input_data") or {}).get("original_input", "")
-
         return self.build_word_reader_tool_response(run_result.result, original_input=original_input)
+
+    def _execute_word_reader_multi(self, paths, original_input, candidate):
+        """Word Readerで複数ファイルを1件ずつ読み取り、結果をまとめます。"""
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        results = []
+
+        for path in paths:
+            request = ToolRequest(
+                tool_name="word_reader",
+                action="read_word",
+                input_data={"path": path, "original_input": original_input},
+                requires_permission=True,
+                risk_level="medium",
+            )
+            run_result = run_tool_request(
+                request,
+                registry=registry,
+                user_confirmed=user_confirmed,
+                logger=logger,
+            )
+            results.append((path, run_result.result))
+            self.last_tool_execution_record = run_result.execution_record
+
+        self.last_word_reader_tool_run_result = None
+        self.last_word_reader_tool_result = [result for _, result in results]
+
+        return self.build_multi_word_reader_tool_response(results, original_input=original_input)
 
     def handle_pending_excel_reader_confirmation(self, user_input):
         """Excel Reader確認後の返答を扱います。"""
@@ -1154,6 +1244,14 @@ class PersonalAI:
 
     def execute_excel_reader_tool_request_candidate(self, candidate):
         """Excel Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        input_data = candidate.get("input_data") or {}
+        path = input_data.get("path")
+        paths = input_data.get("paths") or ([path] if path else [])
+        original_input = input_data.get("original_input", "")
+
+        if len(paths) > 1:
+            return self._execute_excel_reader_multi(paths, original_input, candidate)
+
         request = self.build_tool_request_from_candidate(candidate)
         user_confirmed = bool(candidate.get("user_confirmed"))
         registry = getattr(self, "tool_registry", None)
@@ -1179,9 +1277,46 @@ class PersonalAI:
         self.last_excel_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        original_input = (candidate.get("input_data") or {}).get("original_input", "")
-
         return self.build_excel_reader_tool_response(run_result.result, original_input=original_input)
+
+    def _execute_excel_reader_multi(self, paths, original_input, candidate):
+        """Excel Readerで複数ファイルを1件ずつ読み取り、結果をまとめます。"""
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        results = []
+
+        for path in paths:
+            request = ToolRequest(
+                tool_name="excel_reader",
+                action="read_excel",
+                input_data={"path": path, "original_input": original_input},
+                requires_permission=True,
+                risk_level="medium",
+            )
+            run_result = run_tool_request(
+                request,
+                registry=registry,
+                user_confirmed=user_confirmed,
+                logger=logger,
+            )
+            results.append((path, run_result.result))
+            self.last_tool_execution_record = run_result.execution_record
+
+        self.last_excel_reader_tool_run_result = None
+        self.last_excel_reader_tool_result = [result for _, result in results]
+
+        return self.build_multi_excel_reader_tool_response(results, original_input=original_input)
 
     def handle_pending_pptx_reader_confirmation(self, user_input):
         """PowerPoint Reader確認後の返答を扱います。"""
@@ -1210,6 +1345,14 @@ class PersonalAI:
 
     def execute_pptx_reader_tool_request_candidate(self, candidate):
         """PowerPoint Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        input_data = candidate.get("input_data") or {}
+        path = input_data.get("path")
+        paths = input_data.get("paths") or ([path] if path else [])
+        original_input = input_data.get("original_input", "")
+
+        if len(paths) > 1:
+            return self._execute_pptx_reader_multi(paths, original_input, candidate)
+
         request = self.build_tool_request_from_candidate(candidate)
         user_confirmed = bool(candidate.get("user_confirmed"))
         registry = getattr(self, "tool_registry", None)
@@ -1235,9 +1378,46 @@ class PersonalAI:
         self.last_pptx_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        original_input = (candidate.get("input_data") or {}).get("original_input", "")
-
         return self.build_pptx_reader_tool_response(run_result.result, original_input=original_input)
+
+    def _execute_pptx_reader_multi(self, paths, original_input, candidate):
+        """PowerPoint Readerで複数ファイルを1件ずつ読み取り、結果をまとめます。"""
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        results = []
+
+        for path in paths:
+            request = ToolRequest(
+                tool_name="pptx_reader",
+                action="read_pptx",
+                input_data={"path": path, "original_input": original_input},
+                requires_permission=True,
+                risk_level="medium",
+            )
+            run_result = run_tool_request(
+                request,
+                registry=registry,
+                user_confirmed=user_confirmed,
+                logger=logger,
+            )
+            results.append((path, run_result.result))
+            self.last_tool_execution_record = run_result.execution_record
+
+        self.last_pptx_reader_tool_run_result = None
+        self.last_pptx_reader_tool_result = [result for _, result in results]
+
+        return self.build_multi_pptx_reader_tool_response(results, original_input=original_input)
 
     def handle_pending_youtube_reader_confirmation(self, user_input):
         """YouTube Reader確認後の返答を扱います。"""
@@ -1322,6 +1502,14 @@ class PersonalAI:
 
     def execute_image_reader_tool_request_candidate(self, candidate):
         """Image Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        input_data = candidate.get("input_data") or {}
+        path = input_data.get("path")
+        paths = input_data.get("paths") or ([path] if path else [])
+        original_input = input_data.get("original_input", "")
+
+        if len(paths) > 1:
+            return self._execute_image_reader_multi(paths, original_input, candidate)
+
         request = self.build_tool_request_from_candidate(candidate)
         user_confirmed = bool(candidate.get("user_confirmed"))
         registry = getattr(self, "tool_registry", None)
@@ -1347,9 +1535,46 @@ class PersonalAI:
         self.last_image_reader_tool_result = run_result.result
         self.last_tool_execution_record = run_result.execution_record
 
-        original_input = (candidate.get("input_data") or {}).get("original_input", "")
-
         return self.build_image_reader_tool_response(run_result.result, original_input=original_input)
+
+    def _execute_image_reader_multi(self, paths, original_input, candidate):
+        """Image Readerで複数画像を1件ずつ解析し、結果をまとめます。"""
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        results = []
+
+        for path in paths:
+            request = ToolRequest(
+                tool_name="image_reader",
+                action="read_image",
+                input_data={"path": path, "original_input": original_input},
+                requires_permission=True,
+                risk_level="medium",
+            )
+            run_result = run_tool_request(
+                request,
+                registry=registry,
+                user_confirmed=user_confirmed,
+                logger=logger,
+            )
+            results.append((path, run_result.result))
+            self.last_tool_execution_record = run_result.execution_record
+
+        self.last_image_reader_tool_run_result = None
+        self.last_image_reader_tool_result = [result for _, result in results]
+
+        return self.build_multi_image_reader_tool_response(results, original_input=original_input)
 
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
@@ -1531,11 +1756,31 @@ class PersonalAI:
         )
 
     def build_multi_file_reader_tool_response(self, results, original_input=""):
-        """複数ファイルのFile Reader ToolResultをまとめて、ユーザーに見せる返答へ変換します。
+        """複数ファイルのFile Reader ToolResultをまとめて、ユーザーに見せる返答へ変換します。"""
+        return self._build_multi_reader_tool_response(
+            results,
+            original_input=original_input,
+            source_tool="file_reader",
+            reader_label="File Reader",
+        )
+
+    def _build_multi_reader_tool_response(
+        self,
+        results,
+        original_input,
+        source_tool,
+        reader_label,
+        item_label="ファイル",
+        success_verb="読み取りました",
+        failure_verb="読み取れなかった",
+        failure_intro="読み取りに失敗しました",
+        content_label="本文プレビュー",
+    ):
+        """複数ファイルのReader ToolResultをまとめて、ユーザーに見せる返答へ変換する共通処理です。
 
         成功したファイルの本文を「[ファイル名]\\n本文」の形で連結し、1つの
         last_read_documentとして記憶します。要約・質問などの目的が含まれていた場合は、
-        連結した本文をもとにQwenで直接答えます。
+        連結した本文をもとにQwenで直接答えます。File/PDF/Word/Excel/PowerPoint/Image Readerで共通です。
         """
         succeeded = []
         failed = []
@@ -1556,13 +1801,13 @@ class PersonalAI:
 
         if not succeeded:
             failed_lines = "\n".join(f"- {path}: {reason}" for path, reason in failed)
-            return f"File Readerでの複数ファイル読み取りに失敗しました。\n\n{failed_lines}"
+            return f"{reader_label}での複数{item_label}{failure_intro}。\n\n{failed_lines}"
 
         combined_text = "\n\n".join(f"[{file_name}]\n{text}" for file_name, text in succeeded)
         combined_title = "、".join(file_name for file_name, _ in succeeded)
 
         self.remember_last_read_document(
-            source_tool="file_reader",
+            source_tool=source_tool,
             title=combined_title,
             location=None,
             text=combined_text,
@@ -1575,18 +1820,18 @@ class PersonalAI:
         )
 
         summary_lines = "\n".join(f"- {file_name}" for file_name, _ in succeeded)
-        header = f"File Readerで{len(succeeded)}件のファイルを読み取りました。\n\n{summary_lines}"
+        header = f"{reader_label}で{len(succeeded)}件の{item_label}を{success_verb}。\n\n{summary_lines}"
 
         if failed:
             failed_lines = "\n".join(f"- {path}: {reason}" for path, reason in failed)
-            header += f"\n\n読み取れなかったファイル:\n{failed_lines}"
+            header += f"\n\n{failure_verb}{item_label}:\n{failed_lines}"
 
         if task_response is not None:
             return f"{header}\n\n{task_response}"
 
         formatted_preview = _format_web_reader_preview(combined_text, title=combined_title)
 
-        return f"{header}\n\n本文プレビュー:\n{formatted_preview}"
+        return f"{header}\n\n{content_label}:\n{formatted_preview}"
 
     def build_pdf_reader_tool_response(self, result, original_input=""):
         """PDF ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
@@ -1646,6 +1891,15 @@ class PersonalAI:
             f"{formatted_preview}"
         )
 
+    def build_multi_pdf_reader_tool_response(self, results, original_input=""):
+        """複数PDFのToolResultをまとめて、ユーザーに見せる返答へ変換します。"""
+        return self._build_multi_reader_tool_response(
+            results,
+            original_input=original_input,
+            source_tool="pdf_reader",
+            reader_label="PDF Reader",
+        )
+
     def build_word_reader_tool_response(self, result, original_input=""):
         """Word ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
 
@@ -1702,6 +1956,15 @@ class PersonalAI:
             f"{resolved_path or '(パスなし)'}\n\n"
             "本文プレビュー:\n"
             f"{formatted_preview}"
+        )
+
+    def build_multi_word_reader_tool_response(self, results, original_input=""):
+        """複数WordファイルのToolResultをまとめて、ユーザーに見せる返答へ変換します。"""
+        return self._build_multi_reader_tool_response(
+            results,
+            original_input=original_input,
+            source_tool="word_reader",
+            reader_label="Word Reader",
         )
 
     def build_excel_reader_tool_response(self, result, original_input=""):
@@ -1763,6 +2026,15 @@ class PersonalAI:
             f"{formatted_preview}"
         )
 
+    def build_multi_excel_reader_tool_response(self, results, original_input=""):
+        """複数ExcelファイルのToolResultをまとめて、ユーザーに見せる返答へ変換します。"""
+        return self._build_multi_reader_tool_response(
+            results,
+            original_input=original_input,
+            source_tool="excel_reader",
+            reader_label="Excel Reader",
+        )
+
     def build_pptx_reader_tool_response(self, result, original_input=""):
         """PowerPoint ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
 
@@ -1819,6 +2091,15 @@ class PersonalAI:
             f"{resolved_path or '(パスなし)'}\n\n"
             "本文プレビュー:\n"
             f"{formatted_preview}"
+        )
+
+    def build_multi_pptx_reader_tool_response(self, results, original_input=""):
+        """複数PowerPointファイルのToolResultをまとめて、ユーザーに見せる返答へ変換します。"""
+        return self._build_multi_reader_tool_response(
+            results,
+            original_input=original_input,
+            source_tool="pptx_reader",
+            reader_label="PowerPoint Reader",
         )
 
     def build_youtube_reader_tool_response(self, result, original_input=""):
@@ -1933,6 +2214,20 @@ class PersonalAI:
             f"{resolved_path or '(パスなし)'}\n\n"
             "説明:\n"
             f"{formatted_preview}"
+        )
+
+    def build_multi_image_reader_tool_response(self, results, original_input=""):
+        """複数画像のToolResultをまとめて、ユーザーに見せる返答へ変換します。"""
+        return self._build_multi_reader_tool_response(
+            results,
+            original_input=original_input,
+            source_tool="image_reader",
+            reader_label="Image Reader",
+            item_label="画像",
+            success_verb="解析しました",
+            failure_verb="解析できなかった",
+            failure_intro="解析に失敗しました",
+            content_label="説明",
         )
 
     def format_memory_candidate_dry_run(self, candidate):

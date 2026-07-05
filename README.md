@@ -40,17 +40,17 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - Web Reader実行前の確認
 - File Reader（txt/md/csv/json/log/yaml/xml/ini/toml/tsvファイル、複数ファイル同時読み取り対応）
 - File Reader実行前の確認
-- PDF Reader（単一のPDFファイル）
+- PDF Reader（PDFファイル、複数ファイル同時読み取り対応）
 - PDF Reader実行前の確認
-- Word Reader（単一の.docxファイル）
+- Word Reader（.docxファイル、複数ファイル同時読み取り対応）
 - Word Reader実行前の確認
-- Excel Reader（単一の.xlsxファイル、数値列の自動集計、カテゴリ列ごとのグループ集計）
+- Excel Reader（.xlsxファイル、数値列の自動集計、カテゴリ列ごとのグループ集計、複数ファイル同時読み取り対応）
 - Excel Reader実行前の確認
-- PowerPoint Reader（単一の.pptxファイル）
+- PowerPoint Reader（.pptxファイル、複数ファイル同時読み取り対応）
 - PowerPoint Reader実行前の確認
 - YouTube Reader（単一動画の既存字幕・自動生成トランスクリプト取得）
 - YouTube Reader実行前の確認
-- Image Reader（単一画像ファイルをローカルvisionモデルqwen2.5vl:7bで解析）
+- Image Reader（画像ファイルをローカルvisionモデルqwen2.5vl:7bで解析、複数画像同時解析対応）
 - Image Reader実行前の確認
 - Vision Router（現時点はローカルのみ選択、将来のOpenAI vision併用への拡張口）
 - 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader / Image Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）

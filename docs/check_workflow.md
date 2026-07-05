@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2500.py`
 - `scripts/check_ver2490.py`
 - `scripts/check_ver2480.py`
 - `scripts/check_ver2470.py`
@@ -123,6 +124,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.50では、`check_ver2500.py` でPDF/Word/Excel/PowerPoint/Image Readerの複数ファイル対応を確認する。
+このcheckは5 Reader全ての単一ファイル非回帰、複数ファイル確認メッセージ、Word/Imageでの実際の複数ファイル読み取り・結合・要約・一部失敗を確認する。
+実Webアクセス、実vision呼び出し、DB書き込みはしない。
 Ver2.49では、`check_ver2490.py` でFile Readerの複数ファイル同時読み取りを確認する。
 このcheckは複数パス抽出、単一ファイル挙動の完全な非回帰（文言まで一致）、複数ファイルの確認・読み取り・結果統合、一部失敗時の挙動、同一ターン要約・別ターン追加質問での複数ファイル参照を確認する。
 実Webアクセス、DB書き込みはしない。

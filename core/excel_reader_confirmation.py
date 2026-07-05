@@ -1,8 +1,12 @@
-from dataclasses import dataclass
-from typing import Optional
+from dataclasses import dataclass, field
+from typing import List, Optional
 
 from core.confirmation_intent import resolve_confirmation_intent
-from core.excel_reader_adapter import extract_excel_path_from_text
+from core.excel_reader_adapter import EXCEL_EXTENSIONS
+from core.file_path_extraction import extract_multiple_file_paths_from_text
+
+
+MAX_FILES_PER_REQUEST = 5
 
 
 @dataclass
@@ -15,12 +19,14 @@ class ExcelReaderConfirmation:
     action: Optional[str]
     message: str
     reason: str
+    paths: List[str] = field(default_factory=list)
 
     def to_dict(self):
         """checkやデバッグで扱いやすいdict形式にします。"""
         return {
             "needs_confirmation": self.needs_confirmation,
             "path": self.path,
+            "paths": list(self.paths),
             "tool_name": self.tool_name,
             "action": self.action,
             "message": self.message,
@@ -55,28 +61,49 @@ def build_excel_reader_confirmation(user_input):
     """ユーザー入力からExcel Reader実行前の確認メッセージを作ります。
 
     .xlsx以外や、パスが見つからない場合は確認対象にしません。
+    複数のExcelファイルパスが列挙された場合は、まとめて確認しまとめて読み取ります
+    （ディレクトリ丸ごとの読み取りには対応しません）。
     この関数はローカルファイルへ一切アクセスせず、メッセージだけを作ります。
     """
-    path = extract_excel_path_from_text(user_input)
+    paths = extract_multiple_file_paths_from_text(user_input, EXCEL_EXTENSIONS, max_files=MAX_FILES_PER_REQUEST)
 
-    if not path:
+    if not paths:
         return ExcelReaderConfirmation(
             needs_confirmation=False,
             path=None,
+            paths=[],
             tool_name=None,
             action=None,
             message="",
             reason="読み取り対象のExcelファイルパスが見つかりませんでした。",
         )
 
+    if len(paths) == 1:
+        return ExcelReaderConfirmation(
+            needs_confirmation=True,
+            path=paths[0],
+            paths=paths,
+            tool_name="excel_reader",
+            action="read_excel",
+            message=(
+                "このExcelファイルをExcel Readerで読み取ってもよいですか？\n"
+                f"{paths[0]}\n\n"
+                "ローカルファイルへアクセスするため、実行前に確認が必要です。"
+            ),
+            reason="ローカルファイルアクセスにはユーザー確認が必要です。",
+        )
+
+    path_list_text = "\n".join(paths)
+
     return ExcelReaderConfirmation(
         needs_confirmation=True,
-        path=path,
+        path=paths[0],
+        paths=paths,
         tool_name="excel_reader",
-        action="read_excel",
+        action="read_excels",
         message=(
-            "このExcelファイルをExcel Readerで読み取ってもよいですか？\n"
-            f"{path}\n\n"
+            f"次の{len(paths)}件のExcelファイルをExcel Readerで読み取ってもよいですか？\n"
+            f"{path_list_text}\n\n"
             "ローカルファイルへアクセスするため、実行前に確認が必要です。"
         ),
         reason="ローカルファイルアクセスにはユーザー確認が必要です。",
@@ -138,13 +165,15 @@ def resolve_excel_reader_confirmation_response(user_input, pending_confirmation=
 def build_excel_reader_tool_request_candidate(pending_confirmation):
     """将来の実行に渡せる候補情報だけをdictで作ります。"""
     path = _get_value(pending_confirmation, "path")
+    paths = _get_value(pending_confirmation, "paths") or ([path] if path else [])
     original_input = _get_value(pending_confirmation, "original_input", "")
 
     return {
         "tool_name": "excel_reader",
-        "action": "read_excel",
+        "action": "read_excel" if len(paths) <= 1 else "read_excels",
         "input_data": {
             "path": path,
+            "paths": paths,
             "original_input": original_input,
         },
         "risk_level": "medium",
