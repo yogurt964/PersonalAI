@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2460.py`
 - `scripts/check_ver2450.py`
 - `scripts/check_ver2440.py`
 - `scripts/check_ver2430.py`
@@ -119,6 +120,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.46では、`check_ver2460.py` でSYSTEM_PROMPTの日本語指示に、明示指定があれば他言語に従う例外が追加されていることを確認する。
+実際のQwen呼び出し、DB書き込みはしない。
 Ver2.45では、`check_ver2450.py` でSYSTEM_PROMPTへの日本語回答指示の追加を確認する。
 実際のQwen呼び出し、DB書き込みはしない。
 Ver2.44では、`check_ver2440.py` で確認判定のハイブリッド方式（固定語彙優先＋不明時のみLLM）を確認する。

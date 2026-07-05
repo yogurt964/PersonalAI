@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.45
+現在バージョン: Ver2.46
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -174,6 +174,7 @@ Ver2.42: Excel Readerにグループ集計を追加
 Ver2.43: YouTube Reader最小実装
 Ver2.44: 確認判定にハイブリッド方式（固定語彙優先＋不明時のみLLM）を導入
 Ver2.45: SYSTEM_PROMPTに日本語回答の指示を追加
+Ver2.46: SYSTEM_PROMPTの日本語指示に、明示指定があれば他言語に従う例外を追加
 ```
 
 ## 現在の主要ファイル
@@ -695,12 +696,25 @@ DBスキーマ変更、Memory保存・検索ロジック変更はしない
 これは根本的な言語切り替え問題を保証するものではなく、Qwenへの指示強化による軽減策。完全な解決が必要な場合はVer2.40で記録した「Qwen性能改善・OpenAIエスカレーション」の本格設計の中で扱う
 ```
 
-Ver2.45後の候補:
+Ver2.46でSYSTEM_PROMPTの日本語指示に例外を追加
+
+```text
+Ver2.45で追加した「日本語で話しかけられたら日本語で回答する」という指示が、ユーザーが明示的に別言語を指定した場合（例:「英語で答えて」）にも対応できるよう、例外規定を1行追加した
+ai/llm.py のSYSTEM_PROMPTに「ただし、ユーザーが『英語で答えて』のように別の言語を明示的に指定した場合は、その指定に従う」を追加
+これも根本的な言語切り替え問題（解釈の精度）の完全な解決ではなく軽減策。完全な解決はVer2.40で記録した「Qwen性能改善・OpenAIエスカレーション」の本格設計で扱う
+scripts/check_ver2460.py を追加
+scripts/run_ver2_checks.py に check_ver2460.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+```
+
+READMEスクリーンショットについては、提出が近づいたタイミングで現時点の動作として数枚貼る方針で合意（今は急がない）
+
+Ver2.46後の候補:
 
 ```text
 Ver2.x: Image Reader（ローカル/OpenAI併用のvision router設計、着手前にユーザーと相談済みの方針で進める）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
-Ver2.x: README用スクリーンショット/GIF追加（ユーザーから順次受領中）
+Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 
 ## Ver1.1以降の改善候補
