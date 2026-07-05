@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.38
+現在バージョン: Ver2.39
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -167,6 +167,7 @@ Ver2.35: 将来の記憶アーキテクチャ方針をdocs化
 Ver2.36: Word Reader最小実装
 Ver2.37: Excel Reader最小実装
 Ver2.38: Excel Readerに数値列の自動集計を追加
+Ver2.39: CLIに考え中表示を追加
 ```
 
 ## 現在の主要ファイル
@@ -575,9 +576,17 @@ Ver2.38でExcel Readerに数値列の自動集計を追加
 「一番売上が高い店舗はどこか」のようなグループ集計（店舗ごとの合計比較）は今回のスコープ外とし、今後の課題として残す
 `scripts/run_ver2_checks.py` に `check_ver2380.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.39でCLIに考え中表示を追加
+実機テストで、Excelの集計質問への応答にQwenが5分以上かかり、何も表示されないため停止したように見える状況が発生した
+トレースバックで確認した結果、`ask_llm`がOllamaからのHTTP応答を待っている最中（`self._sock.recv`）であり、コードの不具合ではなく、qwen3:8bが実際に処理に時間をかけていたことが分かった
+`core/personal_ai.py`の`run()`に、ユーザー入力受付直後・`handle_user_input`呼び出し前に「Qwenが考え中です。内容によっては数分かかることがあります…」という表示を追加し、処理中であることが分かるようにした
+`scripts/check_ver2390.py` を追加し、表示が入力受付後・応答生成前の正しい位置にあることを確認する
+`scripts/run_ver2_checks.py` に `check_ver2390.py` を追加
+ユーザーから、Qwenで答えられる工夫（今回のExcel自動集計のような、LLMに重い計算をさせない設計）を優先しつつ、将来的に必要な場面ではOpenAIを頼れるようにしてほしいという方針を確認した。これはMIGRATION.mdの「Qwen / OpenAIの利用方針」（Qwen優先、精度不足時にOpenAI検討、月間上限額制）に沿うものであり、追加のdocs変更は行っていない
+コード実装は表示追加のみで、応答生成ロジックやタイムアウト処理は変更していない
 ```
 
-Ver2.38後の候補（PowerPointを追加予定）:
+Ver2.39後の候補（PowerPointを追加予定）:
 
 ```text
 Ver2.x: PowerPoint Reader（.pptx）

@@ -276,6 +276,9 @@ class PersonalAI:
             if user_input.lower() == "exit":
                 break
 
+            print()
+            print("(Qwenが考え中です。内容によっては数分かかることがあります…)")
+
             ai_response = self.handle_user_input(user_input)
 
             print()
