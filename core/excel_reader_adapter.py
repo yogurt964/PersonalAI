@@ -176,11 +176,13 @@ class ExcelReaderAdapter(ToolAdapter):
                     continue
 
                 # 集計値は行データより先に置き、文字数上限で切り詰められても
-                # 正確な合計・平均などが残るようにします。
+                # 正確な合計・平均・グループ比較が残るようにします。
                 row_block = f"[{sheet_name}]\n" + "\n".join(row_texts)
                 summary_block = self._build_numeric_column_summary(sheet_name, all_rows)
+                group_by_block = self._build_group_by_summary(sheet_name, all_rows)
 
-                sheet_block = f"{summary_block}\n\n{row_block}" if summary_block else row_block
+                header_blocks = [block for block in (summary_block, group_by_block) if block]
+                sheet_block = "\n\n".join(header_blocks + [row_block]) if header_blocks else row_block
                 sheet_texts.append(sheet_block)
 
             return len(sheet_names), "\n\n".join(sheet_texts)
@@ -244,6 +246,112 @@ class ExcelReaderAdapter(ToolAdapter):
         return (
             f"[{sheet_name} 自動集計（数値列のみ、Pythonで正確に計算済み）]\n"
             "合計・平均・最小・最大を聞かれた場合は、この値をそのまま使ってください。"
+            "本文の行データから自分で再計算しないでください。\n"
+            + "\n".join(summary_lines)
+        )
+
+    def _build_group_by_summary(self, sheet_name, all_rows):
+        """カテゴリ列（店舗名など、繰り返し値を持つ文字列列）でグループ化し、
+        数値列ごとの合計が最大・最小になるグループをPythonで正確に計算します。
+
+        「一番売上が高い店舗はどこ？」のような、列をまたぐ比較質問に対応します。
+        グループの内訳は多くなりすぎないよう、最大・最小のグループだけを報告します。
+        """
+        if len(all_rows) < 2:
+            return ""
+
+        header_row = all_rows[0]
+        data_rows = all_rows[1:]
+        column_count = len(header_row)
+
+        numeric_columns = set()
+        category_columns = []
+
+        for column_index in range(column_count):
+            column_name = header_row[column_index]
+
+            if column_name is None:
+                continue
+
+            values = []
+            distinct_values = set()
+            non_empty_count = 0
+            all_numeric = True
+
+            for row in data_rows:
+                if column_index >= len(row):
+                    continue
+
+                value = row[column_index]
+
+                if value is None:
+                    continue
+
+                non_empty_count += 1
+                values.append(value)
+                distinct_values.add(value)
+
+                if not (isinstance(value, (int, float)) and not isinstance(value, bool)):
+                    all_numeric = False
+
+            if non_empty_count == 0:
+                continue
+
+            if all_numeric:
+                # 全行が一意な値（注文IDなどの識別子）は、合計しても意味がないため除外します。
+                if len(distinct_values) < non_empty_count:
+                    numeric_columns.add(column_index)
+
+                continue
+
+            # グループ化に向くのは、値が繰り返される列（一意キーのような列は除く）。
+            if 2 <= len(distinct_values) <= min(30, non_empty_count // 2 or 1):
+                category_columns.append(column_index)
+
+        if not category_columns or not numeric_columns:
+            return ""
+
+        summary_lines = []
+
+        for category_index in category_columns:
+            category_name = header_row[category_index]
+
+            for numeric_index in numeric_columns:
+                numeric_name = header_row[numeric_index]
+                totals_by_group = {}
+
+                for row in data_rows:
+                    if category_index >= len(row) or numeric_index >= len(row):
+                        continue
+
+                    category_value = row[category_index]
+                    numeric_value = row[numeric_index]
+
+                    if category_value is None or not isinstance(numeric_value, (int, float)) or isinstance(
+                        numeric_value, bool
+                    ):
+                        continue
+
+                    totals_by_group[category_value] = totals_by_group.get(category_value, 0) + numeric_value
+
+                if len(totals_by_group) < 2:
+                    continue
+
+                max_group = max(totals_by_group.items(), key=lambda item: item[1])
+                min_group = min(totals_by_group.items(), key=lambda item: item[1])
+
+                summary_lines.append(
+                    f"「{category_name}」ごとの「{numeric_name}」合計: "
+                    f"最大は「{max_group[0]}」で{max_group[1]:g}, "
+                    f"最小は「{min_group[0]}」で{min_group[1]:g}"
+                )
+
+        if not summary_lines:
+            return ""
+
+        return (
+            f"[{sheet_name} グループ集計（カテゴリ列ごとの合計、Pythonで正確に計算済み）]\n"
+            "「どの◯◯が一番多い/少ない」のような質問には、この値をそのまま使ってください。"
             "本文の行データから自分で再計算しないでください。\n"
             + "\n".join(summary_lines)
         )

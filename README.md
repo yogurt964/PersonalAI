@@ -44,7 +44,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - PDF Reader実行前の確認
 - Word Reader（単一の.docxファイル）
 - Word Reader実行前の確認
-- Excel Reader（単一の.xlsxファイル、数値列の自動集計）
+- Excel Reader（単一の.xlsxファイル、数値列の自動集計、カテゴリ列ごとのグループ集計）
 - Excel Reader実行前の確認
 - PowerPoint Reader（単一の.pptxファイル）
 - PowerPoint Reader実行前の確認
@@ -72,7 +72,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - YouTube Reader
 - File Reader（txt/md以外の拡張子、複数ファイル、ディレクトリ読み取り）
 - PDF Reader（複数ファイル、ディレクトリ読み取り）
-- Excel Readerのグループ集計（店舗ごとの合計比較など）
 - Office連携（作成・編集）
 - メール連携
 - カレンダー連携

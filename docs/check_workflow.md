@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2420.py`
 - `scripts/check_ver2410.py`
 - `scripts/check_ver2400.py`
 - `scripts/check_ver2390.py`
@@ -115,6 +116,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.42では、`check_ver2420.py` でExcel Readerのグループ集計を確認する。
+このcheckは実際の売上データに近いテストケースで店舗ごとの合計比較が正しく計算されること、ID列が誤って集計されないこと、値がすべて一意なカテゴリ列でグループ集計が出ないこと、同一ターンでの要約・別ターンでの追加質問の両方で参照できることを確認する。
+実Webアクセス、DB書き込み、実LLM実行はしない。
 Ver2.41では、`check_ver2410.py` でPowerPoint Reader最小実装を確認する。
 このcheckはpython-pptxで実際に生成した.pptxファイルでの実テキスト抽出（タイトル・本文・表・ノート）、fakeのLLM関数を使ったPersonalAI結合フロー、ファイル名に「powerpoint」を含むケースでの動作、requirements.txtの内容を確認する。
 実Webアクセス、DB書き込み、実LLM実行はしない。

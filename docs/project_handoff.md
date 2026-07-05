@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.41
+現在バージョン: Ver2.42
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -170,6 +170,7 @@ Ver2.38: Excel Readerに数値列の自動集計を追加
 Ver2.39: CLIに考え中表示を追加
 Ver2.40: 応答の正直さ・Qwen性能・OpenAIエスカレーション方針をdocs化
 Ver2.41: PowerPoint Reader最小実装
+Ver2.42: Excel Readerにグループ集計を追加
 ```
 
 ## 現在の主要ファイル
@@ -622,11 +623,24 @@ DBスキーマ変更、Memory保存・検索ロジック変更はしない
 これでOffice系Reader（Word/Excel/PowerPoint）が一通り揃った
 ```
 
-Ver2.41後の候補:
+Ver2.42でExcel Readerにグループ集計を追加
+
+```text
+これまで対応していなかった「一番売上が高い店舗はどこ？」のような、カテゴリ列（店舗名など）をまたぐ比較質問に対応した
+core/excel_reader_adapter.py に _build_group_by_summary() を追加し、繰り返し値を持つ文字列列（カテゴリ列）でグループ化して、数値列ごとの合計が最大・最小になるグループをPythonで正確に計算する
+出力を抑えるため、グループの全内訳ではなく最大・最小のグループだけを報告する
+全行が一意な値を持つ列（注文IDなど）は、合計しても意味がないため数値集計対象から除外する
+値がすべて一意なカテゴリ列（グループ化する意味がない列）も対象外にする
+集計結果は既存の数値列集計と同じく行データより先に配置し、文字数上限で切り詰められても残るようにした
+scripts/check_ver2420.py を追加し、実際の売上データに近いテストケースで店舗ごとの合計比較が正しく計算されること、ID列が誤って集計されないこと、同一ターンでの要約・別ターンでの追加質問の両方で参照できることを確認する
+scripts/run_ver2_checks.py に check_ver2420.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+```
+
+Ver2.42後の候補:
 
 ```text
 Ver2.x: YouTube Reader（字幕・トランスクリプト取得、要検討）
-Ver2.x: Excel Readerのグループ集計対応（店舗ごとの合計比較など）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
 Ver2.x: Image Reader（vision対応モデルの選定が必要、着手前にユーザー確認）
