@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2280.py`
 - `scripts/check_ver2270.py`
 - `scripts/check_ver2260.py`
 - `scripts/check_ver2250.py`
@@ -101,6 +102,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.28では、`check_ver2280.py` でOpenAI利用方針の見直し（月間上限額制）を確認する。
+このcheckは`MIGRATION.md` / `CLAUDE.md` / `AGENTS.md` / `README.md` / `docs/claude_code_start.md` / `docs/llm_intent_resolver_design.md`に月間上限額の運用方針が反映されていること、project_handoff.md / changelog.mdの内容、run_ver2_checks.pyへの登録を確認する。
+実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.27では、`check_ver2270.py` でproject_handoff.mdの現在バージョン固定依存の解消を確認する。
 このcheckは`check_ver2180.py`〜`check_ver2260.py`の9本に、project_handoff.mdの具体的なバージョン番号（現在バージョン: VerX.X）への固定依存が残っていないこと、run_ver2_checks.pyへの登録を確認する。
 実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。

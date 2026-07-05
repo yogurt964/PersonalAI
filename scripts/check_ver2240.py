@@ -154,7 +154,7 @@ def main():
             "1回の試行",
             "1日の上限",
             "1か月の上限",
-            "Ver2.28: File Reader最小実装",
+            "Ver2.29: File Reader最小実装",
         ],
     )
 

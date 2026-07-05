@@ -86,7 +86,9 @@ Claude Code should start from `CLAUDE.md`.
 - Read logs before retrying.
 - Do not repeat the same failing command many times without changing the cause.
 - Prefer low-cost methods first, but recommend paid tools or stronger models when they clearly improve development speed, quality, stability, or portfolio value.
-- Before any paid usage, explain the cost risk, expected benefit, and cheaper alternative, then ask the user.
+- Task/answer accuracy is the top priority; do not starve quality just to save cost.
+- OpenAI usage runs on an agreed monthly budget cap rather than per-call confirmation: confirm once to set/raise the cap, then routine calls within it need no further confirmation. API key setup and external transmission of private/confidential data still always require confirmation regardless of the cap.
+- Before any other paid usage not covered by an agreed cap, explain the cost risk, expected benefit, and cheaper alternative, then ask the user.
 - On failure, debug logs and fix safely.
 - Do not delete or initialize the DB to fix errors.
 - Do not use reset --hard, force push, or rebase without user confirmation.

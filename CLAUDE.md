@@ -102,8 +102,17 @@ Read logs before retrying.
 Do not run large loops or broad checks repeatedly without changing the cause.
 
 The user is willing to pay when it clearly improves development speed, AI performance, quality, stability, or portfolio value.
+Task/answer accuracy is the top priority — do not starve quality just to save cost.
 
-Before paid usage, API usage, API key setup, or external transmission:
+OpenAI usage specifically runs on a monthly budget cap, not per-call confirmation:
+
+- before first real OpenAI connection, agree a monthly cap with the user (requires confirmation)
+- within that cap, routine OpenAI calls do not need per-call confirmation
+- ask the user again only when nearing/exceeding the cap, or to raise it
+- API key setup/changes always require confirmation regardless of the cap
+- external transmission of private/confidential data always requires confirmation, independent of the cap (this is a data-leak risk, not a cost one)
+
+For any other paid usage, new API integration, or external transmission not covered by an agreed cap:
 
 - explain cost risk
 - explain expected benefit

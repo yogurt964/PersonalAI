@@ -59,7 +59,7 @@ Ver2.24まで完了している。
 - Web Reader、Web Reader確認、確認待ち状態の文脈解釈が実装済み
 - Memory Candidate生成、確認、編集dry-run、ユーザー確認つき保存が実装済み
 - 直近保存Memory確認とMemory簡易検索が実装済み
-- PersonalAI本体は現時点ではQwen / Ollama中心である。ただし、将来的にはOpenAIを高精度処理の候補として利用する可能性がある。OpenAI API利用、APIキー設定、外部送信、課金は必ずユーザー確認を取る
+- PersonalAI本体は現時点ではQwen / Ollama中心である。ただし、将来的にはOpenAIを高精度処理の候補として利用する可能性がある。OpenAI利用は月間上限額を決めた運用とし、上限額の範囲内は都度確認しない。上限額の初回設定・引き上げ、APIキー設定、個人情報・機密情報の外部送信は必ずユーザー確認を取る
 - File / PDF / Image / YouTube / Office / メール / カレンダー連携は未実装
 - LLM Intent Resolverは未実装
 - OpenAI / Claude / Gemini接続は未実装

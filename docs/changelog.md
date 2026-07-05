@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.28
+
+開始内容:
+
+- OpenAI利用方針を見直し
+- OpenAI機能が今後複数増えると都度確認が煩雑になるとのユーザー指摘を受け、OpenAI利用を「月間上限額を決めた運用」に変更
+- OpenAIを初めて実接続する前に月間上限額を決める（初回設定・引き上げは都度ユーザー確認）方針に変更
+- 月間上限額の範囲内であれば、通常のOpenAI API呼び出しは都度確認しない方針にした
+- APIキーの新規設定・変更、個人情報・機密情報を含む外部送信は、月間上限額の話とは別に引き続き都度ユーザー確認する方針を維持
+- 作業や回答の精度を最優先とし、コスト削減のために精度を犠牲にしない方針を明記
+- `MIGRATION.md` / `CLAUDE.md` / `AGENTS.md` / `README.md` / `docs/claude_code_start.md` / `docs/llm_intent_resolver_design.md` のOpenAI関連記述を更新
+- 実際の月間上限額（具体的な金額）は、OpenAIを実接続する段階で改めてユーザーと決める方針を明記
+- `scripts/check_ver2280.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2280.py` を追加
+- OpenAI実接続、APIキー設定、DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.27
 
 開始内容:

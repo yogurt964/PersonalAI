@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.27
+現在バージョン: Ver2.28
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -156,6 +156,7 @@ Ver2.24: Claude Code引継ぎ確認結果の反映
 Ver2.25: Claude Code自走運用モード整備
 Ver2.26: LLM Intent Resolver設計
 Ver2.27: project_handoff.mdの現在バージョン固定依存の解消
+Ver2.28: OpenAI利用方針の見直し（月間上限額制・都度確認省略）
 ```
 
 ## 現在の主要ファイル
@@ -320,7 +321,7 @@ GUI
 
 ## OpenAI利用方針
 
-今後はOpenAIの利用も想定している。現時点ではQwen / Ollama中心だが、LLM Intent Resolver、Memory抽出、資料読解、複雑なコード読解などでOpenAIを使う可能性がある。ただし、APIキー設定・外部送信・課金は必ずユーザー確認が必要。
+今後はOpenAIの利用も想定している。現時点ではQwen / Ollama中心だが、LLM Intent Resolver、Memory抽出、資料読解、複雑なコード読解などでOpenAIを使う可能性がある。OpenAI利用は月間上限額を決めた運用とし、上限額の範囲内なら都度確認しない（上限額の初回設定・引き上げ、APIキー設定、個人情報・機密情報の外部送信は引き続き都度ユーザー確認が必要）。
 
 ## 次にやること
 
@@ -449,12 +450,22 @@ Ver2.27でproject_handoff.mdの現在バージョン固定依存を解消
 `scripts/check_ver2270.py` を追加し、対象9本のcheckに固定バージョン番号への依存が残っていないことを継続的に確認する
 `scripts/run_ver2_checks.py` に `check_ver2270.py` を追加
 新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.28でOpenAI利用方針を見直し
+OpenAI機能が今後複数増えると都度確認が煩雑になるとのユーザー指摘を受け、OpenAI利用を「月間上限額を決めた運用」に変更
+OpenAIを初めて実接続する前に月間上限額を決める（初回設定・引き上げは都度ユーザー確認）方針に変更し、上限額の範囲内であれば通常のOpenAI API呼び出しは都度確認しない方針にした
+APIキーの新規設定・変更、個人情報・機密情報を含む外部送信は、月間上限額の話とは別に引き続き都度ユーザー確認する方針を維持
+作業や回答の精度を最優先とし、コスト削減のために精度を犠牲にしない方針を明記
+MIGRATION.md / CLAUDE.md / AGENTS.md / README.md / docs/claude_code_start.md / docs/llm_intent_resolver_design.md のOpenAI関連記述を更新
+実際の月間上限額（具体的な金額）は、OpenAIを実接続する段階で改めてユーザーと決める
+`scripts/check_ver2280.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2280.py` を追加
+OpenAI実接続、APIキー設定、DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.27後の候補:
+Ver2.28後の候補:
 
 ```text
-Ver2.28: File Reader最小実装
+Ver2.29: File Reader最小実装
 Ver2.x: PDF Reader
 Ver2.x: Image Reader
 Ver2.x: YouTube Reader

@@ -136,7 +136,7 @@ def main():
         "project_handoff.md",
         project_handoff,
         [
-            "現在バージョン: Ver2.27",
+            "現在バージョン:",  # version-agnostic: avoid pinning an exact VerX.X that future bumps must chase
             "Ver2.27でproject_handoff.mdの現在バージョン固定依存を解消",
         ],
     )
