@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.44
+現在バージョン: Ver2.45
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -173,6 +173,7 @@ Ver2.41: PowerPoint Reader最小実装
 Ver2.42: Excel Readerにグループ集計を追加
 Ver2.43: YouTube Reader最小実装
 Ver2.44: 確認判定にハイブリッド方式（固定語彙優先＋不明時のみLLM）を導入
+Ver2.45: SYSTEM_PROMPTに日本語回答の指示を追加
 ```
 
 ## 現在の主要ファイル
@@ -682,7 +683,19 @@ Image Readerはローカルvisionモデル（ユーザーのRTX 4070 SUPER・メ
 OpenAI契約は必要になったタイミングでユーザーと一緒に金額等を決める（今はまだ契約しない）
 ```
 
-Ver2.44後の候補:
+Ver2.45でSYSTEM_PROMPTに日本語回答の指示を追加
+
+```text
+実機テストのスクリーンショットで、Excel Readerでの会話中に「ありがとう」という日本語入力に対し、Qwenが英語で応答する場面が見つかった
+ユーザーから「少し気になる」との指摘があり、低リスク・低コストで直せる範囲のため、その場で修正した
+ai/llm.py のSYSTEM_PROMPTに「ユーザーが日本語で話しかけている場合は、日本語で回答する（英語などへ勝手に切り替えない）」を1行追加
+scripts/check_ver2450.py を追加し、SYSTEM_PROMPTにこの指示が含まれることを確認する
+既存の全checkスクリプトへの影響がないことを確認した（SYSTEM_PROMPTの内容を厳密一致で検証するcheckは存在しない）
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+これは根本的な言語切り替え問題を保証するものではなく、Qwenへの指示強化による軽減策。完全な解決が必要な場合はVer2.40で記録した「Qwen性能改善・OpenAIエスカレーション」の本格設計の中で扱う
+```
+
+Ver2.45後の候補:
 
 ```text
 Ver2.x: Image Reader（ローカル/OpenAI併用のvision router設計、着手前にユーザーと相談済みの方針で進める）
