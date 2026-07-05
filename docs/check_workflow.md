@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2480.py`
 - `scripts/check_ver2470.py`
 - `scripts/check_ver2460.py`
 - `scripts/check_ver2450.py`
@@ -121,6 +122,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.48では、`check_ver2480.py` でFile Readerの対応拡張子拡張を確認する。
+このcheckは新しい拡張子（csv/json/log/yaml/yml/xml/ini/toml/tsv）のパス抽出、実ファイルでの読み取り、インスタンスごとのallowed_extensions制限がパス抽出にも反映されること、PersonalAI結合フローを確認する。
+実Webアクセス、DB書き込みはしない。
 Ver2.47では、`check_ver2470.py` でImage Reader最小実装を確認する。
 このcheckはfakeのvision_describerで、画像パス抽出、確認フロー、PersonalAI結合フロー（同一ターンでの要約・別ターンでの追加質問）、破損・非対応形式・vision失敗時の正直な失敗、vision_routerが現時点で常にlocalを返すことを確認する。
 実際のOllama vision呼び出し、DB書き込みはしない。

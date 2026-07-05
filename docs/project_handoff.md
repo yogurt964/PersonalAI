@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.47
+現在バージョン: Ver2.48
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -176,6 +176,7 @@ Ver2.44: 確認判定にハイブリッド方式（固定語彙優先＋不明�
 Ver2.45: SYSTEM_PROMPTに日本語回答の指示を追加
 Ver2.46: SYSTEM_PROMPTの日本語指示に、明示指定があれば他言語に従う例外を追加
 Ver2.47: Image Reader最小実装（ローカルvision、qwen2.5vl:7b）
+Ver2.48: File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張
 ```
 
 ## 現在の主要ファイル
@@ -733,10 +734,27 @@ DBスキーマ変更、Memory保存・検索ロジック変更はしない
 OpenAI vision（クラウド側の併用）は未接続のまま。接続する際はAPIキー設定・費用面を含め改めてユーザーに確認する
 ```
 
-Ver2.47後の候補:
+Ver2.48でFile Readerの対応拡張子を拡張
 
 ```text
-Ver2.x: OpenAI visionをvision_routerに接続（着手前にAPIキー・月間上限額をユーザーと相談）
+未実装として残っていた「File Reader（txt/md以外の拡張子）」に対応した
+core/file_reader_adapter.py のALLOWED_EXTENSIONSを (.txt, .md) から
+(.txt, .md, .csv, .json, .log, .yaml, .yml, .xml, .ini, .toml, .tsv) へ拡張
+いずれもプレーンテキスト系の形式で、既存のUTF-8デコード処理をそのまま使える
+PDF/Word/Excel/PowerPoint/画像などバイナリ形式は引き続き専用のReaderが担当し、File Readerの対象外のまま
+_get_path_from_request()が、コンストラクタ引数allowed_extensionsを無視してモジュール定数だけを見ていたバグを修正し、
+インスタンスごとの拡張子制限が実際にパス抽出にも反映されるようにした
+実機でcsv・jsonファイル（スペースを含むファイル名含む）を読み取らせ、正しく動作することを確認した
+scripts/check_ver2480.py を追加
+scripts/run_ver2_checks.py に check_ver2480.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
+```
+
+Ver2.48後の候補:
+
+```text
+Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

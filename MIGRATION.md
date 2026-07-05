@@ -898,11 +898,12 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.x: OpenAI visionをvision_routerに接続（着手前にAPIキー・月間上限額をユーザーと相談）
+Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 
 Ver2.47で、Image Reader最小実装（ローカルvision、qwen2.5vl:7b）を追加した。詳細は `docs/project_handoff.md` のVer2.47の項を参照。
+Ver2.48で、File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張した。詳細は `docs/project_handoff.md` のVer2.48の項を参照。
 
 Ver2.44で、confirmation intentの判定をハイブリッド方式（固定語彙優先＋不明時のみLLM）に更新した。詳細は `docs/project_handoff.md` のVer2.44の項を参照。

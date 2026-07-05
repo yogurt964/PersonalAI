@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.48
+
+開始内容:
+
+- File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張
+- `core/file_reader_adapter.py` のALLOWED_EXTENSIONSを (.txt, .md) から (.txt, .md, .csv, .json, .log, .yaml, .yml, .xml, .ini, .toml, .tsv) へ拡張
+- PDF/Word/Excel/PowerPoint/画像などバイナリ形式は引き続き専用のReaderが担当し、File Readerの対象外のまま
+- `_get_path_from_request()`が、コンストラクタ引数allowed_extensionsを無視してモジュール定数だけを見ていたバグを修正
+- 実機でcsv・jsonファイル（スペースを含むファイル名含む）を読み取らせ、正しく動作することを確認した
+- `scripts/check_ver2480.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2480.py` を追加
+- 外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.47
 
 開始内容:

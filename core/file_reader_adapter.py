@@ -4,22 +4,24 @@ from core.file_path_extraction import extract_single_file_path_from_text
 from core.tool_adapter import ToolAdapter, ToolResult
 
 
-ALLOWED_EXTENSIONS = (".txt", ".md")
+ALLOWED_EXTENSIONS = (".txt", ".md", ".csv", ".json", ".log", ".yaml", ".yml", ".xml", ".ini", ".toml", ".tsv")
 
 
-def extract_file_path_from_text(text):
-    """テキストから、ユーザーが指定した単一のtxt/mdファイルパスを取り出します。
+def extract_file_path_from_text(text, allowed_extensions=ALLOWED_EXTENSIONS):
+    """テキストから、ユーザーが指定した単一のプレーンテキスト系ファイルパスを取り出します。
 
     ディレクトリ全体やワイルドカードは対象にせず、拡張子で終わる1つのパスだけを拾います。
     スペースを含むファイル名（例: Windowsの重複ダウンロードによる「 (1).txt」）にも対応します。
     """
-    return extract_single_file_path_from_text(text, ALLOWED_EXTENSIONS)
+    return extract_single_file_path_from_text(text, allowed_extensions)
 
 
 class FileReaderAdapter(ToolAdapter):
     """最小実用版のFile Reader Adapterです。
 
-    ユーザーが明示した単一のtxt/mdファイルだけを、確認後に読み取ります。
+    ユーザーが明示した単一のプレーンテキスト系ファイル（txt/md/csv/json/log/yaml/xml/ini/toml/tsvなど）
+    だけを、確認後に読み取ります。バイナリ形式（PDF/Word/Excel/PowerPoint/画像など）は
+    それぞれ専用のReaderが担当し、File Readerの対象外です。
     ディレクトリ探索、ワイルドカード、書き込み、実行は一切行いません。
     """
 
@@ -156,4 +158,4 @@ class FileReaderAdapter(ToolAdapter):
             return str(path_text).strip()
 
         original_input = input_data.get("original_input", "")
-        return extract_file_path_from_text(original_input)
+        return extract_file_path_from_text(original_input, self.allowed_extensions)
