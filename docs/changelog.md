@@ -1,5 +1,16 @@
 # Changelog
 
+## Version 2.35
+
+開始内容:
+
+- 将来の記憶アーキテクチャ方針をdocs化
+- ユーザーから、会話・Web検索・File/PDF Readerなどで得た情報を、短期記憶・長期記憶・知識に自動分類し、重要度判定・自動的な忘却判断を行う記憶アーキテクチャを最終的に望んでいるという方針を確認した
+- これは `docs/final_product_vision.md` の記憶階層（Raw Log〜Deletion Candidate）の本格実装であり、Reader個別の機能ではなくPersonalAIの記憶機能そのものの本実装として扱う方針を `docs/reader_memory_policy.md` に整理した
+- 現在のFile Reader / PDF ReaderはMemory Candidateへ未接続であること、`last_read_document`（Ver2.31）は長期Memoryとは別の暫定キャッシュであることを明記した
+- 記憶機能を本格的に作り直すタイミングで、あらためてユーザーと設計を確認する方針とし、それまでの暫定対応はAIエージェントの判断に委ねられた
+- コード実装は行っていない
+
 ## Version 2.34
 
 開始内容:

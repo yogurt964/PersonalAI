@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.34
+現在バージョン: Ver2.35
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -163,6 +163,7 @@ Ver2.31: Reader結果をQwenでの応答に接続
 Ver2.32: PDF Reader最小実装
 Ver2.33: ファイルパス抽出のスペース対応バグ修正
 Ver2.34: last_read_documentの誤解答防止
+Ver2.35: 将来の記憶アーキテクチャ方針をdocs化
 ```
 
 ## 現在の主要ファイル
@@ -528,6 +529,12 @@ Ver2.34でlast_read_documentの誤解答を防止
 `scripts/check_ver2340.py` を追加
 `scripts/run_ver2_checks.py` に `check_ver2340.py` を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
+Ver2.35で将来の記憶アーキテクチャ方針をdocs化
+ユーザーから、会話・Web検索・File/PDF Readerなどで得た情報を、短期記憶・長期記憶・知識に自動分類し、重要度判定・自動的な忘却判断を行う記憶アーキテクチャを最終的に望んでいるという方針を確認した
+これは`docs/final_product_vision.md`の記憶階層（Raw Log〜Deletion Candidate）の本格実装であり、Reader個別の機能ではなくPersonalAIの記憶機能そのものの本実装として扱う方針を`docs/reader_memory_policy.md`に整理した
+現在のFile Reader / PDF ReaderはMemory Candidateへ未接続であること、`last_read_document`（Ver2.31）は長期Memoryとは別の暫定キャッシュであることを明記した
+記憶機能を本格的に作り直すタイミングで、あらためてユーザーと設計を確認する方針とし、それまでの暫定対応はAIエージェントの判断に委ねられた
+コード実装は行っていない
 ```
 
 Ver2.32後の候補（Word/Excel/PowerPointを順次追加予定）:

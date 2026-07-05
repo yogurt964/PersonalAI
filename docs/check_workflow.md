@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2350.py`
 - `scripts/check_ver2340.py`
 - `scripts/check_ver2330.py`
 - `scripts/check_ver2320.py`
@@ -108,6 +109,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.35では、`check_ver2350.py` で将来の記憶アーキテクチャ方針のdocs化を確認する。
+このcheckはdocs確認のみを行い、実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.34では、`check_ver2340.py` でlast_read_documentの誤解答防止を確認する。
 このcheckは、2件連続で読み取った後に1件目について聞かれた場合のcontext messageに、「もう保持していません」「断定しないでください」という警告文言が含まれることを確認する。
 実Webアクセス、DB書き込み、実LLM実行はしない。

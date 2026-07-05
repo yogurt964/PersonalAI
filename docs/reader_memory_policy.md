@@ -217,6 +217,35 @@ DBスキーマ変更はしない。
 ベクトル検索やLLMによる検索query生成はまだ実装しない。
 自動チェックではfake検索を使い、実DB保存や実Webアクセスを行わない。
 
+## 8. File Reader / PDF Reader とMemoryの関係（Ver2.35時点）
+
+Ver2.35時点では、Memory Candidateへの接続はWeb Readerだけである。
+File Reader（Ver2.29）・PDF Reader（Ver2.32）は、読み取り結果からMemory Candidateを作らない。
+
+Ver2.31で追加した `last_read_document`（`core/personal_ai.py`）は、Memory（長期記憶）とは別物である。
+
+- 直近1件のReader結果（Web Reader / File Reader / PDF Reader共通）だけを一時的に保持する
+- ユーザー確認や重要度判定を経ず、会話が続く間だけQwenが参照できるようにする、あくまで暫定的なキャッシュ
+- 新しいファイルを読むと前の内容は失われる（Ver2.34で、この制約についてLLMが誤った断定をしないよう修正済み）
+- 長期Memory・Memory Candidate・Memory検索とは独立している
+
+## 9. 将来の記憶アーキテクチャとの関係（ユーザー方針、Ver2.35時点で未着手）
+
+ユーザーは、最終的に以下のような記憶方針を望んでいる。
+
+- 会話から得た情報も、Web検索・File Reader・PDF Readerなど他のReaderから得た情報も、同じ枠組みで扱う
+- 短期記憶・長期記憶・知識に分類する
+- 重要度などを自動判定する
+- 何を覚えるか・忘れるかを自動的に判断する
+
+これは `docs/final_product_vision.md` の「5. 記憶方針」で整理した記憶階層（Raw Log / Turn Summary / Session Summary / Project State / Long-term Memory / Knowledge / Archive / Deletion Candidate）の本格実装、かつその対象をReader結果にも広げる話であり、File Reader / PDF Reader個別の機能ではなく、PersonalAIの記憶機能そのものの本実装として扱う。
+
+方針:
+
+- 記憶機能をしっかり作り直すタイミングで、あらためてユーザーと設計を確認する
+- それまでの間、Reader結果の一時的な扱い（`last_read_document`、Memory Candidateの手動確認フローなど）は、AIエージェントの判断で安全側に倒しながら暫定対応してよい
+- 暫定対応の間も、DBスキーマ変更、Memory物理削除、自動忘却の実行はユーザー確認なしに行わない
+
 ## Ver2.9で実装しないこと
 
 Ver2.9では、以下は実装しない。
