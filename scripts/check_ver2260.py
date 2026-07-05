@@ -121,13 +121,14 @@ def main():
         ],
     )
 
-    # Ver2.26 is a design-only version: the rule-based resolvers must stay
-    # untouched so the existing confirmation flows keep working unchanged.
+    # Ver2.26は設計docのみで、confirmation_intent.pyの実装は変更しなかった。
+    # Ver2.44でこのdocが設計した「固定語彙優先、不明時のみLLM」のハイブリッド方式を
+    # 実際に実装したため、ここでのpinもVer2.44時点の実装内容に合わせて更新する。
     failures += check_words(
-        "confirmation_intent.py unchanged",
+        "confirmation_intent.py reflects the hybrid design this doc proposed",
         confirmation_intent,
         [
-            "今はルールベースですが、将来LLM Intent Resolverに差し替えやすいように",
+            "ハイブリッド方式です",
         ],
     )
 

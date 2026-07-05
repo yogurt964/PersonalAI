@@ -82,7 +82,7 @@ def build_web_reader_confirmation(user_input):
     )
 
 
-def resolve_web_reader_confirmation_response(user_input, pending_confirmation=None):
+def resolve_web_reader_confirmation_response(user_input, pending_confirmation=None, ask_llm_func=None):
     """Web Reader確認への返答を分類し、実行候補だけをdry-runで作ります。
 
     Ver2.4では、肯定応答でも実行には進みません。
@@ -97,7 +97,7 @@ def resolve_web_reader_confirmation_response(user_input, pending_confirmation=No
             reason="保留中のWeb Reader確認がありません。",
         )
 
-    intent = resolve_confirmation_intent(user_input, context_type="web_reader")
+    intent = resolve_confirmation_intent(user_input, context_type="web_reader", ask_llm_func=ask_llm_func)
 
     if intent.get("status") == "confirmed":
         candidate = build_web_reader_tool_request_candidate(pending_confirmation)

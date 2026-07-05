@@ -898,8 +898,9 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
+Ver2.x: Image Reader（ローカル/OpenAI併用のvision router設計、着手前にユーザーと相談済みの方針で進める）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
-Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
-Ver2.x: Image Reader（vision対応モデルの選定が必要、着手前にユーザー確認）
-Ver2.x: README用スクリーンショット/GIF追加
+Ver2.x: README用スクリーンショット/GIF追加（ユーザーから順次受領中）
 ```
+
+Ver2.44で、confirmation intentの判定をハイブリッド方式（固定語彙優先＋不明時のみLLM）に更新した。詳細は `docs/project_handoff.md` のVer2.44の項を参照。

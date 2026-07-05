@@ -858,6 +858,7 @@ class PersonalAI:
         result = resolve_web_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_web_reader_confirmation_result = result.to_dict()
         self.last_web_reader_tool_request_candidate = result.tool_request_candidate
@@ -882,6 +883,7 @@ class PersonalAI:
         result = resolve_file_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_file_reader_confirmation_result = result.to_dict()
         self.last_file_reader_tool_request_candidate = result.tool_request_candidate
@@ -937,6 +939,7 @@ class PersonalAI:
         result = resolve_pdf_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_pdf_reader_confirmation_result = result.to_dict()
         self.last_pdf_reader_tool_request_candidate = result.tool_request_candidate
@@ -992,6 +995,7 @@ class PersonalAI:
         result = resolve_word_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_word_reader_confirmation_result = result.to_dict()
         self.last_word_reader_tool_request_candidate = result.tool_request_candidate
@@ -1047,6 +1051,7 @@ class PersonalAI:
         result = resolve_excel_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_excel_reader_confirmation_result = result.to_dict()
         self.last_excel_reader_tool_request_candidate = result.tool_request_candidate
@@ -1102,6 +1107,7 @@ class PersonalAI:
         result = resolve_pptx_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_pptx_reader_confirmation_result = result.to_dict()
         self.last_pptx_reader_tool_request_candidate = result.tool_request_candidate
@@ -1157,6 +1163,7 @@ class PersonalAI:
         result = resolve_youtube_reader_confirmation_response(
             user_input,
             pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
         )
         self.last_youtube_reader_confirmation_result = result.to_dict()
         self.last_youtube_reader_tool_request_candidate = result.tool_request_candidate

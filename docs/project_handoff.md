@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.43
+現在バージョン: Ver2.44
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -172,6 +172,7 @@ Ver2.40: 応答の正直さ・Qwen性能・OpenAIエスカレーション方針�
 Ver2.41: PowerPoint Reader最小実装
 Ver2.42: Excel Readerにグループ集計を追加
 Ver2.43: YouTube Reader最小実装
+Ver2.44: 確認判定にハイブリッド方式（固定語彙優先＋不明時のみLLM）を導入
 ```
 
 ## 現在の主要ファイル
@@ -654,13 +655,39 @@ scripts/run_ver2_checks.py に check_ver2430.py を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.43後の候補:
+Ver2.44で確認判定にハイブリッド方式（固定語彙優先＋不明時のみLLM）を導入
 
 ```text
+Ver2.30以来、Web/File/PDF/Word/Excel/PowerPoint/YouTube Reader共通の実行確認は固定語彙リストのみで判定していた
+ユーザーと「キーワード判定をLLM解釈へ置き換える検討」について相談し、プロンプトインジェクションなどの安全性リスクと精度向上のトレードオフを説明した上で、次のハイブリッド設計を採用した
+1. まず固定語彙リスト（WEB_READER_CONFIRMED_WORDS / REJECTED_WORDS）で判定する。一致すれば今まで通り決定的に処理し、LLMは一切呼び出さない
+2. 固定語彙に一致しない場合のみ、LLMに「confirmed/rejected/unclearの1語で答えて」と単独で解釈させる
+3. LLMに渡すのはユーザー自身の返信テキストだけで、Readerが読み込んだ外部本文（Web/PDF/YouTube等）は一切含めない。これは外部contentに紛れた指示文で実行許可を誤認識させるリスクを避けるため
+4. LLMの応答が3語のどれにも一致しない、または呼び出しに失敗した場合は、必ずunclear（不明・再確認）にfail-safeする。silentに実行許可扱いにすることは絶対にしない
+core/confirmation_intent.py の resolve_confirmation_intent() / _resolve_generic_confirmation_intent() にask_llm_func引数を追加し、上記のロジックを実装した
+core/{web,file,pdf,word,excel,pptx,youtube}_reader_confirmation.py の resolve_X_reader_confirmation_response() すべてにask_llm_func引数を追加して橋渡しした
+core/personal_ai.py の7つのhandle_pending_X_reader_confirmation()すべてで、self.ask_llm_func（Qwen呼び出し関数、テストでは差し替え可能）を渡すようにした
+ask_llm_funcを渡さない呼び出し元（Ver2.44以前の古いcheckスクリプトが作るtest doubleなど）は、暗黙に実際のQwenを呼び出さず、これまで通りunclearのままにする設計にし、既存の全checkが無変更で通るようにした
+scripts/check_ver2260.pyの「confirmation_intent.pyは変更しない」というVer2.26時点のpinを、「ハイブリッド方式が実装された」ことを確認するpinに更新した（Ver2.26は設計docのみで、Ver2.44が実際に実装したため）
+scripts/check_ver2440.py を追加
+scripts/run_ver2_checks.py に check_ver2440.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+```
+
+将来的な設計方針（ユーザーと合意済み、Image Reader着手時に反映）:
+
+```text
+PersonalAIはQwen/OpenAI/Visionなどの機能を「道具」として使い分ける設計が本来の意図であるため、Image Reader実装時はvision routerを単独の特殊ロジックにせず、将来のModelRouter/ToolRouterの一部として設計すること
+Image Readerはローカルvisionモデル（ユーザーのRTX 4070 SUPER・メモリ32GBで実用的）とOpenAI visionの併用とし、難易度や安全性に応じてLLMが使い分けを判断する
+OpenAI契約は必要になったタイミングでユーザーと一緒に金額等を決める（今はまだ契約しない）
+```
+
+Ver2.44後の候補:
+
+```text
+Ver2.x: Image Reader（ローカル/OpenAI併用のvision router設計、着手前にユーザーと相談済みの方針で進める）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
-Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
-Ver2.x: Image Reader（vision対応モデルの選定が必要、着手前にユーザー確認）
-Ver2.x: README用スクリーンショット/GIF追加
+Ver2.x: README用スクリーンショット/GIF追加（ユーザーから順次受領中）
 ```
 
 ## Ver1.1以降の改善候補

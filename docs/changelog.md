@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.44
+
+開始内容:
+
+- 確認判定にハイブリッド方式（固定語彙優先＋不明時のみLLM）を導入
+- Web/File/PDF/Word/Excel/PowerPoint/YouTube Reader共通の実行確認（はい/いいえ）を、固定語彙リストで判定できない場合のみLLMに解釈させるよう更新
+- 固定語彙に一致する入力は今まで通り決定的に処理し、LLMは一切呼び出さない
+- LLMに渡すのはユーザー自身の返信テキストのみで、Readerが読み込んだ外部本文は一切含めない（prompt injectionリスクの抑制）
+- LLMの応答が不明瞭・呼び出し失敗の場合は必ずunclearにfail-safeし、silentな実行許可は絶対にしない
+- `core/confirmation_intent.py` にask_llm_func引数を追加し、7つのreader confirmationモジュールとpersonal_ai.pyの7つのhandle_pending_X_reader_confirmation()を橋渡しした
+- ask_llm_funcを渡さない呼び出し元は暗黙にQwenを呼び出さずunclearのままにする設計にし、既存の全checkスクリプトが無変更で通るようにした
+- `scripts/check_ver2260.py` の古いpinを、ハイブリッド方式実装済みであることを確認するpinに更新
+- `scripts/check_ver2440.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2440.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.43
 
 開始内容:

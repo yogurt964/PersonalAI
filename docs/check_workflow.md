@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2440.py`
 - `scripts/check_ver2430.py`
 - `scripts/check_ver2420.py`
 - `scripts/check_ver2410.py`
@@ -117,6 +118,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.44では、`check_ver2440.py` で確認判定のハイブリッド方式（固定語彙優先＋不明時のみLLM）を確認する。
+このcheckはfakeのLLM関数で、固定語彙が一致する場合はLLMを一切呼ばないこと、一致しない場合のみLLMを呼ぶこと、LLMの応答が不明瞭・例外時は必ずunclearにfail-safeすること、LLMに渡すプロンプトにユーザーの返信テキスト以外（外部Reader本文など）が混ざらないこと、7つのreader confirmationモジュールとpersonal_ai.pyの7つのhandle_pending_X_reader_confirmation()がask_llm_funcを正しく橋渡ししていること、ask_llm_funcを持たない過去のtest doubleでも例外を起こさずunclearのままになることを確認する。
+実際のQwen呼び出し、DB書き込みはしない。
 Ver2.43では、`check_ver2430.py` でYouTube Reader最小実装を確認する。
 このcheckはfakeのtranscript_fetcherで、YouTube URLの各形式（watch?v=/youtu.be/embed/shorts）からの動画ID抽出、字幕取得成功・失敗（存在しない・無効化）、確認フロー、PersonalAI結合フロー（同一ターンでの要約・別ターンでの追加質問）を確認する。
 実際のYouTubeへのアクセスは行わず、requirements.txtの内容を確認する。実際のYouTube動画での動作確認はユーザー自身に行ってもらう。

@@ -50,7 +50,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - PowerPoint Reader実行前の確認
 - YouTube Reader（単一動画の既存字幕・自動生成トランスクリプト取得）
 - YouTube Reader実行前の確認
-- 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader共通）
+- 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）
 - 読み取り結果の整形表示
 - Reader結果をQwenでの応答に接続（読んで要約・読んだ内容への追加質問）
 - Reader結果からMemory Candidateを生成
@@ -92,11 +92,11 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 近い候補:
 
-- LLM Intent Resolverの段階的実装
+- Image Reader（ローカル/OpenAI併用のvision router設計）
+- LLM Intent Resolverの段階的実装（確認判定のハイブリッド化は完了、他領域への拡張は今後）
 
 将来候補:
 
-- Image Reader（vision対応モデルの選定が必要）
 - Office連携（作成・編集）
 - メール・カレンダー連携
 - 高度なMemory検索

@@ -83,7 +83,7 @@ def build_pdf_reader_confirmation(user_input):
     )
 
 
-def resolve_pdf_reader_confirmation_response(user_input, pending_confirmation=None):
+def resolve_pdf_reader_confirmation_response(user_input, pending_confirmation=None, ask_llm_func=None):
     """PDF Reader確認への返答を分類し、実行候補を作ります。
 
     ここでは実行せず、確認済みの実行候補（ToolRequest候補）だけを作ります。
@@ -98,7 +98,7 @@ def resolve_pdf_reader_confirmation_response(user_input, pending_confirmation=No
             reason="保留中のPDF Reader確認がありません。",
         )
 
-    intent = resolve_confirmation_intent(user_input, context_type="pdf_reader")
+    intent = resolve_confirmation_intent(user_input, context_type="pdf_reader", ask_llm_func=ask_llm_func)
 
     if intent.get("status") == "confirmed":
         candidate = build_pdf_reader_tool_request_candidate(pending_confirmation)

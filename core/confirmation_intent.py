@@ -132,11 +132,11 @@ GENERIC_CONFIRMATION_CONTEXTS = {
 }
 
 
-def resolve_confirmation_intent(user_input, context_type):
+def resolve_confirmation_intent(user_input, context_type, ask_llm_func=None):
     """確認待ち状態の入力を、実行許可・拒否・不明に分類します。
 
-    今はルールベースですが、将来LLM Intent Resolverに差し替えやすいように
-    PersonalAI本体から分けています。
+    まず固定語彙リストで判定し、一致しない場合だけLLMに解釈させるハイブリッド方式です。
+    固定語彙で判定できる範囲は今まで通り決定的に動作するため、既存の挙動は変わりません。
     """
     normalized_input = _normalize_confirmation_text(user_input)
     context_config = GENERIC_CONFIRMATION_CONTEXTS.get(context_type)
@@ -146,6 +146,7 @@ def resolve_confirmation_intent(user_input, context_type):
             normalized_input,
             context_type,
             context_config,
+            ask_llm_func=ask_llm_func,
         )
 
     return _build_intent_result(
@@ -157,11 +158,18 @@ def resolve_confirmation_intent(user_input, context_type):
     )
 
 
-def _resolve_generic_confirmation_intent(normalized_input, context_type, context_config):
+def _resolve_generic_confirmation_intent(normalized_input, context_type, context_config, ask_llm_func=None):
     """はい/いいえ系の一般的な確認応答を、共通の語彙リストで判定します。
 
     Web ReaderとFile Readerは、どちらも「実行してよいか」を問う確認であり、
     使われる言い回し自体は共通です。文言だけをcontext_configで切り替えます。
+
+    固定語彙に一致しない場合のみ、LLMに解釈させます（Ver2.44）。
+    LLMには正規化済みのユーザー返信テキストだけを渡し、Readerが読み込んだ外部本文は
+    一切含めません。これはWeb/PDF/YouTubeなどの外部contentに紛れた指示文で
+    実行許可を誤認識させる（prompt injection）リスクを避けるためです。
+    LLMの応答が3つの単語のどれにも一致しない場合や、呼び出しに失敗した場合は、
+    安全側に倒してunclear（不明）として扱います。
     """
     if _matches_any(normalized_input, WEB_READER_REJECTED_WORDS):
         return _build_intent_result(
@@ -181,6 +189,26 @@ def _resolve_generic_confirmation_intent(normalized_input, context_type, context
             message=context_config["confirm_message"],
         )
 
+    llm_status = _resolve_confirmation_intent_via_llm(normalized_input, ask_llm_func)
+
+    if llm_status == CONFIRMATION_INTENT_CONFIRMED:
+        return _build_intent_result(
+            status=CONFIRMATION_INTENT_CONFIRMED,
+            action=context_config["confirm_action"],
+            context_type=context_type,
+            confidence="medium",
+            message=context_config["confirm_message"],
+        )
+
+    if llm_status == CONFIRMATION_INTENT_REJECTED:
+        return _build_intent_result(
+            status=CONFIRMATION_INTENT_REJECTED,
+            action=context_config["cancel_action"],
+            context_type=context_type,
+            confidence="medium",
+            message=context_config["cancel_message"],
+        )
+
     return _build_intent_result(
         status=CONFIRMATION_INTENT_UNCLEAR,
         action=context_config["unclear_action"],
@@ -188,6 +216,50 @@ def _resolve_generic_confirmation_intent(normalized_input, context_type, context
         confidence="low",
         message=context_config["unclear_message"],
     )
+
+
+def _resolve_confirmation_intent_via_llm(normalized_input, ask_llm_func):
+    """固定語彙で判定できない返信だけを、LLMにconfirmed/rejected/unclearの1語で答えさせます。
+
+    渡すのはユーザー自身の返信テキストのみです。判断できない・失敗した場合は
+    必ずunclearを返し、silent確認（黙って実行許可扱いにすること）は絶対にしません。
+    """
+    if not normalized_input:
+        return CONFIRMATION_INTENT_UNCLEAR
+
+    # ask_llm_funcを渡さない呼び出し元（LLMフォールバックを意図していない場合）では、
+    # 暗黙にQwenを呼び出さずunclearのままにします。実行時のPersonalAIは
+    # __init__でself.ask_llm_funcを設定しているため、実際の会話では通常どおりLLMが使われます。
+    if ask_llm_func is None:
+        return CONFIRMATION_INTENT_UNCLEAR
+
+    llm_func = ask_llm_func
+
+    prompt = (
+        "次のテキストは、ツール実行の確認（はい/いいえ）に対するユーザーの返信です。\n"
+        "実行してよいという意味なら confirmed、実行しないでほしいという意味なら rejected、\n"
+        "どちらとも判断できない場合は unclear と、必ずこの3つの単語のうち1つだけで答えてください。\n"
+        "説明や他の文章、記号は付けないでください。\n\n"
+        f"返信テキスト: {normalized_input}"
+    )
+
+    try:
+        response = llm_func([{"role": "user", "content": prompt}])
+    except Exception:
+        return CONFIRMATION_INTENT_UNCLEAR
+
+    normalized_response = str(response or "").strip().lower()
+    has_confirmed = "confirmed" in normalized_response
+    has_rejected = "rejected" in normalized_response
+    has_unclear = "unclear" in normalized_response
+
+    if has_confirmed and not has_rejected and not has_unclear:
+        return CONFIRMATION_INTENT_CONFIRMED
+
+    if has_rejected and not has_confirmed and not has_unclear:
+        return CONFIRMATION_INTENT_REJECTED
+
+    return CONFIRMATION_INTENT_UNCLEAR
 
 
 def _build_intent_result(status, action, context_type, confidence, message):
