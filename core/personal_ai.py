@@ -61,6 +61,11 @@ from core.pptx_reader_confirmation import (
     build_pptx_reader_confirmation,
     resolve_pptx_reader_confirmation_response,
 )
+from core.youtube_reader_adapter import YouTubeReaderAdapter
+from core.youtube_reader_confirmation import (
+    build_youtube_reader_confirmation,
+    resolve_youtube_reader_confirmation_response,
+)
 from core.web_reader_adapter import WebReaderAdapter
 from core.web_reader_confirmation import (
     build_web_reader_confirmation,
@@ -83,6 +88,7 @@ READER_SOURCE_LABELS = {
     "word_reader": "Word Reader",
     "excel_reader": "Excel Reader",
     "pptx_reader": "PowerPoint Reader",
+    "youtube_reader": "YouTube Reader",
 }
 RECENT_SAVED_MEMORY_REQUEST_WORDS = [
     "今保存した記憶",
@@ -251,6 +257,11 @@ class PersonalAI:
         self.last_pptx_reader_tool_request_candidate = None
         self.last_pptx_reader_tool_run_result = None
         self.last_pptx_reader_tool_result = None
+        self.last_youtube_reader_confirmation = None
+        self.last_youtube_reader_confirmation_result = None
+        self.last_youtube_reader_tool_request_candidate = None
+        self.last_youtube_reader_tool_run_result = None
+        self.last_youtube_reader_tool_result = None
         self.last_read_document = None
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
@@ -268,6 +279,7 @@ class PersonalAI:
         self.pending_word_reader_confirmation = None
         self.pending_excel_reader_confirmation = None
         self.pending_pptx_reader_confirmation = None
+        self.pending_youtube_reader_confirmation = None
         self.last_response = None
 
     def build_tool_registry(self, web_reader_fetcher=None):
@@ -279,6 +291,7 @@ class PersonalAI:
         registry.register(WordReaderAdapter())
         registry.register(ExcelReaderAdapter())
         registry.register(PPTXReaderAdapter())
+        registry.register(YouTubeReaderAdapter())
         return registry
 
     def run(self):
@@ -364,6 +377,13 @@ class PersonalAI:
             self.last_response = pending_pptx_reader_response
             self.save_assistant_message(pending_pptx_reader_response)
             return pending_pptx_reader_response
+
+        pending_youtube_reader_response = self.handle_pending_youtube_reader_confirmation(user_input)
+
+        if pending_youtube_reader_response:
+            self.last_response = pending_youtube_reader_response
+            self.save_assistant_message(pending_youtube_reader_response)
+            return pending_youtube_reader_response
 
         recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
 
@@ -485,6 +505,22 @@ class PersonalAI:
             self.last_response = pptx_reader_confirmation.message
             self.save_assistant_message(pptx_reader_confirmation.message)
             return pptx_reader_confirmation.message
+
+        # Ver2.43では、ユーザーが指定した単一のYouTube動画に限り、確認後に字幕を取得します。
+        # capability_managerのyoutube_read_required（未実装扱い）より先にここで判定します。
+        youtube_reader_confirmation = build_youtube_reader_confirmation(user_input)
+        self.last_youtube_reader_confirmation = youtube_reader_confirmation
+        self.last_youtube_reader_confirmation_result = None
+        self.last_youtube_reader_tool_request_candidate = None
+        self.last_youtube_reader_tool_run_result = None
+        self.last_youtube_reader_tool_result = None
+
+        if youtube_reader_confirmation.needs_confirmation:
+            self.pending_youtube_reader_confirmation = youtube_reader_confirmation.to_dict()
+            self.pending_youtube_reader_confirmation["original_input"] = user_input
+            self.last_response = youtube_reader_confirmation.message
+            self.save_assistant_message(youtube_reader_confirmation.message)
+            return youtube_reader_confirmation.message
 
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
@@ -1111,6 +1147,61 @@ class PersonalAI:
 
         return self.build_pptx_reader_tool_response(run_result.result, original_input=original_input)
 
+    def handle_pending_youtube_reader_confirmation(self, user_input):
+        """YouTube Reader確認後の返答を扱います。"""
+        pending_confirmation = getattr(self, "pending_youtube_reader_confirmation", None)
+
+        if not pending_confirmation:
+            return None
+
+        result = resolve_youtube_reader_confirmation_response(
+            user_input,
+            pending_confirmation,
+        )
+        self.last_youtube_reader_confirmation_result = result.to_dict()
+        self.last_youtube_reader_tool_request_candidate = result.tool_request_candidate
+
+        if result.status in ["confirmed", "cancelled"]:
+            self.pending_youtube_reader_confirmation = None
+
+        if result.status == "confirmed" and result.tool_request_candidate:
+            return self.execute_youtube_reader_tool_request_candidate(
+                result.tool_request_candidate,
+            )
+
+        return result.message or None
+
+    def execute_youtube_reader_tool_request_candidate(self, candidate):
+        """YouTube Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        request = self.build_tool_request_from_candidate(candidate)
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        run_result = run_tool_request(
+            request,
+            registry=registry,
+            user_confirmed=user_confirmed,
+            logger=logger,
+        )
+
+        self.last_youtube_reader_tool_run_result = run_result
+        self.last_youtube_reader_tool_result = run_result.result
+        self.last_tool_execution_record = run_result.execution_record
+
+        original_input = (candidate.get("input_data") or {}).get("original_input", "")
+
+        return self.build_youtube_reader_tool_response(run_result.result, original_input=original_input)
+
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
         request = self.build_tool_request_from_candidate(candidate)
@@ -1520,6 +1611,62 @@ class PersonalAI:
             "パス:\n"
             f"{resolved_path or '(パスなし)'}\n\n"
             "本文プレビュー:\n"
+            f"{formatted_preview}"
+        )
+
+    def build_youtube_reader_tool_response(self, result, original_input=""):
+        """YouTube ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
+
+        他のReaderと同じく、要約・質問などの目的が含まれていた場合は
+        取得した字幕本文をもとにQwenで直接答えます。Memory Candidateへの接続はまだ行いません。
+        """
+        if not getattr(result, "executed", False):
+            reason = getattr(result, "message", "") or getattr(result, "error", "")
+            return (
+                "YouTube Readerは実行されませんでした。\n\n"
+                "理由:\n"
+                f"{reason or 'ユーザー確認がないため、外部へアクセスしませんでした。'}"
+            )
+
+        if not getattr(result, "success", False):
+            reason = getattr(result, "error", None) or getattr(result, "message", "")
+            return (
+                "YouTube Readerで字幕取得を試みましたが、失敗しました。\n\n"
+                "理由:\n"
+                f"{reason or '原因は特定できませんでした。'}\n\n"
+                "次にできること:\n"
+                "- URLが正しいか確認する\n"
+                "- 動画に字幕（自動生成含む）が存在するか確認する"
+            )
+
+        data = getattr(result, "data", {}) or {}
+        video_id = data.get("video_id") or "(動画IDなし)"
+        url = _clean_web_reader_display_text(data.get("url"))
+        full_text = data.get("text") or data.get("text_preview") or ""
+        self.remember_last_read_document(
+            source_tool="youtube_reader",
+            title=video_id,
+            location=url,
+            text=full_text,
+        )
+
+        task_response = self.build_document_task_response_if_requested(
+            original_input,
+            full_text,
+            video_id,
+        )
+
+        if task_response is not None:
+            return f"YouTube Readerで字幕を取得しました。\n\n{task_response}"
+
+        text_preview = data.get("text_preview") or full_text
+        formatted_preview = _format_web_reader_preview(text_preview, title=video_id)
+
+        return (
+            "YouTube Readerで字幕を取得しました。\n\n"
+            "URL:\n"
+            f"{url or '(URLなし)'}\n\n"
+            "字幕プレビュー:\n"
             f"{formatted_preview}"
         )
 

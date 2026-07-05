@@ -1,5 +1,22 @@
 # Changelog
 
+## Version 2.43
+
+開始内容:
+
+- YouTube Reader最小実装を追加
+- `requirements.txt` に `youtube-transcript-api` / `requests` / `urllib3` / `charset-normalizer` / `defusedxml` を追加
+- `core/youtube_reader_adapter.py` を追加し、ユーザーが指定した単一のYouTube動画から、既存の字幕・自動生成トランスクリプトのみをyoutube-transcript-apiで取得できるようにした（動画・音声のダウンロードや文字起こしの実行はしない）
+- 対応URL形式: youtube.com/watch?v=、youtu.be/、youtube.com/embed/、youtube.com/shorts/
+- 字幕が存在しない・無効化されている・動画が非公開/削除済みの場合は読めたふりをせず正直に失敗を返す
+- `core/youtube_reader_confirmation.py` を追加し、他Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` に `context_type="youtube_reader"` を追加
+- `core/personal_ai.py` にYouTube Readerを接続し、capability_managerのyoutube_read_required（未実装扱い）より先に判定されるようにした
+- 自動checkでは実際のYouTubeへアクセスせず、fakeのtranscript_fetcherで動作を確認する。実際のYouTube動画での動作確認はユーザー自身に行ってもらう方針（Web Readerの実Web手動テストと同じ運用）
+- `scripts/check_ver2430.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2430.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+
 ## Version 2.42
 
 開始内容:

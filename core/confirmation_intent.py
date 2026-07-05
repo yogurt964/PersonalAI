@@ -117,6 +117,18 @@ GENERIC_CONFIRMATION_CONTEXTS = {
             "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
         ),
     },
+    "youtube_reader": {
+        "confirm_action": "confirm_youtube_reader",
+        "cancel_action": "cancel_youtube_reader",
+        "unclear_action": "ask_youtube_reader_confirmation_again",
+        "confirm_message": "YouTube Reader実行を許可する意図として解釈しました。",
+        "cancel_message": "YouTube Reader実行をキャンセルする意図として解釈しました。",
+        "unclear_message": (
+            "YouTube動画の字幕を取得するか確認中です。\n"
+            "実行する場合は「はい」「いいよ」「お願いします」など、\n"
+            "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
+        ),
+    },
 }
 
 

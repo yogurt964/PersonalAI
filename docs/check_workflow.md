@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2430.py`
 - `scripts/check_ver2420.py`
 - `scripts/check_ver2410.py`
 - `scripts/check_ver2400.py`
@@ -116,6 +117,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.43では、`check_ver2430.py` でYouTube Reader最小実装を確認する。
+このcheckはfakeのtranscript_fetcherで、YouTube URLの各形式（watch?v=/youtu.be/embed/shorts）からの動画ID抽出、字幕取得成功・失敗（存在しない・無効化）、確認フロー、PersonalAI結合フロー（同一ターンでの要約・別ターンでの追加質問）を確認する。
+実際のYouTubeへのアクセスは行わず、requirements.txtの内容を確認する。実際のYouTube動画での動作確認はユーザー自身に行ってもらう。
 Ver2.42では、`check_ver2420.py` でExcel Readerのグループ集計を確認する。
 このcheckは実際の売上データに近いテストケースで店舗ごとの合計比較が正しく計算されること、ID列が誤って集計されないこと、値がすべて一意なカテゴリ列でグループ集計が出ないこと、同一ターンでの要約・別ターンでの追加質問の両方で参照できることを確認する。
 実Webアクセス、DB書き込み、実LLM実行はしない。

@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.42
+現在バージョン: Ver2.43
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -171,6 +171,7 @@ Ver2.39: CLIに考え中表示を追加
 Ver2.40: 応答の正直さ・Qwen性能・OpenAIエスカレーション方針をdocs化
 Ver2.41: PowerPoint Reader最小実装
 Ver2.42: Excel Readerにグループ集計を追加
+Ver2.43: YouTube Reader最小実装
 ```
 
 ## 現在の主要ファイル
@@ -637,10 +638,25 @@ scripts/run_ver2_checks.py に check_ver2420.py を追加
 DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.42後の候補:
+Ver2.43でYouTube Reader最小実装を追加
 
 ```text
-Ver2.x: YouTube Reader（字幕・トランスクリプト取得、要検討）
+requirements.txt に youtube-transcript-api / requests / urllib3 / charset-normalizer / defusedxml を追加
+core/youtube_reader_adapter.py を追加し、ユーザーが指定した単一のYouTube動画から、既存の字幕・自動生成トランスクリプトのみをyoutube-transcript-apiで取得できるようにした（動画・音声のダウンロードや文字起こしの実行はしない）
+対応URL形式: youtube.com/watch?v=、youtu.be/、youtube.com/embed/、youtube.com/shorts/
+字幕が存在しない・無効化されている・動画が非公開/削除済みの場合は読めたふりをせず正直に失敗を返す
+core/youtube_reader_confirmation.py を追加し、他Reader同様に実行前確認を必須にした（ファイルパスではなくYouTube URLを対象とする点のみ異なる）
+core/confirmation_intent.py に context_type="youtube_reader" を追加
+core/personal_ai.py にYouTube Readerを接続し、capability_managerのyoutube_read_required（未実装扱い）より先に判定されるようにした
+自動checkでは実際のYouTubeへアクセスせず、fakeのtranscript_fetcherで動作を確認する。実際のYouTube動画での動作確認はユーザー自身に行ってもらう方針とした（Web Readerの実Web手動テストと同じ運用）
+scripts/check_ver2430.py を追加
+scripts/run_ver2_checks.py に check_ver2430.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+```
+
+Ver2.43後の候補:
+
+```text
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
 Ver2.x: Image Reader（vision対応モデルの選定が必要、着手前にユーザー確認）
