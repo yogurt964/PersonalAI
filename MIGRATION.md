@@ -121,6 +121,37 @@ Cursorは、視覚確認用エディタとして扱う。
 
 現時点では OpenAI / Claude / Gemini 接続は未実装である。
 
+## Qwen / OpenAIの利用方針
+
+PersonalAIは、現時点ではQwen / Ollamaを中心に、ローカル・低コストで開発している。
+
+ただし、将来的にはOpenAIを利用する可能性が高い。
+
+OpenAIは、以下のような高精度処理や実用化段階での利用候補である。
+
+- LLM Intent Resolver
+- Memory抽出・分類・要約の高精度化
+- PDF / Word / Excel / PowerPointなどの資料読解
+- 複雑なコード読解
+- Web検索結果の要約・判断
+- ToolRouter / ModelRouterの判断精度向上
+- 就活ポートフォリオとしての完成度向上
+- Qwenでは品質が不足する場面の補助
+
+一方で、OpenAI APIの利用は外部送信や課金を伴う可能性がある。
+
+そのため、以下は必ずユーザー確認を取る。
+
+- OpenAI APIキーの設定
+- OpenAI APIへの実データ送信
+- 有料API利用
+- 継続的なAPI利用
+- 個人情報・機密情報を含むデータの送信
+
+基本方針は、Qwen / Ollamaで進められる部分はローカルで進め、精度・安定性・開発効率・ポートフォリオ価値が明確に上がる場面でOpenAIの利用を検討することである。
+
+OpenAIを使う場合も、無駄なAPI消費やblind retry loopは避ける。
+
 ## 6. ディレクトリ構成
 
 ```text
@@ -552,6 +583,20 @@ AIエージェントは、失敗した場合に以下を行う。
 正しい方針は、「絶対に課金しない」でも「無制限に課金する」でもない。
 基本は低コストで進め、必要な場面では理由を明確にしたうえで課金を検討する。
 
+### 金額ラインについて
+
+現時点では、API利用や有料ツール利用に関する具体的な金額ラインは未確定である。
+
+有料API、従量課金モデル、追加サブスクリプション、外部サービス利用が必要になった段階で、ユーザーと以下をすり合わせる。
+
+- 1回の試行にかけてよい上限
+- 1日の上限
+- 1か月の上限
+- 就活ポートフォリオ完成度向上のために許容できる範囲
+- 無料または低コスト代替案
+
+金額ラインが未確定な間は、課金・契約・購入・APIキー利用・外部送信は必ず事前確認する。
+
 ## 14. 失敗時の対応方針
 
 PersonalAI開発では、失敗そのものは問題ではない。
@@ -822,10 +867,10 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.22: READMEへの画像・GIF・図の追加
-Ver2.22: LLM Intent Resolver設計
-Ver2.22: File Reader最小実装
+Ver2.25: LLM Intent Resolver設計
+Ver2.26: File Reader最小実装
 Ver2.x: PDF Reader
-Ver2.x: Memory検索の改善
-Ver2.x: Claude Code移行テスト
+Ver2.x: Image Reader
+Ver2.x: YouTube Reader
+Ver2.x: README用スクリーンショット/GIF追加
 ```

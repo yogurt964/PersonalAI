@@ -42,18 +42,26 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 
 ## 4. 現在の開発状態
 
-Ver2.22まで完了している。
+Ver2.24まで完了している。
 
 現在の主な状態:
 
+- Ver2.23でClaude Code移行開始ガイド（本ファイル）を作成済み
+- Ver2.24でClaude Code引継ぎ確認結果をdocsへ反映済み
 - READMEのポートフォリオ見せ方強化済み
 - MIGRATION.mdにユーザー適応・コスト・失敗対応・安全管理を反映済み
 - Web Reader、Web Reader確認、確認待ち状態の文脈解釈が実装済み
 - Memory Candidate生成、確認、編集dry-run、ユーザー確認つき保存が実装済み
 - 直近保存Memory確認とMemory簡易検索が実装済み
+- PersonalAI本体は現時点ではQwen / Ollama中心である。ただし、将来的にはOpenAIを高精度処理の候補として利用する可能性がある。OpenAI API利用、APIキー設定、外部送信、課金は必ずユーザー確認を取る
 - File / PDF / Image / YouTube / Office / メール / カレンダー連携は未実装
 - LLM Intent Resolverは未実装
 - OpenAI / Claude / Gemini接続は未実装
+
+### Claude Code最初の引継ぎ確認について
+
+最初の引継ぎ確認（Ver2.24）では、ユーザー指示により `run_ver2_checks.py` は実行せず、`git status` / `git log --oneline -5` / docs読み取りだけを行った。
+今後、実装を伴うVerに着手する際は、改めて `run_ver2_checks.py` または必要な個別checkを実行する方針とする。
 
 ## 5. ユーザー対応方針
 

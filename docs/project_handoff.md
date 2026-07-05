@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.23
+現在バージョン: Ver2.24
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -152,6 +152,7 @@ Ver2.20: Memory検索の最小実用化
 Ver2.21: Claude Code移行用MIGRATION.md
 Ver2.22: READMEのポートフォリオ見せ方強化
 Ver2.23: Claude Code移行準備パッケージ
+Ver2.24: Claude Code引継ぎ確認結果の反映
 ```
 
 ## 現在の主要ファイル
@@ -314,6 +315,10 @@ Knowledge DB本格実装
 GUI
 ```
 
+## OpenAI利用方針
+
+今後はOpenAIの利用も想定している。現時点ではQwen / Ollama中心だが、LLM Intent Resolver、Memory抽出、資料読解、複雑なコード読解などでOpenAIを使う可能性がある。ただし、APIキー設定・外部送信・課金は必ずユーザー確認が必要。
+
 ## 次にやること
 
 現在状態:
@@ -406,15 +411,25 @@ URL検出だけでは自動Webアクセスしない
 user_confirmed=Falseでは実行しない
 Reader結果全文のDB保存はまだしない
 実Webアクセスはユーザー確認つきの手動確認で行う
+Ver2.24でClaude Code引継ぎ確認結果の反映を追加
+Claude Codeが AGENTS.md、MIGRATION.md、README.md、development_workflow.md、project_handoff.md、check_workflow.md、changelog.md、portfolio_readme_policy.md、demo_logs を読み、目的・実装済み機能・未実装スコープ・開発スタイル・コスト方針・失敗時対応・致命的リスク・次Ver候補を把握したことを確認
+docs/claude_code_start.md のVer表記をVer2.23/2.24に合わせて修正
+MIGRATION.md の古いロードマップ重複（Ver2.22表記）を整理
+MIGRATION.md にコスト方針の金額ライン未確定の補足を追加
+MIGRATION.md / README.md / docs/claude_code_start.md にQwen / OpenAIの利用方針を追加
+`scripts/check_ver2240.py` を追加
+`scripts/run_ver2_checks.py` に `check_ver2240.py` を追加
+新機能実装、DBスキーマ変更、Memory保存・検索ロジック変更はしない
 ```
 
-Ver2.21後の候補:
+Ver2.24後の候補:
 
 ```text
-Ver2.24: Claude Code引継ぎ確認
 Ver2.25: LLM Intent Resolver設計
 Ver2.26: File Reader最小実装
 Ver2.x: PDF Reader
+Ver2.x: Image Reader
+Ver2.x: YouTube Reader
 Ver2.x: README用スクリーンショット/GIF追加
 ```
 

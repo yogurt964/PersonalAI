@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.24
+
+開始内容:
+
+- Claude Code引継ぎ確認結果をdocsへ反映
+- Claude Codeが AGENTS.md、MIGRATION.md、README.md、docs/development_workflow.md、docs/project_handoff.md、docs/check_workflow.md、docs/changelog.md、docs/portfolio_readme_policy.md、docs/demo_logs/web_reader_memory_candidate_demo.md を読み、目的・実装済み機能・未実装スコープ・開発スタイル・コスト方針・失敗時対応・致命的リスク・次Ver候補を正しく把握したことを確認
+- `docs/claude_code_start.md` の「Ver2.22まで完了」という古い表記をVer2.24に修正
+- 最初の引継ぎ確認ではユーザー指示により `run_ver2_checks.py` を実行せず、git status / git log / docs読み取りだけを行ったことを補足
+- `MIGRATION.md` のロードマップに残っていた古いVer2.22候補の重複を整理し、Ver2.25 / Ver2.26 / Ver2.x候補にそろえる
+- `MIGRATION.md` のコスト方針に、金額ラインが未確定であり有料API利用前にユーザーとすり合わせる方針を追記
+- `MIGRATION.md` / `README.md` / `docs/project_handoff.md` / `docs/claude_code_start.md` にQwen / OpenAIの利用方針を追加し、OpenAI API利用・APIキー設定・外部送信・課金は必ずユーザー確認する方針を明記
+- `docs/project_handoff.md` の現在バージョンをVer2.24に更新し、次候補をVer2.25以降にそろえる
+- `scripts/check_ver2240.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2240.py` を追加
+- LLM Intent Resolver、File Reader、PDF Reader、Image Reader、YouTube Reader、Office/メール/カレンダー連携、DBスキーマ変更、Memory保存・検索ロジック変更、OpenAI/Claude/Gemini接続、GUI、PC操作は今回実装しない方針を維持
+
 ## Version 2.23
 
 開始内容:
