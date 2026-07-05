@@ -898,9 +898,10 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.x: PowerPoint Reader（.pptx）
+Ver2.x: YouTube Reader（字幕・トランスクリプト取得、要検討）
+Ver2.x: Excel Readerのグループ集計対応（店舗ごとの合計比較など）
+Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
-Ver2.x: Image Reader
-Ver2.x: YouTube Reader
+Ver2.x: Image Reader（vision対応モデルの選定が必要、着手前にユーザー確認）
 Ver2.x: README用スクリーンショット/GIF追加
 ```

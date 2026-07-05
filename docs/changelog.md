@@ -1,5 +1,23 @@
 # Changelog
 
+## Version 2.41
+
+開始内容:
+
+- PowerPoint Reader最小実装を追加
+- `requirements.txt` に `python-pptx` / `XlsxWriter` / `Pillow` を追加
+- `core/pptx_reader_adapter.py` を追加し、ユーザーが指定した単一の.pptxファイルから、スライドのタイトル・本文・表・ノートのテキストをpython-pptxで抽出できるようにした
+- 古い.ppt形式（バイナリ）や破損ファイル、画像だけのスライドは読めたふりをせず正直に失敗を返す
+- `core/pptx_reader_confirmation.py` を追加し、他Reader同様に実行前確認を必須にした
+- `core/confirmation_intent.py` に `context_type="pptx_reader"` を追加
+- `core/personal_ai.py` にPowerPoint Readerを接続し、既存Reader群と同じ「確認 → ToolRunner経由実行 → 本文プレビュー、または要約・質問への直接回答」の流れを追加
+- ファイル名に「powerpoint」を含むケースでも問題ないことを確認した（該当キーワード自体が既存の判定ロジックに存在しないため）
+- `scripts/check_ver2410.py` を追加
+- `scripts/check_ver2290.py` の「対応外拡張子」テストを、.pptxが実装済みになったため.pngに変更
+- `scripts/run_ver2_checks.py` に `check_ver2410.py` を追加
+- DBスキーマ変更、Memory保存・検索ロジック変更は行わない方針を維持
+- これでOffice系Reader（Word/Excel/PowerPoint）が一通り揃った
+
 ## Version 2.40
 
 開始内容:

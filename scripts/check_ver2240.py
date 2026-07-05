@@ -154,7 +154,7 @@ def main():
             "1回の試行",
             "1日の上限",
             "1か月の上限",
-            "Ver2.x: PowerPoint Reader（.pptx）",
+            "Ver2.x: YouTube Reader（字幕・トランスクリプト取得、要検討）",
         ],
     )
 

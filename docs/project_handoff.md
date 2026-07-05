@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.40
+現在バージョン: Ver2.41
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -169,6 +169,7 @@ Ver2.37: Excel Reader最小実装
 Ver2.38: Excel Readerに数値列の自動集計を追加
 Ver2.39: CLIに考え中表示を追加
 Ver2.40: 応答の正直さ・Qwen性能・OpenAIエスカレーション方針をdocs化
+Ver2.41: PowerPoint Reader最小実装
 ```
 
 ## 現在の主要ファイル
@@ -604,15 +605,31 @@ Qwenで精度が不十分な場合に、必要に応じてOpenAIを頼れるよ�
 これらは会話品質・ModelRouter・OpenAI接続に関わる本格的な設計判断であり、個別のReader実装ではなくPersonalAI本体の応答品質・モデル選択の仕組みとして扱う。着手する場合はあらためてユーザーと設計を確認する。
 コード実装は行っていない。
 
-Ver2.40後の候補（PowerPointを追加予定）:
+Ver2.41でPowerPoint Reader最小実装を追加
 
 ```text
-Ver2.x: PowerPoint Reader（.pptx）
+requirements.txt に python-pptx / XlsxWriter / Pillow を追加
+core/pptx_reader_adapter.py を追加し、ユーザーが指定した単一の.pptxファイルから、スライドのタイトル・本文・表・ノートのテキストをpython-pptxで抽出できるようにした
+古い.ppt形式（バイナリ）や破損ファイル、画像だけのスライドは読めたふりをせず正直に失敗を返す
+core/pptx_reader_confirmation.py を追加し、他Reader同様に実行前確認を必須にした
+core/confirmation_intent.py に context_type="pptx_reader" を追加
+core/personal_ai.py にPowerPoint Readerを接続し、既存Reader群と同じ流れを追加
+ファイル名に"powerpoint"を含むケースでも、キーワード衝突は起きないことを確認した（input_analyzer / capability_manager / tool_request_builder にPowerPoint関連の素のキーワードがそもそも存在しないため）
+scripts/check_ver2410.py を追加
+scripts/check_ver2290.py の「対応外拡張子」テストを、.pptxが実装済みになったため.png（Image Reader未実装）に変更
+scripts/run_ver2_checks.py に check_ver2410.py を追加
+DBスキーマ変更、Memory保存・検索ロジック変更はしない
+これでOffice系Reader（Word/Excel/PowerPoint）が一通り揃った
+```
+
+Ver2.41後の候補:
+
+```text
+Ver2.x: YouTube Reader（字幕・トランスクリプト取得、要検討）
 Ver2.x: Excel Readerのグループ集計対応（店舗ごとの合計比較など）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: キーワード判定をLLM解釈へ置き換える検討（confirmation intent以外への拡張、安全性とのトレードオフを整理してから着手）
-Ver2.x: Image Reader
-Ver2.x: YouTube Reader
+Ver2.x: Image Reader（vision対応モデルの選定が必要、着手前にユーザー確認）
 Ver2.x: README用スクリーンショット/GIF追加
 ```
 

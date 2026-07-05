@@ -56,6 +56,11 @@ from core.excel_reader_confirmation import (
     build_excel_reader_confirmation,
     resolve_excel_reader_confirmation_response,
 )
+from core.pptx_reader_adapter import PPTXReaderAdapter
+from core.pptx_reader_confirmation import (
+    build_pptx_reader_confirmation,
+    resolve_pptx_reader_confirmation_response,
+)
 from core.web_reader_adapter import WebReaderAdapter
 from core.web_reader_confirmation import (
     build_web_reader_confirmation,
@@ -77,6 +82,7 @@ READER_SOURCE_LABELS = {
     "pdf_reader": "PDF Reader",
     "word_reader": "Word Reader",
     "excel_reader": "Excel Reader",
+    "pptx_reader": "PowerPoint Reader",
 }
 RECENT_SAVED_MEMORY_REQUEST_WORDS = [
     "今保存した記憶",
@@ -240,6 +246,11 @@ class PersonalAI:
         self.last_excel_reader_tool_request_candidate = None
         self.last_excel_reader_tool_run_result = None
         self.last_excel_reader_tool_result = None
+        self.last_pptx_reader_confirmation = None
+        self.last_pptx_reader_confirmation_result = None
+        self.last_pptx_reader_tool_request_candidate = None
+        self.last_pptx_reader_tool_run_result = None
+        self.last_pptx_reader_tool_result = None
         self.last_read_document = None
         self.last_tool_execution_record = None
         self.last_memory_candidate = None
@@ -256,6 +267,7 @@ class PersonalAI:
         self.pending_pdf_reader_confirmation = None
         self.pending_word_reader_confirmation = None
         self.pending_excel_reader_confirmation = None
+        self.pending_pptx_reader_confirmation = None
         self.last_response = None
 
     def build_tool_registry(self, web_reader_fetcher=None):
@@ -266,6 +278,7 @@ class PersonalAI:
         registry.register(PDFReaderAdapter())
         registry.register(WordReaderAdapter())
         registry.register(ExcelReaderAdapter())
+        registry.register(PPTXReaderAdapter())
         return registry
 
     def run(self):
@@ -344,6 +357,13 @@ class PersonalAI:
             self.last_response = pending_excel_reader_response
             self.save_assistant_message(pending_excel_reader_response)
             return pending_excel_reader_response
+
+        pending_pptx_reader_response = self.handle_pending_pptx_reader_confirmation(user_input)
+
+        if pending_pptx_reader_response:
+            self.last_response = pending_pptx_reader_response
+            self.save_assistant_message(pending_pptx_reader_response)
+            return pending_pptx_reader_response
 
         recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
 
@@ -450,6 +470,21 @@ class PersonalAI:
             self.last_response = excel_reader_confirmation.message
             self.save_assistant_message(excel_reader_confirmation.message)
             return excel_reader_confirmation.message
+
+        # Ver2.41では、ユーザーが指定した単一の.pptxファイルに限り、確認後に読み取ります。
+        pptx_reader_confirmation = build_pptx_reader_confirmation(user_input)
+        self.last_pptx_reader_confirmation = pptx_reader_confirmation
+        self.last_pptx_reader_confirmation_result = None
+        self.last_pptx_reader_tool_request_candidate = None
+        self.last_pptx_reader_tool_run_result = None
+        self.last_pptx_reader_tool_result = None
+
+        if pptx_reader_confirmation.needs_confirmation:
+            self.pending_pptx_reader_confirmation = pptx_reader_confirmation.to_dict()
+            self.pending_pptx_reader_confirmation["original_input"] = user_input
+            self.last_response = pptx_reader_confirmation.message
+            self.save_assistant_message(pptx_reader_confirmation.message)
+            return pptx_reader_confirmation.message
 
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
@@ -1021,6 +1056,61 @@ class PersonalAI:
 
         return self.build_excel_reader_tool_response(run_result.result, original_input=original_input)
 
+    def handle_pending_pptx_reader_confirmation(self, user_input):
+        """PowerPoint Reader確認後の返答を扱います。"""
+        pending_confirmation = getattr(self, "pending_pptx_reader_confirmation", None)
+
+        if not pending_confirmation:
+            return None
+
+        result = resolve_pptx_reader_confirmation_response(
+            user_input,
+            pending_confirmation,
+        )
+        self.last_pptx_reader_confirmation_result = result.to_dict()
+        self.last_pptx_reader_tool_request_candidate = result.tool_request_candidate
+
+        if result.status in ["confirmed", "cancelled"]:
+            self.pending_pptx_reader_confirmation = None
+
+        if result.status == "confirmed" and result.tool_request_candidate:
+            return self.execute_pptx_reader_tool_request_candidate(
+                result.tool_request_candidate,
+            )
+
+        return result.message or None
+
+    def execute_pptx_reader_tool_request_candidate(self, candidate):
+        """PowerPoint Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
+        request = self.build_tool_request_from_candidate(candidate)
+        user_confirmed = bool(candidate.get("user_confirmed"))
+        registry = getattr(self, "tool_registry", None)
+
+        if registry is None:
+            registry = self.build_tool_registry(getattr(self, "web_reader_fetcher", None))
+            self.tool_registry = registry
+
+        logger = getattr(self, "tool_execution_logger", None)
+
+        if logger is None:
+            logger = ToolExecutionLogger()
+            self.tool_execution_logger = logger
+
+        run_result = run_tool_request(
+            request,
+            registry=registry,
+            user_confirmed=user_confirmed,
+            logger=logger,
+        )
+
+        self.last_pptx_reader_tool_run_result = run_result
+        self.last_pptx_reader_tool_result = run_result.result
+        self.last_tool_execution_record = run_result.execution_record
+
+        original_input = (candidate.get("input_data") or {}).get("original_input", "")
+
+        return self.build_pptx_reader_tool_response(run_result.result, original_input=original_input)
+
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""
         request = self.build_tool_request_from_candidate(candidate)
@@ -1367,6 +1457,64 @@ class PersonalAI:
 
         return (
             "Excel Readerで読み取りました。\n\n"
+            "ファイル名:\n"
+            f"{file_name}\n\n"
+            "パス:\n"
+            f"{resolved_path or '(パスなし)'}\n\n"
+            "本文プレビュー:\n"
+            f"{formatted_preview}"
+        )
+
+    def build_pptx_reader_tool_response(self, result, original_input=""):
+        """PowerPoint ReaderのToolResultを、ユーザーに見せる短い返答へ変換します。
+
+        他のReaderと同じく、要約・質問などの目的が含まれていた場合は
+        読み取った本文をもとにQwenで直接答えます。Memory Candidateへの接続はまだ行いません。
+        """
+        if not getattr(result, "executed", False):
+            reason = getattr(result, "message", "") or getattr(result, "error", "")
+            return (
+                "PowerPoint Readerは実行されませんでした。\n\n"
+                "理由:\n"
+                f"{reason or 'ユーザー確認がないため、ローカルファイルへアクセスしませんでした。'}"
+            )
+
+        if not getattr(result, "success", False):
+            reason = getattr(result, "error", None) or getattr(result, "message", "")
+            return (
+                "PowerPoint Readerで読み取りを試みましたが、失敗しました。\n\n"
+                "理由:\n"
+                f"{reason or '原因は特定できませんでした。'}\n\n"
+                "次にできること:\n"
+                "- ファイルパスが正しいか確認する\n"
+                "- .pptx形式（古い.ppではない）か確認する"
+            )
+
+        data = getattr(result, "data", {}) or {}
+        file_name = _clean_web_reader_display_text(data.get("file_name")) or "(ファイル名なし)"
+        resolved_path = _clean_web_reader_display_text(data.get("resolved_path") or data.get("path"))
+        full_text = data.get("text") or data.get("text_preview") or ""
+        self.remember_last_read_document(
+            source_tool="pptx_reader",
+            title=file_name,
+            location=resolved_path,
+            text=full_text,
+        )
+
+        task_response = self.build_document_task_response_if_requested(
+            original_input,
+            full_text,
+            file_name,
+        )
+
+        if task_response is not None:
+            return f"PowerPoint Readerで読み取りました。\n\n{task_response}"
+
+        text_preview = data.get("text_preview") or full_text
+        formatted_preview = _format_web_reader_preview(text_preview, title=file_name)
+
+        return (
+            "PowerPoint Readerで読み取りました。\n\n"
             "ファイル名:\n"
             f"{file_name}\n\n"
             "パス:\n"

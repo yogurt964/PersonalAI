@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2410.py`
 - `scripts/check_ver2400.py`
 - `scripts/check_ver2390.py`
 - `scripts/check_ver2380.py`
@@ -114,6 +115,9 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.41では、`check_ver2410.py` でPowerPoint Reader最小実装を確認する。
+このcheckはpython-pptxで実際に生成した.pptxファイルでの実テキスト抽出（タイトル・本文・表・ノート）、fakeのLLM関数を使ったPersonalAI結合フロー、ファイル名に「powerpoint」を含むケースでの動作、requirements.txtの内容を確認する。
+実Webアクセス、DB書き込み、実LLM実行はしない。
 Ver2.40では、`check_ver2400.py` で応答の正直さ・Qwen性能・OpenAIエスカレーション方針のdocs化を確認する。
 このcheckはdocs確認のみを行い、実Webアクセス、DB書き込み、LLM実行、機能コード変更をしない。
 Ver2.39では、`check_ver2390.py` でCLIの考え中表示を確認する。
