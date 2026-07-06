@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.58
+
+開始内容:
+
+- Web検索が必要な質問への対応を追加（新機能、Tierエスカレーションとは別枠）
+- `core/web_search_intent.py` の `needs_web_search()` で、最新情報・時事的な表現や明示的な検索依頼をキーワードで判定する
+- 判定結果に応じて、質問の時点で最初からOpenAIのWeb検索機能（`ai/openai_client.py`の`ask_openai_with_web_search()`）へ直接渡す（低信頼を検知してから遡るTierエスカレーションとは別方式）
+- 予算超過・キー未設定などでOpenAIが使えない場合は、検索できない旨を正直に伝える
+- ユーザーから「検索はOpenAI、回答生成はQwenに分離できないか」との提案、および「機能ごとに最適なモデルを割り当てる」という原則の共有があり、`docs/final_product_vision.md`に記録した
+- `scripts/check_ver2580.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2580.py` を追加
+
 ## Version 2.57
 
 開始内容:

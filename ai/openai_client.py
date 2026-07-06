@@ -22,6 +22,10 @@ ESTIMATED_COST_PER_TEXT_CALL_USD = 0.005
 ESTIMATED_COST_PER_POWERFUL_VISION_CALL_USD = 0.03
 ESTIMATED_COST_PER_POWERFUL_TEXT_CALL_USD = 0.02
 
+# Web検索機能つきモデル用。実際にAPIを叩けるようになった時点で確認してください（Ver2.58時点では未検証）。
+DEFAULT_WEB_SEARCH_MODEL = "gpt-4o-mini"
+ESTIMATED_COST_PER_WEB_SEARCH_CALL_USD = 0.015
+
 
 class OpenAIKeyMissingError(Exception):
     """OPENAI_API_KEY環境変数が設定されていない場合の例外です。"""
@@ -134,6 +138,65 @@ def ask_openai_text(
     )
 
     return response_text
+
+
+def ask_openai_with_web_search(
+    query,
+    monthly_cap_usd=DEFAULT_MONTHLY_CAP_USD,
+    model=DEFAULT_WEB_SEARCH_MODEL,
+    feature="web_search",
+    estimated_cost_usd=ESTIMATED_COST_PER_WEB_SEARCH_CALL_USD,
+    client_factory=None,
+    usage_total_func=None,
+    usage_recorder=None,
+):
+    """OpenAIのWeb検索機能つきモデルに質問し、回答を返します。
+
+    Qwen・通常のOpenAIモデルは学習時点までの知識しか持たないため、最新情報が
+    必要な質問はTierエスカレーションとは別に、最初からこの関数を使います。
+    呼び出し前に必ず月間上限をチェックし、上限に達している場合は例外を送出して
+    実際の呼び出し自体を行いません。成功した場合のみ、想定利用額を記録します。
+
+    Ver2.58時点では、実際のOpenAI Web検索API呼び出し（_call_real_openai_web_search）は
+    未検証です（課金設定が完了していないため）。client_factoryを渡さない実運用は、
+    課金設定完了後に改めて確認してください。
+
+    ユーザーから「検索はOpenAI、回答生成はQwenに分離してコストを抑えられないか」という
+    提案があった。responses APIのweb_searchツールが生の検索結果を合成済み回答と分離して
+    返せるかは、実際にAPIを叩いて応答形式を確認するまで判断できないため、Ver2.58では
+    一括呼び出しのまま実装し、実API確認後に分離の是非を改めて判断する。
+    """
+    ensure_budget_available(monthly_cap_usd, usage_total_func)
+
+    api_key = get_api_key()
+
+    if client_factory is not None:
+        response_text = client_factory(api_key, query, model)
+    else:
+        response_text = _call_real_openai_web_search(api_key, query, model)
+
+    recorder = usage_recorder or record_openai_usage
+    recorder(
+        feature=feature,
+        model=model,
+        estimated_cost_usd=estimated_cost_usd,
+    )
+
+    return response_text
+
+
+def _call_real_openai_web_search(api_key, query, model):
+    from openai import OpenAI
+
+    client = OpenAI(api_key=api_key)
+
+    response = client.responses.create(
+        model=model,
+        tools=[{"type": "web_search"}],
+        input=query,
+    )
+
+    return response.output_text
 
 
 def _call_real_openai_text(api_key, messages, model):

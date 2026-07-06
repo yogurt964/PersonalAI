@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.57
+現在バージョン: Ver2.58
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -186,6 +186,7 @@ Ver2.54: OpenAI vision接続（vision_router、月間予算ガード付き）を
 Ver2.55: Image Readerの自動OpenAIエスカレーション（ローカル低信頼時のみ、予算ガード内）を追加
 Ver2.56: Reader経由のテキスト応答（要約・質問）にも自動OpenAIエスカレーションを追加
 Ver2.57: 画像・テキスト両方のエスカレーションにTier3（最上位モデル）を追加
+Ver2.58: Web検索が必要な質問への対応（新機能、エスカレーションとは別枠）を追加
 ```
 
 ## 現在の主要ファイル
@@ -956,11 +957,31 @@ Tier2と区別できるようにした（既存呼び出しはデフォルト値
 scripts/check_ver2570.py を追加。実際のOpenAI API呼び出しは一切行わない。
 ```
 
-Ver2.57後の候補:
+Ver2.58でWeb検索が必要な質問への対応を追加
+
+```text
+core/web_search_intent.py の needs_web_search() を新設。最新情報・時事的な表現
+（「最新」「今日の」「ニュース」等）や明示的な検索依頼（「調べて」「検索して」等）を
+キーワードで判定する。Tierエスカレーション（低信頼を検知してから遡る）とは異なり、
+質問の時点で判定し、最初からOpenAIのWeb検索機能（responses APIのweb_searchツール、
+Ver2.58時点では未検証）へ直接渡す設計にした。
+ai/openai_client.py に ask_openai_with_web_search() を追加（同じbudget guardパターン、
+featureタグ"web_search"）。personal_ai.py の capability_analysis チェック直後、
+通常会話フローに入る前に判定するよう組み込んだ。
+予算超過・キー未設定などでOpenAIが使えない場合は、検索できない旨を正直に伝える
+（調べたふりはしない）。
+ユーザーから「検索はOpenAI、回答生成はQwenに分離できないか」という提案があった。
+実現できるかは実際にAPIを叩いて応答形式を確認してから判断する（現時点では一括呼び出し）。
+また「機能ごとに最適なモデルを個別に割り当てる」という原則も共有され、
+docs/final_product_vision.md 6章に記録した。
+scripts/check_ver2580.py を追加。実際のOpenAI API呼び出しは一切行わない。
+```
+
+Ver2.58後の候補:
 
 ```text
 Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施、クレジット購入完了後）
-Ver2.x: Web検索が必要な質問への対応（新機能として、エスカレーションとは別枠）
+Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: 通常会話など他の場所へのテキストエスカレーション拡張（範囲を都度検討）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

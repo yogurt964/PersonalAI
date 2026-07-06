@@ -17,6 +17,7 @@ from ai.preference_confirmation import (
 from ai.preference_memory import save_preference_memories
 from core.capability_manager import CapabilityManager
 from core.confidence_check import seems_low_confidence
+from core.web_search_intent import needs_web_search
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
 from core.memory_candidate import build_memory_candidate_from_reader_result
@@ -238,6 +239,8 @@ class PersonalAI:
         # 自動checkで、実際のOpenAI呼び出しをせずテキスト自動エスカレーションのロジックだけを
         # 検証できるようにします（Noneの場合はai/openai_client.pyの実際のOpenAI呼び出しを使います）。
         self.openai_text_client_factory = None
+        # Ver2.58: Web検索が必要な質問用の注入ポイント（デフォルトNoneで実際のOpenAI Web検索呼び出しを使う）。
+        self.openai_web_search_client_factory = None
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -633,6 +636,14 @@ class PersonalAI:
             self.save_assistant_message(ai_response)
             return ai_response
 
+        # Ver2.58: 最新情報が必要そうな質問は、Qwenではなく最初からOpenAIのWeb検索機能を使います。
+        web_search_response = self.build_web_search_response_if_needed(user_input)
+
+        if web_search_response:
+            self.last_response = web_search_response
+            self.save_assistant_message(web_search_response)
+            return web_search_response
+
         memory_response = self.extract_and_save_memories(user_input)
 
         if memory_response:
@@ -674,6 +685,33 @@ class PersonalAI:
         self.save_assistant_message(ai_response)
 
         return ai_response
+
+    def build_web_search_response_if_needed(self, user_input):
+        """最新情報が必要そうな質問には、Qwenではなく最初からOpenAIのWeb検索機能を使います。
+
+        Tierエスカレーション（低信頼を検知してから遡る）とは異なり、質問の時点で
+        「検索が要る」と判定して直接OpenAIへ渡します（Qwenは学習時点までの知識しか
+        持たないため、低信頼判定を待っても意味がないからです）。
+        予算超過・キー未設定などでOpenAIが使えない場合は、検索できない旨を正直に伝えます
+        （調べたふりはしません）。
+        """
+        if not needs_web_search(user_input):
+            return None
+
+        try:
+            from ai.openai_client import ask_openai_with_web_search
+
+            answer = ask_openai_with_web_search(
+                user_input,
+                client_factory=getattr(self, "openai_web_search_client_factory", None),
+            )
+            return f"{answer}\n\n（Web検索の結果をもとに回答しました）"
+        except Exception:
+            return (
+                "最新情報が必要な質問のようですが、現時点ではWeb検索を実行できません"
+                "（予算上限に達しているか、OpenAI接続が未設定の可能性があります）。\n"
+                "分かる範囲でよければ、通常の会話としてもう一度聞いてください。"
+            )
 
     def build_capability_unavailable_response(self, capability_analysis):
         """必要な機能が未実装の場合に、できない理由を正直に返します。"""

@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2580.py`
 - `scripts/check_ver2570.py`
 - `scripts/check_ver2560.py`
 - `scripts/check_ver2550.py`
@@ -131,6 +132,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.58では、`check_ver2580.py` でWeb検索が必要な質問への対応を確認する。
+このcheckは実際のOpenAI API呼び出しを一切行わず、fakeのclient_factoryと独立したin-memory SQLiteで、検索意図の判定・Web検索応答の生成・予算超過時の正直なフォールバックを検証する。
 Ver2.57では、`check_ver2570.py` で画像・テキスト両方のTier3（最上位モデル）エスカレーションを確認する。
 このcheckは実際のOpenAI API呼び出しを一切行わず、fakeのclient_factoryと独立したin-memory SQLiteで、Tier2→Tier3への自動エスカレーションと、Tier3失敗時のTier2結果への正直なフォールバックを検証する。
 Ver2.56では、`check_ver2560.py` でReader経由のテキスト応答への自動OpenAIエスカレーションを確認する。
