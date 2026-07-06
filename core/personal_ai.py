@@ -2490,29 +2490,61 @@ class PersonalAI:
         return self._escalate_text_answer_if_low_confidence(local_answer, messages)
 
     def _escalate_text_answer_if_low_confidence(self, local_answer, messages):
-        """Qwenの回答が低信頼そうな場合、PersonalAIの判断でOpenAIへの再質問を試みます。
+        """Qwenの回答が低信頼そうな場合、PersonalAIの判断でOpenAI Tier2への再質問を試みます。
 
-        Image Readerの自動エスカレーション（Ver2.55）と同じ考え方です。
-        予算超過・キー未設定などでOpenAIが使えない場合は、エスカレーションを試みず、
-        Qwenの回答をそのまま正直に返します（silent fallback）。
+        Tier2の回答も低信頼そうなら、さらにTier3（高性能モデル）へエスカレーションします
+        （Image Readerの自動エスカレーション、Ver2.55/2.57と同じ考え方です）。
+        予算超過・キー未設定などでOpenAIが使えない場合は、その手前の回答をそのまま
+        正直に返します（silent fallback）。
         """
         if not seems_low_confidence(local_answer):
             return local_answer
 
         try:
-            from ai.openai_client import ask_openai_text
-
-            openai_answer = ask_openai_text(
-                messages,
-                client_factory=getattr(self, "openai_text_client_factory", None),
-            )
-
-            return (
-                f"{openai_answer}\n\n"
-                "（Qwenでの回答が不明瞭だったため、PersonalAIの判断でOpenAIに再質問しました）"
-            )
+            tier2_answer = self._ask_openai_text_tier2(messages)
         except Exception:
             return local_answer
+
+        if not seems_low_confidence(tier2_answer):
+            return (
+                f"{tier2_answer}\n\n"
+                "（Qwenでの回答が不明瞭だったため、PersonalAIの判断でOpenAIに再質問しました）"
+            )
+
+        try:
+            tier3_answer = self._ask_openai_text_tier3(messages)
+            return (
+                f"{tier3_answer}\n\n"
+                "（Qwen・OpenAI安価モデルの回答がいずれも不明瞭だったため、より高性能なモデルに再質問しました）"
+            )
+        except Exception:
+            return (
+                f"{tier2_answer}\n\n"
+                "（Qwenでの回答が不明瞭だったため、PersonalAIの判断でOpenAIに再質問しました）"
+            )
+
+    def _ask_openai_text_tier2(self, messages):
+        from ai.openai_client import ask_openai_text
+
+        return ask_openai_text(
+            messages,
+            client_factory=getattr(self, "openai_text_client_factory", None),
+        )
+
+    def _ask_openai_text_tier3(self, messages):
+        from ai.openai_client import (
+            ask_openai_text,
+            DEFAULT_POWERFUL_TEXT_MODEL,
+            ESTIMATED_COST_PER_POWERFUL_TEXT_CALL_USD,
+        )
+
+        return ask_openai_text(
+            messages,
+            model=DEFAULT_POWERFUL_TEXT_MODEL,
+            feature="text_escalation_tier3",
+            estimated_cost_usd=ESTIMATED_COST_PER_POWERFUL_TEXT_CALL_USD,
+            client_factory=getattr(self, "openai_text_client_factory", None),
+        )
 
     def build_messages(
         self,

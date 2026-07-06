@@ -1,5 +1,17 @@
 # Changelog
 
+## Version 2.57
+
+開始内容:
+
+- 画像・テキスト両方のOpenAIエスカレーションにTier3（最上位モデル）を追加
+- OpenAI接続を機にユーザーとPersonalAIの最終ゴールをすり合わせた内容を`docs/final_product_vision.md`に記録（詳細はそちらを参照）
+- Tier2（安価モデル）の回答も低信頼な場合、さらにTier3（高性能モデル、gpt-4o想定）へ自動エスカレーションする
+- Tier3が使えない場合（予算超過・キー未設定・呼び出し失敗など）は、Tier2の結果へ正直にフォールバックする
+- `ai/openai_client.py` の `describe_image_with_openai()` / `ask_openai_text()` に `feature` / `estimated_cost_usd` の上書きパラメータを追加（既存呼び出しは変更なし）
+- `scripts/check_ver2570.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2570.py` を追加
+
 ## Version 2.56
 
 開始内容:

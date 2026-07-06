@@ -175,9 +175,10 @@ class ImageReaderAdapter(ToolAdapter):
         """画像を解析し、(説明文, 実際に使ったバックエンド) を返します。
 
         backendが"local"の場合、まずローカルモデルで解析し、その結果が低信頼そうなら
-        （ユーザーとの合意に基づき）PersonalAIの判断で自動的にOpenAIへ再解析を試みます。
-        OpenAI側が予算超過・キー未設定などで使えない場合は、ローカルの結果をそのまま
-        正直に返します（silent fallback）。
+        （ユーザーとの合意に基づき）PersonalAIの判断で自動的にOpenAI Tier2（安価モデル）へ
+        再解析を試みます。Tier2の結果も低信頼そうなら、さらにTier3（高性能モデル）へ
+        エスカレーションします。OpenAI側が予算超過・キー未設定などで使えない場合は、
+        その手前の結果をそのまま正直に返します（silent fallback）。
         """
         if self._vision_describer is not None:
             return self._vision_describer(path, original_input, backend), backend
@@ -187,7 +188,7 @@ class ImageReaderAdapter(ToolAdapter):
         prompt = f"{DEFAULT_VISION_PROMPT}\n\nユーザーからの元のメッセージ: {original_input}" if original_input else DEFAULT_VISION_PROMPT
 
         if backend == VISION_BACKEND_OPENAI:
-            return self._call_openai_vision(path, prompt), VISION_BACKEND_OPENAI
+            return self._call_openai_vision_with_tier3_escalation(path, prompt), VISION_BACKEND_OPENAI
 
         if backend != VISION_BACKEND_LOCAL:
             raise NotImplementedError(f"vision backend '{backend}' is not implemented yet.")
@@ -196,7 +197,7 @@ class ImageReaderAdapter(ToolAdapter):
 
         if should_escalate_after_local_result(local_text):
             try:
-                openai_text = self._call_openai_vision(path, prompt)
+                openai_text = self._call_openai_vision_with_tier3_escalation(path, prompt)
                 return (
                     f"{openai_text}\n\n"
                     "（ローカルモデルでの解析結果が不明瞭だったため、PersonalAIの判断でOpenAIに再解析させました）"
@@ -206,6 +207,24 @@ class ImageReaderAdapter(ToolAdapter):
                 return local_text, VISION_BACKEND_LOCAL
 
         return local_text, VISION_BACKEND_LOCAL
+
+    def _call_openai_vision_with_tier3_escalation(self, path, prompt):
+        """Tier2（安価モデル）で解析し、その結果も低信頼ならTier3（高性能モデル）へ自動エスカレーションします。
+
+        Tier2自体が失敗した場合（予算超過・キー未設定など）は、その例外をそのまま送出します
+        （呼び出し元でローカル結果へのフォールバックを判断できるようにするためです）。
+        Tier3が使えない場合は、Tier2の結果をそのまま使います。
+        """
+        tier2_text = self._call_openai_vision(path, prompt)
+
+        if not should_escalate_after_local_result(tier2_text):
+            return tier2_text
+
+        try:
+            tier3_text = self._call_openai_vision_powerful(path, prompt)
+            return f"{tier3_text}\n\n（Tier2（安価モデル）の解析結果も不明瞭だったため、より高性能なモデルで再解析しました）"
+        except Exception:
+            return tier2_text
 
     def _call_local_vision(self, path, prompt):
         from ollama import chat
@@ -223,6 +242,22 @@ class ImageReaderAdapter(ToolAdapter):
         return describe_image_with_openai(
             str(path),
             prompt,
+            client_factory=self._openai_client_factory,
+        )
+
+    def _call_openai_vision_powerful(self, path, prompt):
+        from ai.openai_client import (
+            describe_image_with_openai,
+            DEFAULT_POWERFUL_VISION_MODEL,
+            ESTIMATED_COST_PER_POWERFUL_VISION_CALL_USD,
+        )
+
+        return describe_image_with_openai(
+            str(path),
+            prompt,
+            model=DEFAULT_POWERFUL_VISION_MODEL,
+            feature="image_reader_vision_tier3",
+            estimated_cost_usd=ESTIMATED_COST_PER_POWERFUL_VISION_CALL_USD,
             client_factory=self._openai_client_factory,
         )
 

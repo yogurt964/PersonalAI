@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.56
+現在バージョン: Ver2.57
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -185,6 +185,7 @@ Ver2.53: Memory一覧表示・削除UI（削除は確認必須、非破壊的な
 Ver2.54: OpenAI vision接続（vision_router、月間予算ガード付き）を追加
 Ver2.55: Image Readerの自動OpenAIエスカレーション（ローカル低信頼時のみ、予算ガード内）を追加
 Ver2.56: Reader経由のテキスト応答（要約・質問）にも自動OpenAIエスカレーションを追加
+Ver2.57: 画像・テキスト両方のエスカレーションにTier3（最上位モデル）を追加
 ```
 
 ## 現在の主要ファイル
@@ -933,10 +934,33 @@ scripts/check_ver2560.py を追加。実際のOpenAI API呼び出しは一切行
 scripts/run_ver2_checks.py に check_ver2560.py を追加
 ```
 
-Ver2.56後の候補:
+Ver2.56でOpenAI連携の最終ゴールをユーザーとすり合わせ、Ver2.57でTier3エスカレーションを追加
+
+```text
+OpenAI接続を機に、ユーザーとPersonalAIの最終ゴールについて具体的にすり合わせた
+（詳細はdocs/final_product_vision.md 11章）。要点:
+- ゲーム開発はClaude Codeのように設計相談後は自律実装（Unity/Blender直接操作含む）してほしい
+- Web検索による自律的な知識蓄積を中核機能にしたい
+- 創作・技術ツールの操作は固定モードではなく、できることをなるべく増やす方針
+- 既存AI（ChatGPT/Claude Code）の機能を土台に、自動実行・PC自由操作・画面共有・
+  能動的な話しかけ/作業開始を差別化点にしたい（いずれも要安全設計、着手時に別途相談）
+- 効率的な設計でコストを抑えつつ性能を上げる（3段階モデル活用と対応）
+
+このすり合わせを受けて、Ver2.55/2.56で作ったTier1(Qwen)↔Tier2(OpenAI安価モデル)の
+エスカレーションに、Tier3（高性能モデル、gpt-4o想定・モデル名は要検証）を追加した。
+画像解析・テキスト応答の両方で、Tier2の回答も低信頼ならTier3へ自動エスカレーションする。
+Tier3が使えない場合は、Tier2の結果へ正直にフォールバックする。
+ai/openai_client.py の describe_image_with_openai() / ask_openai_text() に
+feature/estimated_cost_usdの上書きパラメータを追加し、Tier3呼び出しの利用記録を
+Tier2と区別できるようにした（既存呼び出しはデフォルト値のまま変更なし）。
+scripts/check_ver2570.py を追加。実際のOpenAI API呼び出しは一切行わない。
+```
+
+Ver2.57後の候補:
 
 ```text
 Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施、クレジット購入完了後）
+Ver2.x: Web検索が必要な質問への対応（新機能として、エスカレーションとは別枠）
 Ver2.x: 通常会話など他の場所へのテキストエスカレーション拡張（範囲を都度検討）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

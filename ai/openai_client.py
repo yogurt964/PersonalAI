@@ -8,10 +8,19 @@ DEFAULT_MONTHLY_CAP_USD = 5.0
 DEFAULT_VISION_MODEL = "gpt-4o-mini"
 DEFAULT_TEXT_MODEL = "gpt-4o-mini"
 
+# Tier3（最上位モデル）用。実際にAPIを叩けるようになった時点で、
+# その時点で使える最上位モデルを確認し、必要ならこの定数を更新してください（Ver2.57時点では未検証）。
+DEFAULT_POWERFUL_VISION_MODEL = "gpt-4o"
+DEFAULT_POWERFUL_TEXT_MODEL = "gpt-4o"
+
 # gpt-4o-miniでの1回あたりの想定コスト（安全側に倒した概算値）。
 # 実際の請求額はこれ以下になる想定です。正確な値はOpenAIのpricingページを参照してください。
 ESTIMATED_COST_PER_VISION_CALL_USD = 0.01
 ESTIMATED_COST_PER_TEXT_CALL_USD = 0.005
+
+# Tier3（より高性能・高コストなモデル）での1回あたりの想定コスト（安全側に倒した概算値）。
+ESTIMATED_COST_PER_POWERFUL_VISION_CALL_USD = 0.03
+ESTIMATED_COST_PER_POWERFUL_TEXT_CALL_USD = 0.02
 
 
 class OpenAIKeyMissingError(Exception):
@@ -59,6 +68,8 @@ def describe_image_with_openai(
     prompt,
     monthly_cap_usd=DEFAULT_MONTHLY_CAP_USD,
     model=DEFAULT_VISION_MODEL,
+    feature="image_reader_vision",
+    estimated_cost_usd=ESTIMATED_COST_PER_VISION_CALL_USD,
     client_factory=None,
     usage_total_func=None,
     usage_recorder=None,
@@ -67,6 +78,8 @@ def describe_image_with_openai(
 
     呼び出し前に必ず月間上限をチェックし、上限に達している場合は例外を送出して
     実際の呼び出し自体を行いません。成功した場合のみ、想定利用額を記録します。
+    Tier3（より高性能なモデル）から呼ぶ場合は、model/feature/estimated_cost_usdを
+    差し替えて使います。
     """
     ensure_budget_available(monthly_cap_usd, usage_total_func)
 
@@ -79,9 +92,9 @@ def describe_image_with_openai(
 
     recorder = usage_recorder or record_openai_usage
     recorder(
-        feature="image_reader_vision",
+        feature=feature,
         model=model,
-        estimated_cost_usd=ESTIMATED_COST_PER_VISION_CALL_USD,
+        estimated_cost_usd=estimated_cost_usd,
     )
 
     return response_text
@@ -91,6 +104,8 @@ def ask_openai_text(
     messages,
     monthly_cap_usd=DEFAULT_MONTHLY_CAP_USD,
     model=DEFAULT_TEXT_MODEL,
+    feature="text_escalation",
+    estimated_cost_usd=ESTIMATED_COST_PER_TEXT_CALL_USD,
     client_factory=None,
     usage_total_func=None,
     usage_recorder=None,
@@ -99,6 +114,8 @@ def ask_openai_text(
 
     呼び出し前に必ず月間上限をチェックし、上限に達している場合は例外を送出して
     実際の呼び出し自体を行いません。成功した場合のみ、想定利用額を記録します。
+    Tier3（より高性能なモデル）から呼ぶ場合は、model/feature/estimated_cost_usdを
+    差し替えて使います。
     """
     ensure_budget_available(monthly_cap_usd, usage_total_func)
 
@@ -111,9 +128,9 @@ def ask_openai_text(
 
     recorder = usage_recorder or record_openai_usage
     recorder(
-        feature="text_escalation",
+        feature=feature,
         model=model,
-        estimated_cost_usd=ESTIMATED_COST_PER_TEXT_CALL_USD,
+        estimated_cost_usd=estimated_cost_usd,
     )
 
     return response_text
