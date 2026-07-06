@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.51
+
+開始内容:
+
+- Reader結果全文のDB保存を追加
+- ユーザーから「将来長期記憶にする場合は全文ではなく必要な情報に絞って覚えられるといい」との補足があり、今回追加するのはあくまで生ログの保存であり、長期記憶そのものではないことをdocs/reader_memory_policy.mdに明記した
+- `database/models.py` に `ReaderResult` テーブルを追加
+- `database/reader_results.py` に `save_reader_result()` / `get_recent_reader_results()` を追加
+- `core/personal_ai.py` の `remember_last_read_document()` から `self.reader_result_saver` を呼び出すようにした。属性を持たない既存test doubleは暗黙にDBへ書き込まない設計にし、既存の全checkが無変更で通るようにした（Ver2.44のask_llm_funcと同じパターン）
+- `scripts/check_ver2510.py` を追加。本番DBには触れず、独立したin-memory SQLiteで実際のSQL動作を検証する
+- `scripts/run_ver2_checks.py` に `check_ver2510.py` を追加
+- テーブル作成自体は実際のアプリ起動時のcreate_database()（追加のみ）が行い、checkスクリプトの中では実行しない
+
 ## Version 2.50
 
 開始内容:

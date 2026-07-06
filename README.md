@@ -56,6 +56,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader / Image Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）
 - 読み取り結果の整形表示
 - Reader結果をQwenでの応答に接続（読んで要約・読んだ内容への追加質問）
+- Reader結果全文のDB保存（生ログとして保存。長期記憶への昇格は今後の設計）
 - Reader結果からMemory Candidateを生成
 - Memory Candidateのdry-run表示
 - Memory Candidate編集dry-run
@@ -73,7 +74,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 
 以下は将来構想であり、現時点では未実装です。
 
-- PDF/Word/Excel/PowerPoint/Image/YouTube Readerの複数ファイル対応（File Readerと同じパターン、ディレクトリ丸ごとの読み取りは対象外）
 - Office連携（作成・編集）
 - メール連携
 - カレンダー連携
@@ -86,7 +86,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - ベクトル検索
 - 高度なMemory検索
 - Memory編集・削除UI
-- Reader結果全文のDB保存
 - Memory Candidate専用テーブル
 
 ## 今後のロードマップ
@@ -357,6 +356,6 @@ PersonalAIは、就活ポートフォリオとして使うことも想定して�
 
 Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索、Claude Code移行用MIGRATION.mdまで整備済みです。
 Claude Code移行時の開始手順として `docs/claude_code_start.md` も、Claude Code自走運用の入口として `CLAUDE.md` も追加済みです。
-ただし、Reader結果全文のDB保存、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
+ただし、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
 
 Mermaid図、デモ導線、技術的に工夫した点をREADME上で確認できるようにし、GitHub閲覧者や面接官に開発意図が伝わりやすい構成にしています。

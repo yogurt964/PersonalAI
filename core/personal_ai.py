@@ -79,6 +79,7 @@ from core.web_reader_confirmation import (
 from database.chat_history import get_recent_messages, save_message
 from database.memory_manager import get_memories, save_memory
 from database.models import create_database
+from database.reader_results import save_reader_result
 
 
 WEB_READER_PREVIEW_MAX_CHARS = 360
@@ -219,6 +220,7 @@ class PersonalAI:
         self.web_reader_fetcher = web_reader_fetcher
         self.memory_search_func = memory_search_func
         self.ask_llm_func = ask_llm
+        self.reader_result_saver = save_reader_result
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -2276,7 +2278,12 @@ class PersonalAI:
         return true_label if bool(value) else false_label
 
     def remember_last_read_document(self, source_tool, title, location, text):
-        """Web Reader / File Readerで読み取った本文を、後続の会話で使えるように保持します。"""
+        """Web Reader / File Readerで読み取った本文を、後続の会話で使えるように保持します。
+
+        Ver2.51では、reader_result_saverが設定されている場合、本文全文をDBにも保存します
+        （生ログの保存であり、長期記憶そのものではありません。docs/reader_memory_policy.md参照）。
+        テスト用のPersonalAIインスタンス（reader_result_saver未設定）では、暗黙にDBへ書き込みません。
+        """
         cleaned_text = _clean_web_reader_display_text(text)
 
         if not cleaned_text:
@@ -2288,6 +2295,16 @@ class PersonalAI:
             "location": location,
             "text": cleaned_text,
         }
+
+        reader_result_saver = getattr(self, "reader_result_saver", None)
+
+        if reader_result_saver is not None:
+            reader_result_saver(
+                source_tool=source_tool,
+                title=title,
+                location=location,
+                text=cleaned_text,
+            )
 
     def build_last_read_document_context(self):
         """直近に読み取ったReader結果を、LLMが参照できるsystem messageにします。

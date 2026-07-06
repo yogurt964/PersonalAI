@@ -26,6 +26,18 @@ class Conversation(Base):
     content = Column(Text)
 
 
+class ReaderResult(Base):
+    __tablename__ = "reader_results"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(String)
+    source_tool = Column(String)
+    title = Column(String)
+    location = Column(Text)
+    text = Column(Text)
+    truncated = Column(Boolean, default=False)
+
+
 class Memory(Base):
     __tablename__ = "memories"
 

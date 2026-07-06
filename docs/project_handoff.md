@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.50
+現在バージョン: Ver2.51
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -179,6 +179,7 @@ Ver2.47: Image Reader最小実装（ローカルvision、qwen2.5vl:7b）
 Ver2.48: File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ拡張
 Ver2.49: File Readerの複数ファイル同時読み取りに対応
 Ver2.50: 複数ファイル対応をPDF/Word/Excel/PowerPoint/Image Readerへ展開
+Ver2.51: Reader結果全文のDB保存を追加
 ```
 
 ## 現在の主要ファイル
@@ -799,10 +800,29 @@ scripts/run_ver2_checks.py に check_ver2500.py を追加
 外部サービス・APIキー・費用は一切関係しないため、確認なしで実装した
 ```
 
-Ver2.50後の候補:
+Ver2.51でReader結果全文のDB保存を追加
 
 ```text
-Ver2.x: Reader結果全文のDB保存（追加的なスキーマ変更、許可済み）
+ユーザーから、DBスキーマの追加変更は許可されたが、「将来長期記憶にする場合は全文ではなく必要な情報に
+絞って覚えられるといい」との補足があった。このため、今回追加するのはあくまで生ログ（Raw Log相当）の
+保存であり、長期記憶そのものではないことをdocs/reader_memory_policy.mdに明記した
+database/models.py に ReaderResult テーブルを追加（id/created_at/source_tool/title/location/text/truncated）
+database/reader_results.py に save_reader_result() / get_recent_reader_results() を追加
+（chat_history.py / memory_manager.pyと同じSessionLocalパターン）
+core/personal_ai.py の remember_last_read_document() から、self.reader_result_saver（デフォルトは
+save_reader_result）を呼び出すようにした。__init__ で実際の関数を設定するが、reader_result_saver属性を
+持たないtest double（Ver2.51以前のcheckスクリプトが作るものすべて）は暗黙にDBへ書き込まない設計にし、
+既存の全checkが無変更で通るようにした（Ver2.44のask_llm_funcと同じ設計パターン）
+scripts/check_ver2510.py を追加。本番DB（data/personal_ai.db）には一切触れず、独立したin-memory SQLiteで
+save_reader_result / get_recent_reader_results の実際のSQL動作を検証する
+scripts/run_ver2_checks.py に check_ver2510.py を追加
+テーブル作成自体は、実際のアプリ起動時にcreate_database()（Base.metadata.create_all、追加のみで既存
+テーブルは変更しない）が行う。checkスクリプトの中では実行しない
+```
+
+Ver2.51後の候補:
+
+```text
 Ver2.x: Memory Candidate専用テーブル（追加的なスキーマ変更、許可済み）
 Ver2.x: Memory編集・削除UI（削除の実行は都度確認）
 Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
