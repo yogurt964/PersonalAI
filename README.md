@@ -57,6 +57,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader / Image Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）
 - 読み取り結果の整形表示
 - Reader結果をQwenでの応答に接続（読んで要約・読んだ内容への追加質問）
+- Qwen回答の自動OpenAIエスカレーション（Reader経由の要約・質問で低信頼な場合のみ、予算ガード付き）
 - Reader結果全文のDB保存（生ログとして保存。長期記憶への昇格は今後の設計）
 - Reader結果からMemory Candidateを生成
 - Memory Candidateのdry-run表示

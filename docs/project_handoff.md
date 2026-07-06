@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.55
+現在バージョン: Ver2.56
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -184,6 +184,7 @@ Ver2.52: Memory Candidate専用テーブル（提案結果の監査履歴）を�
 Ver2.53: Memory一覧表示・削除UI（削除は確認必須、非破壊的な無効化）を追加
 Ver2.54: OpenAI vision接続（vision_router、月間予算ガード付き）を追加
 Ver2.55: Image Readerの自動OpenAIエスカレーション（ローカル低信頼時のみ、予算ガード内）を追加
+Ver2.56: Reader経由のテキスト応答（要約・質問）にも自動OpenAIエスカレーションを追加
 ```
 
 ## 現在の主要ファイル
@@ -908,12 +909,36 @@ scripts/check_ver2550.py を追加。実際のOpenAI API呼び出しは一切行
 scripts/run_ver2_checks.py に check_ver2550.py を追加
 ```
 
-Ver2.55後の候補:
+Ver2.56でReader経由のテキスト応答にも自動OpenAIエスカレーションを追加
+
+```text
+ユーザーから「画像検索以外でもエスカレーション機能は実装してください」との要望があり、
+Image Reader（Ver2.55）と同じ考え方をテキスト応答にも展開した
+core/confidence_check.py を新設し、低信頼判定ロジック（LOW_CONFIDENCE_MARKERS /
+seems_low_confidence）をvision_routerとテキスト応答で共有するようにした
+（core/vision_router.py の should_escalate_after_local_result() はこの共有関数を呼ぶだけに変更）
+ai/openai_client.py に ask_openai_text() を追加（describe_image_with_openai()と同じ
+budget guardパターン。featureタグは"text_escalation"、想定コストはgpt-4o-miniで$0.005/回）
+core/personal_ai.py の build_document_task_response_if_requested()
+（Reader経由の要約・質問への回答、Ver2.40で問題が見つかったExcel集計質問などが対象）を、
+まずQwenで回答→低信頼ならOpenAIへ自動エスカレーション、という流れに変更
+予算超過・キー未設定などでOpenAIが使えない場合は、エスカレーションを試みず、Qwenの回答を
+そのまま正直に返す（silent fallback、失敗として扱わない）
+self.openai_text_client_factory（デフォルトNone、ai/openai_client.py内の実際のOpenAI呼び出しを使う）
+を追加。属性を明示的に確認せず使う既存test doubleでも、低信頼にならない通常の応答では
+問題なく動作することを確認した
+通常会話（雑談等）やconfirmation intent判定など、他の場所へのエスカレーションはまだ拡張していない。
+Reader経由の要約・質問への回答に限定したスコープ
+scripts/check_ver2560.py を追加。実際のOpenAI API呼び出しは一切行わない
+scripts/run_ver2_checks.py に check_ver2560.py を追加
+```
+
+Ver2.56後の候補:
 
 ```text
 Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施、クレジット購入完了後）
+Ver2.x: 通常会話など他の場所へのテキストエスカレーション拡張（範囲を都度検討）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
-Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 

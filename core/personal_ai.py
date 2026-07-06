@@ -16,6 +16,7 @@ from ai.preference_confirmation import (
 )
 from ai.preference_memory import save_preference_memories
 from core.capability_manager import CapabilityManager
+from core.confidence_check import seems_low_confidence
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
 from core.memory_candidate import build_memory_candidate_from_reader_result
@@ -234,6 +235,9 @@ class PersonalAI:
         self.reader_result_saver = save_reader_result
         self.memory_candidate_recorder = save_memory_candidate_record
         self.memory_deactivator = set_memory_active
+        # 自動checkで、実際のOpenAI呼び出しをせずテキスト自動エスカレーションのロジックだけを
+        # 検証できるようにします（Noneの場合はai/openai_client.pyの実際のOpenAI呼び出しを使います）。
+        self.openai_text_client_factory = None
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -2481,7 +2485,34 @@ class PersonalAI:
         ask_llm_func = getattr(self, "ask_llm_func", None) or ask_llm
         messages = self.build_document_task_messages(original_input, document_text, title)
 
-        return ask_llm_func(messages)
+        local_answer = ask_llm_func(messages)
+
+        return self._escalate_text_answer_if_low_confidence(local_answer, messages)
+
+    def _escalate_text_answer_if_low_confidence(self, local_answer, messages):
+        """Qwenの回答が低信頼そうな場合、PersonalAIの判断でOpenAIへの再質問を試みます。
+
+        Image Readerの自動エスカレーション（Ver2.55）と同じ考え方です。
+        予算超過・キー未設定などでOpenAIが使えない場合は、エスカレーションを試みず、
+        Qwenの回答をそのまま正直に返します（silent fallback）。
+        """
+        if not seems_low_confidence(local_answer):
+            return local_answer
+
+        try:
+            from ai.openai_client import ask_openai_text
+
+            openai_answer = ask_openai_text(
+                messages,
+                client_factory=getattr(self, "openai_text_client_factory", None),
+            )
+
+            return (
+                f"{openai_answer}\n\n"
+                "（Qwenでの回答が不明瞭だったため、PersonalAIの判断でOpenAIに再質問しました）"
+            )
+        except Exception:
+            return local_answer
 
     def build_messages(
         self,

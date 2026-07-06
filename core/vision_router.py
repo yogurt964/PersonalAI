@@ -8,10 +8,13 @@ Image Reader専用の判断ロジックをアダプタ内に埋め込まず、�
 Ver2.54でOpenAI visionへの接続口を追加しました。
 Ver2.55で、ユーザーから「明示的に求めなくても、必要なタイミングをPersonalAIが判断して
 OpenAIを呼び出してよい」との合意を得たため、ローカルモデルの解析結果が低信頼そうな場合に
-自動でOpenAIへエスカレーションする判定を追加しました。
+自動でOpenAIへエスカレーションする判定を追加しました（判定ロジックはcore/confidence_check.pyを
+テキスト応答の自動エスカレーションと共有しています）。
 月間予算ガード（ai/openai_client.py）は自動エスカレーション時も必ずかかるため、
 上限に達している場合はエスカレーションされず、ローカルの結果がそのまま使われます。
 """
+
+from core.confidence_check import seems_low_confidence
 
 VISION_BACKEND_LOCAL = "local"
 VISION_BACKEND_OPENAI = "openai"
@@ -27,19 +30,6 @@ OPENAI_ESCALATION_PHRASES = [
     "もっと正確に解析して",
     "もっと詳しく解析して",
     "高精度で解析して",
-]
-
-# ローカルモデルの解析結果にこれらの表現が含まれる場合、自動的にOpenAIへの
-# エスカレーションを検討します（低信頼のサインとして扱います）。
-LOW_CONFIDENCE_MARKERS = [
-    "わかりません",
-    "分かりません",
-    "判断できません",
-    "確信が持てません",
-    "不明瞭",
-    "読み取れません",
-    "断定できません",
-    "特定できません",
 ]
 
 
@@ -66,5 +56,4 @@ def should_escalate_after_local_result(local_result_text):
     月間予算ガード自体はai/openai_client.py側で別途かかるため、ここでは
     「試す価値があるかどうか」だけを判定します。
     """
-    text = str(local_result_text or "")
-    return any(marker in text for marker in LOW_CONFIDENCE_MARKERS)
+    return seems_low_confidence(local_result_text)

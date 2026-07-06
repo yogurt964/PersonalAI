@@ -1,5 +1,19 @@
 # Changelog
 
+## Version 2.56
+
+開始内容:
+
+- Reader経由のテキスト応答（要約・質問）にも自動OpenAIエスカレーションを追加
+- ユーザーから「画像検索以外でもエスカレーション機能は実装してください」との要望を受けて、Image Reader（Ver2.55）と同じ考え方をテキスト応答に展開した
+- `core/confidence_check.py` を新設し、低信頼判定ロジックをvision_routerとテキスト応答で共有するようにした
+- `ai/openai_client.py` に `ask_openai_text()` を追加（同じbudget guardパターン、featureタグ"text_escalation"）
+- `core/personal_ai.py` の `build_document_task_response_if_requested()`（Reader経由の要約・質問、Ver2.40で問題が見つかったExcel集計質問などが対象）を、まずQwenで回答→低信頼ならOpenAIへ自動エスカレーション、という流れに変更
+- 予算超過・キー未設定などでOpenAIが使えない場合は、エスカレーションを試みず、Qwenの回答をそのまま正直に返す
+- 通常会話やconfirmation intent判定など他の場所へのエスカレーションはまだ拡張していない（Reader経由の要約・質問への回答に限定したスコープ）
+- `scripts/check_ver2560.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2560.py` を追加
+
 ## Version 2.55
 
 開始内容:
