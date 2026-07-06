@@ -13,3 +13,4 @@ requests==2.34.2
 urllib3==2.7.0
 charset-normalizer==3.4.7
 defusedxml==0.7.1
+openai==2.43.0

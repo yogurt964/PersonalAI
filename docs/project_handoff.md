@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.53
+現在バージョン: Ver2.54
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -182,6 +182,7 @@ Ver2.50: 複数ファイル対応をPDF/Word/Excel/PowerPoint/Image Readerへ展
 Ver2.51: Reader結果全文のDB保存を追加
 Ver2.52: Memory Candidate専用テーブル（提案結果の監査履歴）を追加
 Ver2.53: Memory一覧表示・削除UI（削除は確認必須、非破壊的な無効化）を追加
+Ver2.54: OpenAI vision接続（vision_router、月間予算ガード付き）を追加
 ```
 
 ## 現在の主要ファイル
@@ -865,11 +866,34 @@ Memoryの内容自体を書き換える「編集」機能は今回のスコー�
 別途検討する）
 ```
 
-Ver2.53後の候補:
+Ver2.54でOpenAI vision接続（月間予算ガード付き）を追加
 
 ```text
+ユーザーとOpenAIアカウント設定を一緒に実施（プリペイド式クレジット$5購入、Auto rechargeはOFF、
+APIキーはsetxでユーザー環境変数として設定済み）。実際の課金は発生済みだが、コード側は
+まだ実際のAPI呼び出しをしていない（fakeのclient_factory経由のテストのみ）
+database/models.py に OpenAIUsageLog テーブルを追加
+database/openai_usage.py に record_openai_usage() / get_monthly_openai_usage_total() を追加
+ai/openai_client.py を追加。describe_image_with_openai()は、呼び出し前に必ず今月の想定利用額
+（PersonalAI側の概算値）が上限未満かを確認し、上限到達時は実際の呼び出し自体を行わずに
+例外を送出する（デフォルト上限$5。ユーザーとの合意額）
+core/vision_router.py の choose_vision_backend() を実装。デフォルトは常にlocalで、
+ユーザーが「OpenAIで解析して」のように明示的に求めた場合のみOpenAIへエスカレーションする
+（画像の難易度を自動判定してのエスカレーションはまだ実装しない。外部送信・課金を伴うため、
+ユーザーの明示的な意図がある場合に限定）
+core/image_reader_adapter.py の_describe_image()にOpenAI分岐の実装を追加
+requirements.txt に openai==2.43.0 を追加
+scripts/check_ver2540.py を追加。実際のOpenAI API呼び出しは一切行わず、fakeのclient_factoryと
+独立したin-memory SQLiteで、エスカレーション判定・予算ガード・Image Reader結合を検証する
+scripts/run_ver2_checks.py に check_ver2540.py を追加
+実際のライブAPI呼び出しでの動作確認は、ユーザーとの合意のもとで別途実施する
+```
+
+Ver2.54後の候補:
+
+```text
+Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
-Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

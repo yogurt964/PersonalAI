@@ -160,6 +160,8 @@ PersonalAIは今後、LLM Intent Resolverなど複数の機能でOpenAIを使う
 - OpenAI APIキーの新規設定・変更は、引き続き都度ユーザー確認する
 - 個人情報・機密情報を含むデータの外部送信は、月間上限額の話とは別に、引き続き都度ユーザー確認する（コストではなく情報漏えいリスクの管理のため）
 
+Ver2.54で、Image Readerのvision_router経由のみ実接続した（月間上限$5、ユーザー確認済み）。他機能への拡張は今後、都度この方針に沿って判断する。
+
 ### コストと精度の優先順位
 
 - コストを抑える設計（Qwenで十分な場面はQwenを優先する、不要に大きいプロンプトや重複呼び出しを避けるなど）を基本方針とする
@@ -898,8 +900,8 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
+Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53の削除UIでは対象外にした部分）
-Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

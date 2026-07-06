@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy import Boolean, Column, Integer, String, Text
+from sqlalchemy import Boolean, Column, Float, Integer, String, Text
 from sqlalchemy import text
 from sqlalchemy.orm import declarative_base
 from sqlalchemy.orm import sessionmaker
@@ -51,6 +51,16 @@ class MemoryCandidateRecord(Base):
     risk_level = Column(String)
     status = Column(String)
     saved_memory_id = Column(Integer, nullable=True)
+
+
+class OpenAIUsageLog(Base):
+    __tablename__ = "openai_usage_log"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(String)
+    feature = Column(String)
+    model = Column(String)
+    estimated_cost_usd = Column(Float)
 
 
 class Memory(Base):

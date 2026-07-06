@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2540.py`
 - `scripts/check_ver2530.py`
 - `scripts/check_ver2520.py`
 - `scripts/check_ver2510.py`
@@ -127,6 +128,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.54では、`check_ver2540.py` でOpenAI vision接続（予算ガード付き）を確認する。
+このcheckは実際のOpenAI API呼び出しを一切行わず、fakeのclient_factoryと独立したin-memory SQLiteで、vision_routerのエスカレーション判定、予算ガード、キー未設定時のガード、Image Reader結合を検証する。
 Ver2.53では、`check_ver2530.py` でMemory一覧表示・削除UIを確認する。
 このcheckは意図判定（一覧/削除/ID抽出/無関係な削除依頼との非衝突）、本番DBに触れない独立したin-memory SQLiteでの実際のSQL動作、PersonalAI結合フロー（一覧表示・確認・削除実行・キャンセル・ID不明・存在しないID）、memory_deactivator未設定時にクラッシュしないことを確認する。
 Ver2.52では、`check_ver2520.py` でMemory Candidate専用テーブル（提案結果の監査履歴）を確認する。

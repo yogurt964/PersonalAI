@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.54
+
+開始内容:
+
+- OpenAI vision接続（月間予算ガード付き）を追加
+- ユーザーとOpenAIアカウント設定を一緒に実施（プリペイド式クレジット$5購入、Auto rechargeはOFF、APIキーは環境変数として設定済み）
+- `database/models.py` に `OpenAIUsageLog` テーブルを追加
+- `database/openai_usage.py` に `record_openai_usage()` / `get_monthly_openai_usage_total()` を追加
+- `ai/openai_client.py` を追加。`describe_image_with_openai()`は呼び出し前に必ず今月の想定利用額が上限未満かを確認し、上限到達時は実際の呼び出し自体を行わない（デフォルト上限$5）
+- `core/vision_router.py` の `choose_vision_backend()` を実装。デフォルトは常にlocalで、ユーザーが「OpenAIで解析して」のように明示的に求めた場合のみOpenAIへエスカレーションする
+- `core/image_reader_adapter.py` にOpenAI分岐の実装を追加
+- `requirements.txt` に `openai==2.43.0` を追加
+- `scripts/check_ver2540.py` を追加。実際のOpenAI API呼び出しは一切行わず、fakeのclient_factoryと独立したin-memory SQLiteで検証する
+- `scripts/run_ver2_checks.py` に `check_ver2540.py` を追加
+- 実際のライブAPI呼び出しでの動作確認は、ユーザーとの合意のもとで別途実施する
+
 ## Version 2.53
 
 開始内容:

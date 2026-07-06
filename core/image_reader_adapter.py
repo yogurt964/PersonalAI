@@ -2,7 +2,7 @@ from pathlib import Path
 
 from core.file_path_extraction import extract_single_file_path_from_text
 from core.tool_adapter import ToolAdapter, ToolResult
-from core.vision_router import VISION_BACKEND_LOCAL, choose_vision_backend
+from core.vision_router import VISION_BACKEND_LOCAL, VISION_BACKEND_OPENAI, choose_vision_backend
 
 
 IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp")
@@ -38,6 +38,7 @@ class ImageReaderAdapter(ToolAdapter):
         max_text_chars=8000,
         model_name="qwen2.5vl:7b",
         vision_describer=None,
+        openai_client_factory=None,
     ):
         super().__init__(
             name="image_reader",
@@ -48,6 +49,8 @@ class ImageReaderAdapter(ToolAdapter):
         self.model_name = model_name
         # 自動checkでfakeのvision解析に差し替えられるようにします。
         self._vision_describer = vision_describer
+        # 自動checkで、実際のOpenAI呼び出しをせずOpenAI分岐のロジックだけを検証できるようにします。
+        self._openai_client_factory = openai_client_factory
 
     def is_available(self):
         return True
@@ -167,16 +170,23 @@ class ImageReaderAdapter(ToolAdapter):
         if self._vision_describer is not None:
             return self._vision_describer(path, original_input, backend)
 
-        if backend != VISION_BACKEND_LOCAL:
-            raise NotImplementedError(
-                f"vision backend '{backend}' is not implemented yet (OpenAI vision is not connected)."
-            )
-
-        from ollama import chat
-
         # 画像と一緒に具体的な質問が来ている場合、後続ターンでは画像そのものを
         # 再度見られないため、最初の解析でできるだけ詳しく答えておきます。
         prompt = f"{DEFAULT_VISION_PROMPT}\n\nユーザーからの元のメッセージ: {original_input}" if original_input else DEFAULT_VISION_PROMPT
+
+        if backend == VISION_BACKEND_OPENAI:
+            from ai.openai_client import describe_image_with_openai
+
+            return describe_image_with_openai(
+                str(path),
+                prompt,
+                client_factory=self._openai_client_factory,
+            )
+
+        if backend != VISION_BACKEND_LOCAL:
+            raise NotImplementedError(f"vision backend '{backend}' is not implemented yet.")
+
+        from ollama import chat
 
         response = chat(
             model=self.model_name,
