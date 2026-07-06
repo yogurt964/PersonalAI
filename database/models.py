@@ -38,6 +38,21 @@ class ReaderResult(Base):
     truncated = Column(Boolean, default=False)
 
 
+class MemoryCandidateRecord(Base):
+    __tablename__ = "memory_candidates"
+
+    id = Column(Integer, primary_key=True, index=True)
+    created_at = Column(String)
+    source_tool = Column(String)
+    source_url = Column(Text)
+    title = Column(String)
+    summary = Column(Text)
+    candidate_type = Column(String)
+    risk_level = Column(String)
+    status = Column(String)
+    saved_memory_id = Column(Integer, nullable=True)
+
+
 class Memory(Base):
     __tablename__ = "memories"
 

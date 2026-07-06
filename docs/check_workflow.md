@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2520.py`
 - `scripts/check_ver2510.py`
 - `scripts/check_ver2500.py`
 - `scripts/check_ver2490.py`
@@ -125,6 +126,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.52では、`check_ver2520.py` でMemory Candidate専用テーブル（提案結果の監査履歴）を確認する。
+このcheckは本番DBには一切触れず、独立したin-memory SQLiteでsave_memory_candidate_record / get_recent_memory_candidate_recordsの実際のSQL動作を検証する。またhandle_pending_memory_candidate_confirmation()がsaved/rejected/postponedそれぞれで正しく記録すること、recorder未設定（既存test double）では暗黙に書き込まないことを確認する。
 Ver2.51では、`check_ver2510.py` でReader結果全文のDB保存を確認する。
 このcheckは本番DB（data/personal_ai.db）には一切触れず、独立したin-memory SQLiteでsave_reader_result / get_recent_reader_resultsの実際のSQL動作を検証する。またremember_last_read_document()がreader_result_saver設定時のみDBへ保存し、未設定（既存test double）では暗黙に書き込まないことを確認する。
 Ver2.50では、`check_ver2500.py` でPDF/Word/Excel/PowerPoint/Image Readerの複数ファイル対応を確認する。

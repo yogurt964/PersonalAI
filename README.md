@@ -62,6 +62,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - Memory Candidate編集dry-run
 - 保存する / 保存しない / 編集して保存 / 後で確認 の確認応答
 - Memory Candidateをユーザー確認つきで長期記憶へ保存する基礎
+- Memory Candidate専用テーブル（保存/却下/保留の提案結果を監査履歴として記録）
 - 保存したMemory Candidateの内容を直近保存結果として確認する基礎
 - Memory検索
 - 保存済みMemoryを簡易キーワード検索する基礎
@@ -86,7 +87,6 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - ベクトル検索
 - 高度なMemory検索
 - Memory編集・削除UI
-- Memory Candidate専用テーブル
 
 ## 今後のロードマップ
 
@@ -356,6 +356,6 @@ PersonalAIは、就活ポートフォリオとして使うことも想定して�
 
 Web Reader、Memory Candidate dry-run、編集dry-run、ユーザー確認つき保存、直近保存内容の確認、確認待ち状態の文脈解釈、保存済みMemoryの簡易キーワード検索、Claude Code移行用MIGRATION.mdまで整備済みです。
 Claude Code移行時の開始手順として `docs/claude_code_start.md` も、Claude Code自走運用の入口として `CLAUDE.md` も追加済みです。
-ただし、Memory Candidate専用テーブル、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
+ただし、本格的なMemory検索UI、ベクトル検索、LLMによる高度な文脈検索はまだ行っていません。
 
 Mermaid図、デモ導線、技術的に工夫した点をREADME上で確認できるようにし、GitHub閲覧者や面接官に開発意図が伝わりやすい構成にしています。

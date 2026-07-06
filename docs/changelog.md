@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.52
+
+開始内容:
+
+- Memory Candidate専用テーブル（提案結果の監査履歴）を追加
+- これまでMemory Candidateの確認・保存・却下・保留の判断結果は一切記録していなかった
+- `database/models.py` に `MemoryCandidateRecord` テーブルを追加
+- `database/memory_candidates.py` に `save_memory_candidate_record()` / `get_recent_memory_candidate_records()` を追加
+- `core/personal_ai.py` の `handle_pending_memory_candidate_confirmation()` から `self.memory_candidate_recorder` を、saved/rejected/postponedの結果確定時に呼び出すようにした（Ver2.51のreader_result_saverと同じ設計パターン）
+- これは実際の長期記憶（memoriesテーブル）とは別の監査履歴。saved_memory_idの正確な紐付けは今回は行わずNoneのままにする軽微な制約として残す
+- `scripts/check_ver2520.py` を追加。本番DBには一切触れず、独立したin-memory SQLiteで実際のSQL動作を検証する
+- `scripts/run_ver2_checks.py` に `check_ver2520.py` を追加
+
 ## Version 2.51
 
 開始内容:

@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.51
+現在バージョン: Ver2.52
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -180,6 +180,7 @@ Ver2.48: File Readerの対応拡張子をcsv/json/log/yaml/xml/ini/toml/tsvへ�
 Ver2.49: File Readerの複数ファイル同時読み取りに対応
 Ver2.50: 複数ファイル対応をPDF/Word/Excel/PowerPoint/Image Readerへ展開
 Ver2.51: Reader結果全文のDB保存を追加
+Ver2.52: Memory Candidate専用テーブル（提案結果の監査履歴）を追加
 ```
 
 ## 現在の主要ファイル
@@ -820,11 +821,28 @@ scripts/run_ver2_checks.py に check_ver2510.py を追加
 テーブルは変更しない）が行う。checkスクリプトの中では実行しない
 ```
 
-Ver2.51後の候補:
+Ver2.52でMemory Candidate専用テーブル（提案結果の監査履歴）を追加
 
 ```text
-Ver2.x: Memory Candidate専用テーブル（追加的なスキーマ変更、許可済み）
-Ver2.x: Memory編集・削除UI（削除の実行は都度確認）
+これまでMemory Candidateは、確認・保存・却下・保留の判断結果を一切記録せず、
+実際に保存された場合のみ memories テーブルへ直接書き込んでいた（提案自体の履歴は残らない）
+database/models.py に MemoryCandidateRecord テーブルを追加
+（id/created_at/source_tool/source_url/title/summary/candidate_type/risk_level/status/saved_memory_id）
+database/memory_candidates.py に save_memory_candidate_record() / get_recent_memory_candidate_records() を追加
+core/personal_ai.py の handle_pending_memory_candidate_confirmation() から、self.memory_candidate_recorder
+（デフォルトはsave_memory_candidate_record）を、saved/rejected/postponedの結果確定時に呼び出すようにした
+（Ver2.51のreader_result_saverと同じ設計パターン。属性未設定のtest doubleは暗黙にDBへ書き込まない）
+これは実際の長期記憶（memoriesテーブル）とは別の監査履歴であり、「どんな候補が提案されどう判断されたか」を
+記録するためのもの。saved_memory_idの正確な紐付け（save_memory()自体がID を返さない）は今回は行わず、
+Noneのままにする軽微な制約として残す
+scripts/check_ver2520.py を追加。本番DBには一切触れず、独立したin-memory SQLiteで実際のSQL動作を検証する
+scripts/run_ver2_checks.py に check_ver2520.py を追加
+```
+
+Ver2.52後の候補:
+
+```text
+Ver2.x: Memory編集・削除UI（削除の実行は都度確認。set_memory_active()による非破壊的な無効化が既にある）
 Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

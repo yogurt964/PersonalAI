@@ -77,6 +77,7 @@ from core.web_reader_confirmation import (
     resolve_web_reader_confirmation_response,
 )
 from database.chat_history import get_recent_messages, save_message
+from database.memory_candidates import save_memory_candidate_record
 from database.memory_manager import get_memories, save_memory
 from database.models import create_database
 from database.reader_results import save_reader_result
@@ -221,6 +222,7 @@ class PersonalAI:
         self.memory_search_func = memory_search_func
         self.ask_llm_func = ask_llm
         self.reader_result_saver = save_reader_result
+        self.memory_candidate_recorder = save_memory_candidate_record
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -695,12 +697,19 @@ class PersonalAI:
             self.last_memory_candidate_save_result = save_result
             if save_result.get("status") == "saved":
                 self.last_saved_memory_candidate_result = dict(save_result)
+
+            self._record_memory_candidate_outcome(
+                save_result.get("candidate") or result.get("candidate"),
+                "saved" if save_result.get("status") == "saved" else save_result.get("status"),
+            )
+
             self.pending_memory_candidate_confirmation = None
             self.pending_memory_candidate_edit = None
             return self.build_memory_candidate_save_response(save_result)
 
         # 保存しない・後で確認はDBへ保存せず、pendingを解除します。
         if result.get("status") in ["rejected", "postponed"]:
+            self._record_memory_candidate_outcome(result.get("candidate"), result.get("status"))
             self.pending_memory_candidate_confirmation = None
             self.pending_memory_candidate_edit = None
 
@@ -708,6 +717,19 @@ class PersonalAI:
             self.pending_memory_candidate_edit = dict(pending_candidate)
 
         return result.get("message")
+
+    def _record_memory_candidate_outcome(self, candidate, status):
+        """Memory Candidateの提案結果を、監査用の専用テーブルへ記録します（設定されている場合のみ）。
+
+        これは実際の長期記憶（memoriesテーブル）とは別の履歴であり、
+        テスト用のPersonalAIインスタンス（memory_candidate_recorder未設定）では暗黙にDBへ書き込みません。
+        """
+        recorder = getattr(self, "memory_candidate_recorder", None)
+
+        if recorder is None or not candidate:
+            return
+
+        recorder(candidate, status)
 
     def handle_pending_memory_candidate_edit(self, user_input):
         """Memory Candidateの編集内容をdry-runで受け取ります。"""
