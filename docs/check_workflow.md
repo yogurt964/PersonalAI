@@ -71,6 +71,7 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 
 `run_ver2_checks.py` は以下を実行する。
 
+- `scripts/check_ver2530.py`
 - `scripts/check_ver2520.py`
 - `scripts/check_ver2510.py`
 - `scripts/check_ver2500.py`
@@ -126,6 +127,8 @@ venv\Scripts\python.exe -B scripts\run_ver2_checks.py
 - `scripts/check_ver200.py`
 - `scripts/run_ver1_checks.py`
 
+Ver2.53では、`check_ver2530.py` でMemory一覧表示・削除UIを確認する。
+このcheckは意図判定（一覧/削除/ID抽出/無関係な削除依頼との非衝突）、本番DBに触れない独立したin-memory SQLiteでの実際のSQL動作、PersonalAI結合フロー（一覧表示・確認・削除実行・キャンセル・ID不明・存在しないID）、memory_deactivator未設定時にクラッシュしないことを確認する。
 Ver2.52では、`check_ver2520.py` でMemory Candidate専用テーブル（提案結果の監査履歴）を確認する。
 このcheckは本番DBには一切触れず、独立したin-memory SQLiteでsave_memory_candidate_record / get_recent_memory_candidate_recordsの実際のSQL動作を検証する。またhandle_pending_memory_candidate_confirmation()がsaved/rejected/postponedそれぞれで正しく記録すること、recorder未設定（既存test double）では暗黙に書き込まないことを確認する。
 Ver2.51では、`check_ver2510.py` でReader結果全文のDB保存を確認する。

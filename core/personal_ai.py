@@ -24,6 +24,16 @@ from core.memory_candidate_confirmation import (
     resolve_memory_candidate_edit_response,
 )
 from core.memory_candidate_saver import save_memory_candidate
+from core.memory_management import (
+    build_memory_delete_confirmation,
+    build_memory_delete_result_response,
+    build_memory_list_response,
+    resolve_memory_delete_confirmation_response,
+)
+from core.memory_management_intent import (
+    detect_memory_delete_request,
+    detect_memory_list_request,
+)
 from core.memory_search import (
     detect_memory_search_intent,
     format_memory_search_response,
@@ -78,7 +88,7 @@ from core.web_reader_confirmation import (
 )
 from database.chat_history import get_recent_messages, save_message
 from database.memory_candidates import save_memory_candidate_record
-from database.memory_manager import get_memories, save_memory
+from database.memory_manager import get_memories, get_memory_by_id, save_memory, set_memory_active
 from database.models import create_database
 from database.reader_results import save_reader_result
 
@@ -223,6 +233,7 @@ class PersonalAI:
         self.ask_llm_func = ask_llm
         self.reader_result_saver = save_reader_result
         self.memory_candidate_recorder = save_memory_candidate_record
+        self.memory_deactivator = set_memory_active
         self.tool_registry = self.build_tool_registry(web_reader_fetcher)
         self.tool_execution_logger = ToolExecutionLogger()
 
@@ -296,6 +307,7 @@ class PersonalAI:
         self.pending_pptx_reader_confirmation = None
         self.pending_youtube_reader_confirmation = None
         self.pending_image_reader_confirmation = None
+        self.pending_memory_delete_confirmation = None
         self.last_response = None
 
     def build_tool_registry(self, web_reader_fetcher=None):
@@ -408,6 +420,13 @@ class PersonalAI:
             self.last_response = pending_image_reader_response
             self.save_assistant_message(pending_image_reader_response)
             return pending_image_reader_response
+
+        pending_memory_delete_response = self.handle_pending_memory_delete_confirmation(user_input)
+
+        if pending_memory_delete_response:
+            self.last_response = pending_memory_delete_response
+            self.save_assistant_message(pending_memory_delete_response)
+            return pending_memory_delete_response
 
         recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
 
@@ -561,6 +580,31 @@ class PersonalAI:
             self.last_response = image_reader_confirmation.message
             self.save_assistant_message(image_reader_confirmation.message)
             return image_reader_confirmation.message
+
+        # Ver2.53: Memory一覧表示は読み取り専用のため、確認なしで即答します。
+        if detect_memory_list_request(user_input):
+            memories = get_memories(limit=20)
+            list_response = build_memory_list_response(memories)
+            self.last_response = list_response
+            self.save_assistant_message(list_response)
+            return list_response
+
+        # Ver2.53: Memory削除は、既存のset_memory_active()による非破壊的な無効化を、
+        # 他のReaderと同じ確認フローを通してから実行します（物理削除はしません）。
+        memory_delete_intent = detect_memory_delete_request(user_input)
+
+        if memory_delete_intent.get("is_delete_request"):
+            memory_id = memory_delete_intent.get("memory_id")
+            target_memory = get_memory_by_id(memory_id) if memory_id is not None else None
+            delete_confirmation = build_memory_delete_confirmation(memory_id, target_memory)
+
+            if delete_confirmation.get("needs_confirmation"):
+                self.pending_memory_delete_confirmation = delete_confirmation
+
+            delete_message = delete_confirmation.get("message")
+            self.last_response = delete_message
+            self.save_assistant_message(delete_message)
+            return delete_message
 
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
@@ -1599,6 +1643,40 @@ class PersonalAI:
         self.last_image_reader_tool_result = [result for _, result in results]
 
         return self.build_multi_image_reader_tool_response(results, original_input=original_input)
+
+    def handle_pending_memory_delete_confirmation(self, user_input):
+        """Memory削除確認後の返答を扱います。
+
+        「削除」は物理削除ではなく、既存のset_memory_active()による非破壊的な無効化です。
+        memory_deactivatorが設定されている場合のみ実際にDBを更新します（テスト用インスタンスでは
+        属性が未設定のため、暗黙にDBへ書き込みません）。
+        """
+        pending_confirmation = getattr(self, "pending_memory_delete_confirmation", None)
+
+        if not pending_confirmation:
+            return None
+
+        result = resolve_memory_delete_confirmation_response(
+            user_input,
+            pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
+        )
+
+        if result.get("status") in ["confirmed", "cancelled"]:
+            self.pending_memory_delete_confirmation = None
+
+        if result.get("status") != "confirmed":
+            return result.get("message")
+
+        memory_id = result.get("memory_id")
+        deactivator = getattr(self, "memory_deactivator", None)
+
+        if deactivator is None:
+            return "現在の設定では記憶の削除を実行できません。"
+
+        deactivated_memory = deactivator(memory_id, False)
+
+        return build_memory_delete_result_response(deactivated_memory, memory_id)
 
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""

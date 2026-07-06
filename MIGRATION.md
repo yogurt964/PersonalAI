@@ -898,7 +898,7 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.x: Memory編集・削除UI（削除の実行は都度確認。set_memory_active()による非破壊的な無効化が既にある）
+Ver2.x: Memory編集機能（内容の書き換え、Ver2.53の削除UIでは対象外にした部分）
 Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
@@ -912,5 +912,6 @@ Ver2.49で、File Readerの複数ファイル同時読み取りに対応した�
 Ver2.50で、PDF/Word/Excel/PowerPoint/Image Readerにも複数ファイル対応を展開した（YouTubeは対象外）。詳細は `docs/project_handoff.md` のVer2.50の項を参照。
 Ver2.51で、Reader結果全文のDB保存を追加した。詳細は `docs/project_handoff.md` のVer2.51の項を参照。
 Ver2.52で、Memory Candidate専用テーブル（提案結果の監査履歴）を追加した。詳細は `docs/project_handoff.md` のVer2.52の項を参照。
+Ver2.53で、Memory一覧表示・削除UI（削除は確認必須、非破壊的な無効化）を追加した。詳細は `docs/project_handoff.md` のVer2.53の項を参照。
 
 Ver2.44で、confirmation intentの判定をハイブリッド方式（固定語彙優先＋不明時のみLLM）に更新した。詳細は `docs/project_handoff.md` のVer2.44の項を参照。

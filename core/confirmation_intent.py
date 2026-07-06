@@ -141,6 +141,18 @@ GENERIC_CONFIRMATION_CONTEXTS = {
             "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
         ),
     },
+    "memory_delete": {
+        "confirm_action": "confirm_memory_delete",
+        "cancel_action": "cancel_memory_delete",
+        "unclear_action": "ask_memory_delete_confirmation_again",
+        "confirm_message": "記憶の削除を許可する意図として解釈しました。",
+        "cancel_message": "記憶の削除をキャンセルする意図として解釈しました。",
+        "unclear_message": (
+            "記憶を削除するか確認中です。\n"
+            "実行する場合は「はい」「いいよ」「お願いします」など、\n"
+            "実行しない場合は「いいえ」「キャンセル」などで答えてください。"
+        ),
+    },
 }
 
 

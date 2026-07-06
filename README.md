@@ -64,6 +64,8 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - Memory Candidateをユーザー確認つきで長期記憶へ保存する基礎
 - Memory Candidate専用テーブル（保存/却下/保留の提案結果を監査履歴として記録）
 - 保存したMemory Candidateの内容を直近保存結果として確認する基礎
+- Memory一覧表示（IDつき）
+- Memory削除（確認つき、非破壊的な無効化。物理削除はしない）
 - Memory検索
 - 保存済みMemoryを簡易キーワード検索する基礎
 - ToolRunner / PermissionManager による安全な実行設計
@@ -86,7 +88,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - PC操作
 - ベクトル検索
 - 高度なMemory検索
-- Memory編集・削除UI
+- Memory編集機能（内容の書き換え）
 
 ## 今後のロードマップ
 

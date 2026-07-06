@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.52
+現在バージョン: Ver2.53
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -181,6 +181,7 @@ Ver2.49: File Readerの複数ファイル同時読み取りに対応
 Ver2.50: 複数ファイル対応をPDF/Word/Excel/PowerPoint/Image Readerへ展開
 Ver2.51: Reader結果全文のDB保存を追加
 Ver2.52: Memory Candidate専用テーブル（提案結果の監査履歴）を追加
+Ver2.53: Memory一覧表示・削除UI（削除は確認必須、非破壊的な無効化）を追加
 ```
 
 ## 現在の主要ファイル
@@ -839,10 +840,35 @@ scripts/check_ver2520.py を追加。本番DBには一切触れず、独立し�
 scripts/run_ver2_checks.py に check_ver2520.py を追加
 ```
 
-Ver2.52後の候補:
+Ver2.53でMemory一覧表示・削除UIを追加
 
 ```text
-Ver2.x: Memory編集・削除UI（削除の実行は都度確認。set_memory_active()による非破壊的な無効化が既にある）
+「覚えていることを見せて」「記憶一覧」のような発話で、保存済みMemoryをID付きで一覧表示できるようにした
+（read-onlyのため確認不要。既存のget_memories()をそのまま使う）
+「(番号)の記憶を削除して」のような発話で、指定IDのMemoryを削除できるようにした。
+「削除」は物理削除ではなく、既存のset_memory_active(id, False)による非破壊的な無効化（元に戻せる）
+削除は他のReaderと同じ確認フローを通してから実行する（ユーザーの「削除の実行は都度確認」という
+要望に沿った設計）。確認判定はconfirmation_intent.pyのハイブリッド方式をcontext_type="memory_delete"
+として再利用した
+「このファイルを削除して」のような無関係な削除依頼と衝突しないよう、削除動詞と「記憶」「Memory」への
+言及の両方が含まれる場合のみ削除意図として扱う
+core/memory_management_intent.py（意図判定）と core/memory_management.py（一覧表示・確認メッセージ・
+削除結果表示）を追加
+core/personal_ai.py に self.memory_deactivator（デフォルトはset_memory_active）を追加し、
+handle_pending_memory_delete_confirmation()から呼び出す。属性未設定のtest doubleは暗黙にDBへ
+書き込まない設計（Ver2.51/2.52と同じパターン）
+一覧表示（get_memories/get_memory_by_id）はread-onlyのため、既存のbuild_messages()と同じく
+DI無しで直接呼び出す。書き込み（set_memory_active経由の無効化）だけをDI対象にした
+scripts/check_ver2530.py を追加。本番DBには一切触れず、独立したin-memory SQLiteで実際のSQL動作を検証する
+scripts/run_ver2_checks.py に check_ver2530.py を追加
+Memoryの内容自体を書き換える「編集」機能は今回のスコープに含めない（より複雑なUX設計が必要なため、
+別途検討する）
+```
+
+Ver2.53後の候補:
+
+```text
+Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
 Ver2.x: OpenAI visionをvision_routerに接続（必要なタイミングでユーザーへ相談）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

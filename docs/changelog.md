@@ -1,5 +1,21 @@
 # Changelog
 
+## Version 2.53
+
+開始内容:
+
+- Memory一覧表示・削除UIを追加
+- 「覚えていることを見せて」でID付きの保存済みMemory一覧を表示できるようにした（read-onlyのため確認不要）
+- 「(番号)の記憶を削除して」で指定IDのMemoryを削除できるようにした。「削除」は物理削除ではなく既存のset_memory_active(id, False)による非破壊的な無効化
+- 削除は他のReaderと同じ確認フローを通してから実行する。確認判定はconfirmation_intent.pyのハイブリッド方式をcontext_type="memory_delete"として再利用した
+- 「このファイルを削除して」のような無関係な削除依頼と衝突しないよう、削除動詞と「記憶」「Memory」への言及の両方が必要な設計にした
+- `core/memory_management_intent.py` と `core/memory_management.py` を追加
+- `core/personal_ai.py` に `self.memory_deactivator`（デフォルトはset_memory_active）を追加。属性未設定のtest doubleは暗黙にDBへ書き込まない設計（Ver2.51/2.52と同じパターン）
+- 一覧表示はread-onlyのためDI無しで直接呼び出す。書き込み（無効化）だけをDI対象にした
+- `scripts/check_ver2530.py` を追加。本番DBには一切触れず、独立したin-memory SQLiteで実際のSQL動作を検証する
+- `scripts/run_ver2_checks.py` に `check_ver2530.py` を追加
+- Memory内容自体を書き換える「編集」機能は今回のスコープに含めない（より複雑なUX設計が必要なため別途検討）
+
 ## Version 2.52
 
 開始内容:
