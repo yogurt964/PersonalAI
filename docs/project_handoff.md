@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.54
+現在バージョン: Ver2.55
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -183,6 +183,7 @@ Ver2.51: Reader結果全文のDB保存を追加
 Ver2.52: Memory Candidate専用テーブル（提案結果の監査履歴）を追加
 Ver2.53: Memory一覧表示・削除UI（削除は確認必須、非破壊的な無効化）を追加
 Ver2.54: OpenAI vision接続（vision_router、月間予算ガード付き）を追加
+Ver2.55: Image Readerの自動OpenAIエスカレーション（ローカル低信頼時のみ、予算ガード内）を追加
 ```
 
 ## 現在の主要ファイル
@@ -889,10 +890,28 @@ scripts/run_ver2_checks.py に check_ver2540.py を追加
 実際のライブAPI呼び出しでの動作確認は、ユーザーとの合意のもとで別途実施する
 ```
 
-Ver2.54後の候補:
+Ver2.55でImage Readerの自動OpenAIエスカレーションを追加
 
 ```text
-Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施）
+ユーザーから「将来的には明示的に求めなくてもPersonalAIが必要なタイミングを判断してOpenAIを
+呼び出してほしい」との要望があり、月間予算ガード（Ver2.54）が既にあることを踏まえて実装した
+core/vision_router.py に should_escalate_after_local_result() を追加。ローカルvisionモデルの
+解析結果に「わかりません」「判断できません」などの低信頼な表現が含まれる場合、自動的に
+OpenAIへの再解析を試みる（ユーザーが明示的にOpenAIを指定する既存の仕組みは維持）
+core/image_reader_adapter.py の_describe_image()を、まずローカルで解析→低信頼ならOpenAIへ
+自動エスカレーション、という流れに変更。予算超過・キー未設定などでOpenAIが使えない場合は、
+エスカレーションを試みず、ローカルの結果をそのまま正直に返す（silent fallback、失敗として扱わない）
+実際に使われたバックエンド（local/openai）をToolResultに正確に記録するよう変更した
+（以前はエスカレーション前に選んだバックエンドをそのまま記録していた）
+scripts/check_ver2550.py を追加。実際のOpenAI API呼び出しは一切行わず、fakeのclient_factoryと
+独立したin-memory SQLiteで、低信頼判定・自動エスカレーション・予算超過時のフォールバックを検証する
+scripts/run_ver2_checks.py に check_ver2550.py を追加
+```
+
+Ver2.55後の候補:
+
+```text
+Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施、クレジット購入完了後）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

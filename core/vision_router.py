@@ -5,17 +5,19 @@ PersonalAIは、Qwen・OpenAI・Visionなどの機能を単独の特殊ロジッ
 Image Reader専用の判断ロジックをアダプタ内に埋め込まず、ここに集約することで、
 将来ModelRouter/ToolRouterへ拡張する際の土台にします。
 
-Ver2.54でOpenAI visionへの接続口を追加しました。ただし現時点では、ユーザーが
-明示的にOpenAIでの解析を求めた場合のみ選びます（画像の難易度を自動判定して
-勝手にエスカレーションすることはしません。外部への画像送信と課金を伴うため、
-ユーザーの明示的な意図がある場合に限定しています）。
+Ver2.54でOpenAI visionへの接続口を追加しました。
+Ver2.55で、ユーザーから「明示的に求めなくても、必要なタイミングをPersonalAIが判断して
+OpenAIを呼び出してよい」との合意を得たため、ローカルモデルの解析結果が低信頼そうな場合に
+自動でOpenAIへエスカレーションする判定を追加しました。
+月間予算ガード（ai/openai_client.py）は自動エスカレーション時も必ずかかるため、
+上限に達している場合はエスカレーションされず、ローカルの結果がそのまま使われます。
 """
 
 VISION_BACKEND_LOCAL = "local"
 VISION_BACKEND_OPENAI = "openai"
 
 # ユーザーが明示的にOpenAIでの解析を求めていると判断する表現。
-# 画像の難易度自動判定は行わず、ここに一致した場合だけOpenAIへエスカレーションします。
+# これが一致した場合は、ローカルを試さず直接OpenAIを使います（ユーザーの明示的な指定を優先）。
 OPENAI_ESCALATION_PHRASES = [
     "OpenAIで解析して",
     "openaiで解析して",
@@ -27,13 +29,25 @@ OPENAI_ESCALATION_PHRASES = [
     "高精度で解析して",
 ]
 
+# ローカルモデルの解析結果にこれらの表現が含まれる場合、自動的にOpenAIへの
+# エスカレーションを検討します（低信頼のサインとして扱います）。
+LOW_CONFIDENCE_MARKERS = [
+    "わかりません",
+    "分かりません",
+    "判断できません",
+    "確信が持てません",
+    "不明瞭",
+    "読み取れません",
+    "断定できません",
+    "特定できません",
+]
+
 
 def choose_vision_backend(image_path=None, user_request_text=""):
-    """画像読み取りに使うvisionバックエンドを選びます。
+    """最初にどちらのバックエンドを試すかを選びます。
 
     デフォルトは常にローカルです。ユーザーが明示的にOpenAIでの解析を求めた
-    場合のみOpenAIを選びます。画像の難易度・安全性を自動判定してのエスカレーションは
-    まだ実装していません（将来の拡張候補）。
+    場合のみ、最初からOpenAIを選びます。
     """
     text = str(user_request_text or "")
 
@@ -41,3 +55,16 @@ def choose_vision_backend(image_path=None, user_request_text=""):
         return VISION_BACKEND_OPENAI
 
     return VISION_BACKEND_LOCAL
+
+
+def should_escalate_after_local_result(local_result_text):
+    """ローカルでの解析結果を見て、OpenAIへの自動エスカレーションを試す価値があるか判定します。
+
+    ユーザーの明示的な指定がない通常の読み取りでも、ローカルモデルが
+    「わからない」「判断できません」のように低信頼な答えを返した場合は、
+    PersonalAIの判断で自動的にOpenAIへ再解析を試みます。
+    月間予算ガード自体はai/openai_client.py側で別途かかるため、ここでは
+    「試す価値があるかどうか」だけを判定します。
+    """
+    text = str(local_result_text or "")
+    return any(marker in text for marker in LOW_CONFIDENCE_MARKERS)

@@ -1,5 +1,18 @@
 # Changelog
 
+## Version 2.55
+
+開始内容:
+
+- Image Readerの自動OpenAIエスカレーション（ローカル低信頼時のみ、予算ガード内）を追加
+- ユーザーから「明示的に求めなくてもPersonalAIが必要なタイミングを判断してOpenAIを呼び出してほしい」との要望を受けて実装
+- `core/vision_router.py` に `should_escalate_after_local_result()` を追加。ローカルvisionモデルの解析結果に低信頼な表現が含まれる場合、自動的にOpenAIへの再解析を試みる
+- `core/image_reader_adapter.py` の `_describe_image()` を、まずローカルで解析→低信頼ならOpenAIへ自動エスカレーション、という流れに変更
+- 予算超過・キー未設定などでOpenAIが使えない場合は、エスカレーションを試みず、ローカルの結果をそのまま正直に返す（silent fallback、失敗として扱わない）
+- 実際に使われたバックエンドをToolResultに正確に記録するよう変更
+- `scripts/check_ver2550.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2550.py` を追加
+
 ## Version 2.54
 
 開始内容:

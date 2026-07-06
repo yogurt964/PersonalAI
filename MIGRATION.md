@@ -183,6 +183,8 @@ Excel Readerの実機テストで、Qwenがグループ集計（列をまたぐ�
 
 ただし、これは会話品質・ModelRouter・OpenAI接続の本格実装に関わる設計判断であり、着手する際はあらためてユーザーと確認する。
 
+Ver2.55で、この考え方の一部をImage Readerに限定して実装した（ローカルvisionの解析結果が低信頼な場合の自動OpenAIエスカレーション）。テキスト応答（Excel集計等）への拡張は未着手のまま。
+
 ## 6. ディレクトリ構成
 
 ```text
@@ -900,7 +902,7 @@ docs/demo_logs/web_reader_memory_candidate_demo.md
 ## 21. 次に進める候補
 
 ```text
-Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施）
+Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施、クレジット購入完了後）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53の削除UIでは対象外にした部分）
 Ver2.x: 応答の正直さ向上・Qwen性能改善・OpenAIエスカレーションの本格設計
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）

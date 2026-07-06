@@ -2,7 +2,12 @@ from pathlib import Path
 
 from core.file_path_extraction import extract_single_file_path_from_text
 from core.tool_adapter import ToolAdapter, ToolResult
-from core.vision_router import VISION_BACKEND_LOCAL, VISION_BACKEND_OPENAI, choose_vision_backend
+from core.vision_router import (
+    VISION_BACKEND_LOCAL,
+    VISION_BACKEND_OPENAI,
+    choose_vision_backend,
+    should_escalate_after_local_result,
+)
 
 
 IMAGE_EXTENSIONS = (".png", ".jpg", ".jpeg", ".bmp", ".gif", ".webp")
@@ -124,15 +129,15 @@ class ImageReaderAdapter(ToolAdapter):
             )
 
         original_input = self._get_original_input_from_request(request)
-        backend = choose_vision_backend(image_path=path_text, user_request_text=original_input)
+        initial_backend = choose_vision_backend(image_path=path_text, user_request_text=original_input)
 
         try:
-            text = self._describe_image(path, original_input, backend)
+            text, backend = self._describe_image(path, original_input, initial_backend)
         except Exception as error:
             return ToolResult(
                 success=False,
                 message="画像の解析に失敗しました。読めたふりはしません。（破損・非対応形式の可能性があります）",
-                data={"path": path_text, "backend": backend},
+                data={"path": path_text, "backend": initial_backend},
                 error=str(error),
                 executed=True,
             )
@@ -167,25 +172,42 @@ class ImageReaderAdapter(ToolAdapter):
         )
 
     def _describe_image(self, path, original_input, backend):
+        """画像を解析し、(説明文, 実際に使ったバックエンド) を返します。
+
+        backendが"local"の場合、まずローカルモデルで解析し、その結果が低信頼そうなら
+        （ユーザーとの合意に基づき）PersonalAIの判断で自動的にOpenAIへ再解析を試みます。
+        OpenAI側が予算超過・キー未設定などで使えない場合は、ローカルの結果をそのまま
+        正直に返します（silent fallback）。
+        """
         if self._vision_describer is not None:
-            return self._vision_describer(path, original_input, backend)
+            return self._vision_describer(path, original_input, backend), backend
 
         # 画像と一緒に具体的な質問が来ている場合、後続ターンでは画像そのものを
         # 再度見られないため、最初の解析でできるだけ詳しく答えておきます。
         prompt = f"{DEFAULT_VISION_PROMPT}\n\nユーザーからの元のメッセージ: {original_input}" if original_input else DEFAULT_VISION_PROMPT
 
         if backend == VISION_BACKEND_OPENAI:
-            from ai.openai_client import describe_image_with_openai
-
-            return describe_image_with_openai(
-                str(path),
-                prompt,
-                client_factory=self._openai_client_factory,
-            )
+            return self._call_openai_vision(path, prompt), VISION_BACKEND_OPENAI
 
         if backend != VISION_BACKEND_LOCAL:
             raise NotImplementedError(f"vision backend '{backend}' is not implemented yet.")
 
+        local_text = self._call_local_vision(path, prompt)
+
+        if should_escalate_after_local_result(local_text):
+            try:
+                openai_text = self._call_openai_vision(path, prompt)
+                return (
+                    f"{openai_text}\n\n"
+                    "（ローカルモデルでの解析結果が不明瞭だったため、PersonalAIの判断でOpenAIに再解析させました）"
+                ), VISION_BACKEND_OPENAI
+            except Exception:
+                # 予算超過・キー未設定などの場合は、ローカルの結果をそのまま正直に返します。
+                return local_text, VISION_BACKEND_LOCAL
+
+        return local_text, VISION_BACKEND_LOCAL
+
+    def _call_local_vision(self, path, prompt):
         from ollama import chat
 
         response = chat(
@@ -194,6 +216,15 @@ class ImageReaderAdapter(ToolAdapter):
         )
 
         return response.message.content
+
+    def _call_openai_vision(self, path, prompt):
+        from ai.openai_client import describe_image_with_openai
+
+        return describe_image_with_openai(
+            str(path),
+            prompt,
+            client_factory=self._openai_client_factory,
+        )
 
     def _get_path_from_request(self, request):
         input_data = getattr(request, "input_data", {}) or {}

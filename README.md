@@ -52,7 +52,7 @@ PersonalAIは、ユーザーの作業入口になるAIを目指しています�
 - YouTube Reader実行前の確認
 - Image Reader（画像ファイルをローカルvisionモデルqwen2.5vl:7bで解析、複数画像同時解析対応）
 - Image Reader実行前の確認
-- Vision Router（デフォルトはローカル、ユーザーが明示的に求めた場合のみOpenAI visionへエスカレーション）
+- Vision Router（デフォルトはローカル、ユーザーの明示指定またはローカル低信頼時に自動でOpenAI visionへエスカレーション、予算ガード付き）
 - OpenAI接続（Image Readerのvision解析のみ。月間予算ガード付き、上限到達時は呼び出し自体をブロック）
 - 確認待ち状態の文脈解釈（Web Reader / File Reader / PDF Reader / Word Reader / Excel Reader / PowerPoint Reader / YouTube Reader / Image Reader共通、固定語彙優先＋不明時のみLLM解釈のハイブリッド方式）
 - 読み取り結果の整形表示
