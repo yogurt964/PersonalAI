@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.63
+現在バージョン: Ver2.64
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -192,6 +192,7 @@ Ver2.60: 通常会話への自動OpenAIエスカレーション拡張
 Ver2.61: Memory編集機能（内容の書き換え）
 Ver2.62: 実機テストで見つかった3件の不具合修正（未実行操作の捏造回答・Memory重複・capability_managerキーワード誤爆）
 Ver2.63: 商品・価格・実在リンクの断定回答を修正（Web検索対象の拡張、SYSTEM_PROMPTの抽象度向上）
+Ver2.64: 解釈層全体のレイヤードパイプライン設計（docs/llm_intent_resolver_design.mdに追記、実装なし）
 ```
 
 ## 現在の主要ファイル
@@ -1087,10 +1088,26 @@ docs/llm_intent_resolver_design.md（Ver2.26）の既存方針と一致する。
 scripts/check_ver2630.py を追加。
 ```
 
-Ver2.63後の候補:
+Ver2.64で解釈層全体のレイヤードパイプライン設計をdocs化
 
 ```text
-Ver2.x: LLM Intent Resolverの段階的適用（web検索要否・ツール選択など、レイテンシ影響を見ながら）
+Ver2.62/2.63の実機バグ修正をきっかけに、解釈層（意図判定）全体の設計をユーザーとすり合わせた。
+input_analyzer.py/capability_manager.py/tool_request_builder.pyに「文書作成/読み取りが必要か」の
+判定が重複していること、LLMフォールバックを持つのはconfirmation_intent.pyだけであることを監査で確認した。
+処理パイプライン（入力→解釈→記憶検索→統合→計画→作業→検証→出力→記憶）を、毎回全レイヤーを
+順番に通すのではなく入力の性質に応じて必要なレイヤーだけを通る条件付きルーティングにする方針、
+解釈対象を安全確認系（変更しない）とルーティング分類系（対象）に分ける方針を明記した。
+ルーティング分類系はStage1（重複統合）→Stage2（ハイブリッド化）→Stage3（学習型キーワード記憶、
+既存Memory機構に相乗り、完全一致ベース）の段階で進める。言い換え対応にはベクトルDBが必要だが、
+実装は必要性が高まった時点まで見送る方針でユーザーと合意した。
+検証層（操作実行や具体的事実の主張がある場合だけ条件付き発動）の設計も明記した。
+docs/llm_intent_resolver_design.mdに追記。コード実装は行っていない。
+```
+
+Ver2.64後の候補:
+
+```text
+Ver2.x: Stage 1（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）の実装
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
