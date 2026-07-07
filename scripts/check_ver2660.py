@@ -82,7 +82,6 @@ def check_imports():
         )
         from core.input_analyzer import InputAnalyzer
         from core.capability_manager import CapabilityManager
-        from core import tool_request_builder
     except Exception as error:
         print(f"[NG] imports failed -> {error}")
         return 1
@@ -94,14 +93,19 @@ def check_imports():
     WORD_DOCUMENT_KEYWORDS
     InputAnalyzer
     CapabilityManager
-    tool_request_builder
 
     print("[OK] imports")
     return 0
 
 
 def check_three_files_use_shared_module():
-    """重複していたキーワードリストが、実際に共有モジュールから読み込まれていることを確認する。"""
+    """重複していたキーワードリストが、実際に共有モジュールから読み込まれていることを確認する。
+
+    Ver2.66時点ではinput_analyzer.py/capability_manager.py/tool_request_builder.pyの
+    3ファイルが対象だったが、tool_request_builder.py（core/tool_flow.py経由）は
+    現在の会話フローに一切接続されていない不使用コードだったことがVer2.69の監査で判明し、
+    削除された。残る2ファイルについてこの確認を続ける。
+    """
     core = PROJECT_ROOT / "core"
 
     failures = 0
@@ -113,11 +117,6 @@ def check_three_files_use_shared_module():
     failures += check_words(
         "capability_manager.py imports from reading_keywords",
         core / "capability_manager.py",
-        ["from core.reading_keywords import"],
-    )
-    failures += check_words(
-        "tool_request_builder.py imports from reading_keywords",
-        core / "tool_request_builder.py",
         ["from core.reading_keywords import"],
     )
 
@@ -171,31 +170,6 @@ def check_behavior_unchanged_capability_manager():
     failures += check_true(
         "capability_manager file-deletion request still does not misroute (Ver2.62 regression guard)",
         cm._requires_file_reading("このファイル情報を削除してください") is False,
-    )
-
-    return failures
-
-
-def check_behavior_unchanged_tool_request_builder():
-    from core import tool_request_builder as trb
-
-    failures = 0
-
-    failures += check_true(
-        "tool_request_builder still requires document creation for Excel report",
-        trb._requires_document_creation("資料作成をお願いします", "資料作成をお願いします", None) is True,
-    )
-    failures += check_true(
-        "tool_request_builder still requires document creation for PDF-to-file phrasing",
-        trb._requires_document_creation("PDFにしてください", "pdfにしてください", None) is True,
-    )
-    failures += check_true(
-        "tool_request_builder still detects PC operation via PowerShell",
-        trb._requires_pc_operation("PowerShellで実行して", "powershellで実行して") is True,
-    )
-    failures += check_true(
-        "tool_request_builder reading intent still includes 確認/分析",
-        trb._has_reading_intent("この内容を分析して") is True,
     )
 
     return failures
@@ -270,50 +244,6 @@ def check_exact_keyword_set_equivalence():
         original_capability_manager_reading == new_capability_manager_reading,
     )
 
-    original_trb_doc_creation = {
-        "Word file", "Word document", "word document", "in Word", "Wordで",
-        "ワード文書", "ワードで", "ワードファイル", "Excel file", "Excel document",
-        "excel document", "in Excel", "エクセル", "文書作成", "資料作成", "レポート作成",
-        "PDF作成", "pdf作成", "PDFを作", "pdfを作", "PDFにして", "pdfにして",
-        "文書を作", "資料を作",
-    }
-    new_trb_doc_creation = union(
-        WORD_DOCUMENT_KEYWORDS,
-        EXCEL_DOCUMENT_KEYWORDS,
-        ["文書作成", "資料作成", "レポート作成", "PDF作成", "pdf作成", "PDFを作", "pdfを作"],
-        PDF_TO_FILE_KEYWORDS,
-        ["文書を作", "資料を作"],
-    )
-    failures += check_true(
-        "tool_request_builder document-creation keyword set is byte-for-byte unchanged",
-        original_trb_doc_creation == new_trb_doc_creation,
-    )
-
-    original_trb_pc = {
-        "PCを操作", "パソコンを操作", "クリック", "キーボード", "フォルダ操作",
-        "ファイルを削除", "削除して", "VS Codeを操作", "vscodeを操作",
-        "PowerShellで実行", "powershellで実行", "ブラウザを操作", "コマンドを実行",
-        "delete", "remove",
-    }
-    new_trb_pc = union(
-        BASE_PC_OPERATION_KEYWORDS,
-        ["クリック", "キーボード", "フォルダ操作", "ファイルを削除", "削除して",
-         "VS Codeを操作", "vscodeを操作", "delete", "remove"],
-    )
-    failures += check_true(
-        "tool_request_builder pc-operation keyword set is byte-for-byte unchanged",
-        original_trb_pc == new_trb_pc,
-    )
-
-    original_trb_reading = {
-        "読んで", "読み取", "要約", "まとめ", "内容", "見て", "確認", "解析", "分析", "説明して",
-    }
-    new_trb_reading = union(BASE_READING_INTENT_KEYWORDS, ["確認", "分析"])
-    failures += check_true(
-        "tool_request_builder reading-intent keyword set is byte-for-byte unchanged",
-        original_trb_reading == new_trb_reading,
-    )
-
     return failures
 
 
@@ -329,7 +259,6 @@ def main():
         ("reading_keywords.py", core / "reading_keywords.py"),
         ("input_analyzer.py", core / "input_analyzer.py"),
         ("capability_manager.py", core / "capability_manager.py"),
-        ("tool_request_builder.py", core / "tool_request_builder.py"),
         ("check_ver2660.py", scripts / "check_ver2660.py"),
         ("run_ver2_checks.py", scripts / "run_ver2_checks.py"),
         ("changelog.md", docs / "changelog.md"),
@@ -343,7 +272,6 @@ def main():
     failures += check_three_files_use_shared_module()
     failures += check_behavior_unchanged_input_analyzer()
     failures += check_behavior_unchanged_capability_manager()
-    failures += check_behavior_unchanged_tool_request_builder()
     failures += check_exact_keyword_set_equivalence()
 
     failures += check_words(

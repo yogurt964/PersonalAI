@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.68
+現在バージョン: Ver2.69
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -197,6 +197,7 @@ Ver2.65: エスカレーション条件・検証層・コストガバナンス�
 Ver2.66: Stage 1実装（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）
 Ver2.67: Web検索/回答生成の分離可否を実APIで調査し、実現不可能と結論を確定
 Ver2.68: Stage 2実装（ルーティング分類のハイブリッド化: capability_manager/web_search_intent）
+Ver2.69: 不使用コード削除（tool_request_builder.py/tool_flow.py、影響する8チェックを外科的修正）
 ```
 
 ## 現在の主要ファイル
@@ -1163,10 +1164,25 @@ confirmation_intent.pyと同じハイブリッド判定（固定語彙優先、�
 scripts/check_ver2680.py を追加。
 ```
 
-Ver2.68後の候補:
+Ver2.69で不使用コード（tool_request_builder.py/tool_flow.py）を削除
 
 ```text
-Ver2.x: core/tool_request_builder.py（未使用コード）の削除または再活用の判断
+Ver2.68のStage 2作業中に、core/tool_request_builder.py（core/tool_flow.py経由）が
+現在の会話フローに一切接続されていない、Ver1.6〜1.10時代のdry-run実装だと判明した。
+今のルーティング判断はcapability_manager.py（Ver2.68でハイブリッド化済み）と各Readerの
+専用confirmationモジュールが担っている。
+tool_adapter.py/tool_registry.py/tool_execution_log.py/tool_runner.py/tool_permission.pyは
+tool_flow.py経由ではなく独立して使われている現役コードであることを確認し、削除対象から除外した。
+2ファイルを参照していた8本の既存チェック（check_ver160/170/180/190/1100/200/2300/2660）を
+外科的に修正した。全機能を不使用コードに依存していたcheck_ver160.pyのみ削除し、他は該当箇所
+だけ削除・書き換え。既存の全チェック（Ver1: 12本、Ver2: 70本）が引き続き通ることを確認した。
+scripts/check_ver2690.py を追加。
+```
+
+Ver2.69後の候補:
+
+```text
+Ver2.x: 検証層B（実行整合性チェック）の実装
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 

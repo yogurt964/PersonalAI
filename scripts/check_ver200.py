@@ -221,32 +221,6 @@ def check_tool_runner_permission():
     return failures
 
 
-def check_dry_run_connection():
-    from core.tool_execution_log import ToolExecutionLogger
-    from core.tool_registry import ToolRegistry
-    from core.tool_request_builder import build_tool_request_decision
-    from core.tool_runner import run_tool_request
-    from core.web_reader_adapter import WebReaderAdapter
-
-    decision = build_tool_request_decision("このURLを読んでください https://example.com")
-    registry = ToolRegistry()
-    registry.register(WebReaderAdapter(fetcher=lambda url: "<html><body>Example Domain</body></html>"))
-    run_result = run_tool_request(
-        decision.tool_request,
-        registry=registry,
-        user_confirmed=False,
-        logger=ToolExecutionLogger(),
-    )
-
-    failures = 0
-    failures += check_true("dry-run requires Tool", decision.requires_tool is True)
-    failures += check_true("dry-run -> web_reader", decision.tool_request.tool_name == "web_reader")
-    failures += check_true("dry-run should_execute False", decision.should_execute is False)
-    failures += check_true("dry-run run_tool_request without permission not executed", run_result.result.executed is False)
-
-    return failures
-
-
 def main():
     failures = 0
 
@@ -276,7 +250,6 @@ def main():
     failures += check_web_reader_with_fake_fetcher()
     failures += check_missing_url()
     failures += check_tool_runner_permission()
-    failures += check_dry_run_connection()
 
     failures += check_words(
         "run_ver2_checks.py",

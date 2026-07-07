@@ -59,7 +59,6 @@ def check_imports():
         from core.tool_execution_log import build_tool_execution_record
         from core.tool_permission import evaluate_tool_permission
         from core.tool_registry import ToolRegistry
-        from core.tool_request_builder import build_tool_request_decision
     except Exception as error:
         print(f"[NG] imports failed -> {error}")
         return 1
@@ -67,7 +66,6 @@ def check_imports():
     PersonalAI
     CapabilityManager
     ToolRegistry
-    build_tool_request_decision
     evaluate_tool_permission
     build_tool_execution_record
     decide_memory_usage
@@ -75,26 +73,6 @@ def check_imports():
 
     print("[OK] imports")
     return 0
-
-
-def check_dry_run():
-    from core.tool_request_builder import build_tool_request_decision
-
-    normal = build_tool_request_decision("こんにちは")
-    web = build_tool_request_decision("このURLを読んでください https://example.com")
-    pc = build_tool_request_decision("ファイルを削除してください")
-
-    failures = 0
-    failures += check_true("normal requires no Tool", normal.requires_tool is False)
-    failures += check_true("normal should_execute False", normal.should_execute is False)
-    failures += check_true("URL requires Tool", web.requires_tool is True)
-    failures += check_true("URL -> web_reader", web.tool_request.tool_name == "web_reader")
-    failures += check_true("URL should_execute False", web.should_execute is False)
-    failures += check_true("delete file -> pc_operator", pc.tool_request.tool_name == "pc_operator")
-    failures += check_true("delete risk high or critical", pc.tool_request.risk_level in ["high", "critical"])
-    failures += check_true("delete should_execute False", pc.should_execute is False)
-
-    return failures
 
 
 def main():
@@ -205,7 +183,6 @@ def main():
             "check_ver190.py",
             "check_ver180.py",
             "check_ver170.py",
-            "check_ver160.py",
             "check_ver150.py",
             "check_ver140.py",
             "check_ver130.py",
@@ -214,8 +191,6 @@ def main():
             "All Ver1 checks passed",
         ],
     )
-
-    failures += check_dry_run()
 
     if failures:
         print(f"{failures} checks failed.")

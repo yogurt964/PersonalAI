@@ -75,7 +75,6 @@ def check_check_script_has_no_forbidden_words():
 def check_keyword_false_positive_fixed():
     from core.capability_manager import CapabilityManager
     from core.input_analyzer import InputAnalyzer
-    from core.tool_request_builder import build_tool_request_decision
 
     ia = InputAnalyzer()
     cm = CapabilityManager()
@@ -90,7 +89,6 @@ def check_keyword_false_positive_fixed():
     for text in keyword_sentences:
         analysis = ia.analyze(text)
         capability = cm.analyze(text, analysis)
-        decision = build_tool_request_decision(text)
 
         failures += check_true(
             f"input_analyzer no false positive: {text}",
@@ -100,10 +98,6 @@ def check_keyword_false_positive_fixed():
             f"capability_manager no false positive: {text}",
             capability["can_handle_now"] is True
             and capability["primary_capability"] != "document_creation_required",
-        )
-        failures += check_true(
-            f"tool_request_builder no false positive: {text}",
-            decision.requires_tool is False,
         )
 
     return failures
@@ -151,7 +145,6 @@ def main():
     files = [
         ("input_analyzer.py", core / "input_analyzer.py"),
         ("capability_manager.py", core / "capability_manager.py"),
-        ("tool_request_builder.py", core / "tool_request_builder.py"),
         ("check_ver2300.py", scripts / "check_ver2300.py"),
         ("run_ver2_checks.py", scripts / "run_ver2_checks.py"),
         ("changelog.md", docs / "changelog.md"),

@@ -1,5 +1,37 @@
 # Changelog
 
+## Version 2.69
+
+開始内容:
+
+- Ver2.68の作業中に見つかった不使用コード（`core/tool_request_builder.py` / `core/tool_flow.py`）を削除
+- 監査の結果、この2ファイルはVer1.6〜1.10時代のdry-run実装で、現在の会話フロー
+  （`core/personal_ai.py`）には一切接続されていないことを確認した。今のルーティング判断は
+  `core/capability_manager.py`（Ver2.68でハイブリッド判定を追加済み）と、各Readerの専用
+  confirmationモジュールが担っている
+- `core/tool_adapter.py` / `core/tool_registry.py` / `core/tool_execution_log.py` /
+  `core/tool_runner.py` / `core/tool_permission.py` は、`tool_flow.py`経由ではなく
+  `personal_ai.py`から独立して使われている現役コードであることを確認し、削除対象から除外した
+  （`tool_runner.py`が`tool_permission.py`を利用している）
+- 2ファイルを参照していた8本の既存チェックスクリプトを、削除の影響を受ける部分だけ
+  外科的に修正した（他の現役機能のテストはすべて維持）
+  - `scripts/check_ver160.py`: 全関数が不使用コードに依存していたため削除し、
+    `scripts/run_ver1_checks.py`から除外した
+  - `scripts/check_ver170.py` / `check_ver190.py` / `check_ver1100.py` / `check_ver2300.py`:
+    ファイル存在確認・import・古いバージョン一覧の固定pinから該当箇所のみ削除
+  - `scripts/check_ver180.py`: dry-run専用テストを削除し、Permission/Log連携テストは
+    `ToolRequest`を直接組み立てる形に書き換えて現役コードの検証を維持
+  - `scripts/check_ver200.py`: 重複していたdry-run接続テストを削除
+    （`check_tool_runner_permission`が同等の現役コードを別途検証済みのため、失われた
+    カバレッジはない）
+  - `scripts/check_ver2660.py`: Ver2.66時点で対象にしていた3ファイル中、`tool_request_builder.py`
+    関連の関数・アサーションを削除。入力`input_analyzer.py`/`capability_manager.py`の2ファイルの
+    検証は維持
+- `core/reading_keywords.py`のdocstringを更新し、共有モジュールを使うのは現在
+  `input_analyzer.py`/`capability_manager.py`の2ファイルであることを明記した
+- 既存の全チェック（Ver1: 12本、Ver2: 70本）が引き続き通ることを確認した
+- `scripts/check_ver2690.py` を追加
+
 ## Version 2.68
 
 開始内容:

@@ -46,7 +46,6 @@ def check_imports():
         from core.tool_execution_log import build_tool_execution_record
         from core.tool_permission import evaluate_tool_permission
         from core.tool_registry import ToolRegistry
-        from core.tool_request_builder import build_tool_request_decision
     except Exception as error:
         print(f"[NG] imports failed -> {error}")
         return 1
@@ -54,28 +53,11 @@ def check_imports():
     PersonalAI
     CapabilityManager
     ToolRegistry
-    build_tool_request_decision
     evaluate_tool_permission
     build_tool_execution_record
 
     print("[OK] imports")
     return 0
-
-
-def check_dry_run():
-    from core.tool_request_builder import build_tool_request_decision
-
-    web = build_tool_request_decision("このURLを読んでください https://example.com")
-    youtube = build_tool_request_decision("このYouTube動画を要約してください https://youtu.be/example")
-
-    failures = 0
-    failures += check_true("URL requires Tool", web.requires_tool is True)
-    failures += check_true("URL -> web_reader", web.tool_request.tool_name == "web_reader")
-    failures += check_true("URL should_execute False", web.should_execute is False)
-    failures += check_true("YouTube -> youtube_reader", youtube.tool_request.tool_name == "youtube_reader")
-    failures += check_true("YouTube should_execute False", youtube.should_execute is False)
-
-    return failures
 
 
 def main():
@@ -145,8 +127,6 @@ def main():
         ],
     )
 
-    failures += check_dry_run()
-
     failures += check_words(
         "run_ver1_checks.py",
         run_ver1_checks,
@@ -154,7 +134,6 @@ def main():
             "check_ver190.py",
             "check_ver180.py",
             "check_ver170.py",
-            "check_ver160.py",
             "check_ver150.py",
             "check_ver140.py",
             "check_ver130.py",

@@ -198,7 +198,6 @@ def main():
     tool_execution_log = PROJECT_ROOT / "core" / "tool_execution_log.py"
     tool_adapter = PROJECT_ROOT / "core" / "tool_adapter.py"
     tool_permission = PROJECT_ROOT / "core" / "tool_permission.py"
-    tool_request_builder = PROJECT_ROOT / "core" / "tool_request_builder.py"
     check_ver170 = PROJECT_ROOT / "scripts" / "check_ver170.py"
     run_ver1_checks = PROJECT_ROOT / "scripts" / "run_ver1_checks.py"
     tool_execution_log_design = PROJECT_ROOT / "docs" / "tool_execution_log_design.md"
@@ -208,7 +207,6 @@ def main():
     failures += check_file_exists("tool_execution_log.py", tool_execution_log)
     failures += check_file_exists("tool_adapter.py", tool_adapter)
     failures += check_file_exists("tool_permission.py", tool_permission)
-    failures += check_file_exists("tool_request_builder.py", tool_request_builder)
     failures += check_file_exists("check_ver170.py", check_ver170)
     failures += check_file_exists("run_ver1_checks.py", run_ver1_checks)
     failures += check_file_exists("tool_execution_log_design.md", tool_execution_log_design)
@@ -225,7 +223,6 @@ def main():
         run_ver1_checks,
         [
             "check_ver170.py",
-            "check_ver160.py",
             "check_ver150.py",
             "check_ver140.py",
             "check_ver130.py",
