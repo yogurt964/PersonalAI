@@ -1,3 +1,12 @@
+from core.reading_keywords import (
+    BASE_PC_OPERATION_KEYWORDS,
+    BASE_READING_INTENT_KEYWORDS,
+    EXCEL_DOCUMENT_KEYWORDS,
+    PDF_TO_FILE_KEYWORDS,
+    WORD_DOCUMENT_KEYWORDS,
+)
+
+
 class CapabilityManager:
     """PersonalAIが利用できる能力を管理するクラスです。"""
 
@@ -381,21 +390,9 @@ class CapabilityManager:
         return self._contains_any(
             text,
             [
-                "Word file",
-                "Word document",
-                "word document",
-                "in Word",
-                "Wordで",
-                "ワード文書",
-                "ワードで",
-                "ワードファイル",
-                "Excel file",
-                "Excel document",
-                "excel document",
-                "in Excel",
-                "エクセル",
-                "PDFにして",
-                "pdfにして",
+                *WORD_DOCUMENT_KEYWORDS,
+                *EXCEL_DOCUMENT_KEYWORDS,
+                *PDF_TO_FILE_KEYWORDS,
                 "Markdownファイル",
                 "mdファイル",
                 "ファイルを作って",
@@ -409,13 +406,8 @@ class CapabilityManager:
             [
                 "VS Codeを開",
                 "vscodeを開",
-                "PowerShellで実行",
-                "powershellで実行",
-                "ブラウザを操作",
+                *BASE_PC_OPERATION_KEYWORDS,
                 "アプリを開",
-                "PCを操作",
-                "パソコンを操作",
-                "コマンドを実行",
             ],
         )
 
@@ -438,20 +430,7 @@ class CapabilityManager:
         )
 
     def _has_reading_intent(self, text):
-        return self._contains_any(
-            text,
-            [
-                "読んで",
-                "読み取",
-                "要約",
-                "まとめ",
-                "内容",
-                "見て",
-                "説明して",
-                "解析",
-                "文字起こし",
-            ],
-        )
+        return self._contains_any(text, [*BASE_READING_INTENT_KEYWORDS, "文字起こし"])
 
     def _get_analysis_value(self, input_analysis, key, default=None):
         if input_analysis is None:

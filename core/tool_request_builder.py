@@ -2,6 +2,13 @@ import re
 from dataclasses import dataclass
 from typing import Optional
 
+from core.reading_keywords import (
+    BASE_PC_OPERATION_KEYWORDS,
+    BASE_READING_INTENT_KEYWORDS,
+    EXCEL_DOCUMENT_KEYWORDS,
+    PDF_TO_FILE_KEYWORDS,
+    WORD_DOCUMENT_KEYWORDS,
+)
 from core.tool_adapter import ToolRequest
 
 
@@ -262,19 +269,8 @@ def _requires_document_creation(text, lowered_text, input_analysis):
     return _contains_any(
         text,
         [
-            "Word file",
-            "Word document",
-            "word document",
-            "in Word",
-            "Wordで",
-            "ワード文書",
-            "ワードで",
-            "ワードファイル",
-            "Excel file",
-            "Excel document",
-            "excel document",
-            "in Excel",
-            "エクセル",
+            *WORD_DOCUMENT_KEYWORDS,
+            *EXCEL_DOCUMENT_KEYWORDS,
             "文書作成",
             "資料作成",
             "レポート作成",
@@ -282,8 +278,7 @@ def _requires_document_creation(text, lowered_text, input_analysis):
             "pdf作成",
             "PDFを作",
             "pdfを作",
-            "PDFにして",
-            "pdfにして",
+            *PDF_TO_FILE_KEYWORDS,
             "文書を作",
             "資料を作",
         ],
@@ -294,8 +289,7 @@ def _requires_pc_operation(text, lowered_text):
     return _contains_any(
         text,
         [
-            "PCを操作",
-            "パソコンを操作",
+            *BASE_PC_OPERATION_KEYWORDS,
             "クリック",
             "キーボード",
             "フォルダ操作",
@@ -303,10 +297,6 @@ def _requires_pc_operation(text, lowered_text):
             "削除して",
             "VS Codeを操作",
             "vscodeを操作",
-            "PowerShellで実行",
-            "powershellで実行",
-            "ブラウザを操作",
-            "コマンドを実行",
             "delete",
             "remove",
         ],
@@ -318,21 +308,7 @@ def _is_pdf_creation(text, lowered_text):
 
 
 def _has_reading_intent(text):
-    return _contains_any(
-        text,
-        [
-            "読んで",
-            "読み取",
-            "要約",
-            "まとめ",
-            "内容",
-            "見て",
-            "確認",
-            "解析",
-            "分析",
-            "説明して",
-        ],
-    )
+    return _contains_any(text, [*BASE_READING_INTENT_KEYWORDS, "確認", "分析"])
 
 
 def _tool_info(tool_name, action, risk_level, requires_permission, reason, capability_name):

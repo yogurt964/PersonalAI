@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.65
+現在バージョン: Ver2.66
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -194,6 +194,7 @@ Ver2.62: 実機テストで見つかった3件の不具合修正（未実行操�
 Ver2.63: 商品・価格・実在リンクの断定回答を修正（Web検索対象の拡張、SYSTEM_PROMPTの抽象度向上）
 Ver2.64: 解釈層全体のレイヤードパイプライン設計（docs/llm_intent_resolver_design.mdに追記、実装なし）
 Ver2.65: エスカレーション条件・検証層・コストガバナンスの詳細設計（実装なし）
+Ver2.66: Stage 1実装（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）
 ```
 
 ## 現在の主要ファイル
@@ -1120,10 +1121,22 @@ Ver2.62のSYSTEM_PROMPT努力目標を将来構造化する）に分ける方針
 コード実装は行っていない。
 ```
 
-Ver2.65後の候補:
+Ver2.66でStage 1（重複キーワード統合）を実装
 
 ```text
-Ver2.x（Ver2.66想定）: Stage 1（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）の実装
+input_analyzer.py/capability_manager.py/tool_request_builder.pyに重複していたキーワード
+リストのうち、複数ファイルで実際に一致していた部分をcore/reading_keywords.pyに共通定数
+として切り出した。3ファイルのリストは完全同一ではなかった（呼び出し文脈ごとの意図的な
+違いがあった）ため、無理な統合はせず共通部分だけを抽出し、各ファイルは独自キーワードを
+追加する形にした。各ファイルの実効キーワード集合がリファクタリング前後で完全一致する
+ことを集合比較で検証し、挙動・レイテンシは変更していない。
+scripts/check_ver2660.py を追加。
+```
+
+Ver2.66後の候補:
+
+```text
+Ver2.x: Stage 2（ルーティング分類のハイブリッド化）の実装検討
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

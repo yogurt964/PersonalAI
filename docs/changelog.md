@@ -1,5 +1,26 @@
 # Changelog
 
+## Version 2.66
+
+開始内容:
+
+- Stage 1（`docs/llm_intent_resolver_design.md`のVer2.64設計）を実装。
+  `core/input_analyzer.py` / `core/capability_manager.py` / `core/tool_request_builder.py`
+  に重複していたキーワードリストのうち、実際に複数ファイルで一致していた部分を
+  `core/reading_keywords.py`に共通定数として切り出した
+- 3ファイルのキーワードリストは完全に同一ではなく（呼び出し文脈ごとに意図的な違いが
+  あった）、無理に1つへ統合すると挙動が変わる恐れがあったため、共通部分だけを抽出し、
+  各ファイルはその共通部分に独自のキーワードを追加する形にした
+- `WORD_DOCUMENT_KEYWORDS` / `EXCEL_DOCUMENT_KEYWORDS` / `PDF_TO_FILE_KEYWORDS` /
+  `BASE_READING_INTENT_KEYWORDS` / `BASE_PC_OPERATION_KEYWORDS` の5つを共通化した
+- 各ファイルの実効キーワード集合（`_contains_any`に渡される最終的な語彙の集合）が
+  リファクタリング前後で完全に一致することを、`scripts/check_ver2660.py`内の集合比較
+  （`check_exact_keyword_set_equivalence`）で検証した。挙動・レイテンシは変更していない
+- 既存の全チェック（Ver2.30の「ワード」/「キーワード」誤爆防止、Ver2.62のcapability_manager
+  誤爆防止を含む）が無変更で通ることを確認した
+- `scripts/check_ver2660.py` を追加
+- `scripts/run_ver2_checks.py` に `check_ver2660.py` を追加
+
 ## Version 2.65
 
 開始内容:

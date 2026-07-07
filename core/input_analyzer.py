@@ -1,5 +1,7 @@
 import re
 
+from core.reading_keywords import PDF_TO_FILE_KEYWORDS, WORD_DOCUMENT_KEYWORDS
+
 
 class InputAnalyzer:
     """ユーザー入力を簡単に構造化するクラスです。"""
@@ -121,19 +123,11 @@ class InputAnalyzer:
     def _requires_file_creation(self, text):
         """Wordや文書作成が必要そうな入力かどうかを判定します。"""
         create_document_keywords = [
-            "Word file",
-            "Word document",
-            "word document",
-            "in Word",
-            "Wordで",
-            "ワード文書",
-            "ワードで",
-            "ワードファイル",
+            *WORD_DOCUMENT_KEYWORDS,
             "文書",
             "レポート",
             "資料",
-            "PDFにして",
-            "pdfにして",
+            *PDF_TO_FILE_KEYWORDS,
             "文章にして",
         ]
 
