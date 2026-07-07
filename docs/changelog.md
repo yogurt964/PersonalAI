@@ -1,5 +1,40 @@
 # Changelog
 
+## Version 2.62
+
+開始内容:
+
+- ユーザーによる実機テスト（Ver2.60/2.61の会話フロー確認）で見つかった3件の不具合を修正
+- **[最重要] 実行していない操作を実行したかのように答えてしまう問題**:
+  「６を削除して」のように「記憶」という語を含まない削除依頼は、意図検出の対象外
+  （設計通り）のため確認フローに入らず通常会話（Qwen）に流れるが、Qwenが実際には
+  何も削除していないにもかかわらず「削除しました」と回答してしまう事象が実機で見つかった。
+  DBを確認したところ実際には削除されておらず、Qwenが操作の実行を捏造して答えていたことを確認した。
+  `ai/llm.py`のSYSTEM_PROMPTに、記憶の削除・編集・保存など実際にシステムが実行していない操作を
+  実行したかのように答えないこと、認識できなかった場合は認識される言い方を案内することを追加した
+- **[中] 好きな食べ物などSINGLE_MEMORY_CATEGORIESの重複作成バグ**:
+  `memory_key`なしで保存された過去のレコード（例: 初期の好きな食べ物「カレー」）と、
+  `memory_key`つきの新しい保存経路（`ai/preference_memory.py`経由、例:「焼き肉」）が、
+  同じcategoryにもかかわらず別レコードとして残り続けることが実機で見つかった
+  （`database/memory_manager.py`の`save_memory()`が`memory_key`指定時に完全一致でしか
+  既存レコードを探しておらず、`memory_key`なしの旧レコードを見つけられなかったため）。
+  `memory_key`で見つからない場合でも、`should_update_by_category()`が真のcategoryであれば
+  category単位でもフォールバック検索するよう修正した。`project`のような複数保持カテゴリの挙動は変更していない
+- **[軽微] capability_managerのキーワード誤爆で削除・編集依頼が無関係な「未実装」応答になる問題**:
+  「このファイル情報を削除してください」のような発言が、`_requires_file_reading()`の
+  「このファイル」という素の言及だけを見る判定に引っかかり、File Reader未実装の定型応答
+  （実際にはFile Readerは実装済みで無関係な文脈）を返してしまう事象が実機で見つかった。
+  Web/YouTube/PDF/画像/ファイルの各`_requires_X_reading()`に、削除・編集などの動詞が
+  含まれる場合は「この◯◯」の素の言及だけでは即座にtrueにしない`_has_non_reading_action_intent()`
+  ガードを追加した。実際に読み取りを求める既存の言い方（「このファイルを読んで」等）は変更なし
+- 上記の`_requires_file_reading()`の挙動変更により、Ver2.53/2.61の実機フローテスト
+  （`scripts/check_ver2530.py` / `scripts/check_ver2610.py`）で使っていた「このファイルを削除して」
+  「このファイルを編集して」が通常会話（Executor経由）まで到達するようになったため、
+  両checkのテスト用PersonalAIインスタンスにPlanner/Router/PermissionManager/Executorの実体を追加し、
+  `core.executor.ask_llm`をテスト内でfakeに差し替えて実際のQwen呼び出しを避けるよう更新した
+- `scripts/check_ver2620.py` を追加。実際のOpenAI API呼び出し・Qwen呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2620.py` を追加
+
 ## Version 2.61
 
 開始内容:

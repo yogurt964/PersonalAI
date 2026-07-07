@@ -79,8 +79,11 @@ def save_memory(
                 .filter(Memory.memory_key == memory_key)
                 .first()
             )
-        elif should_update_by_category(category):
-            # 名前や好きな食べ物など、1つにまとまる記憶は従来通りcategory単位で更新します。
+
+        if existing_memory is None and should_update_by_category(category):
+            # 名前や好きな食べ物など、1つにまとまる記憶はcategory単位でも探します。
+            # memory_keyの有無が異なる古いレコード（Ver2.62より前にmemory_keyなしで
+            # 保存されたもの）が残っていても、重複作成せずそちらを更新するためのフォールバックです。
             existing_memory = (
                 db.query(Memory)
                 .filter(Memory.memory_type == memory_type)

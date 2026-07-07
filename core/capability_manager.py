@@ -316,7 +316,9 @@ class CapabilityManager:
         if input_type == "url" or "http://" in lowered_text or "https://" in lowered_text:
             return True
 
-        if self._contains_any(text, ["この記事", "このサイト", "このWebページ", "このwebページ"]):
+        if self._contains_any(
+            text, ["この記事", "このサイト", "このWebページ", "このwebページ"]
+        ) and not self._has_non_reading_action_intent(text):
             return True
 
         return (
@@ -328,7 +330,9 @@ class CapabilityManager:
         if input_type == "youtube" or "youtube.com" in lowered_text or "youtu.be" in lowered_text:
             return True
 
-        if self._contains_any(text, ["このYouTube", "このyoutube", "この動画"]):
+        if self._contains_any(
+            text, ["このYouTube", "このyoutube", "この動画"]
+        ) and not self._has_non_reading_action_intent(text):
             return True
 
         return self._contains_any(text, ["YouTube", "youtube", "動画"]) and self._has_reading_intent(text)
@@ -337,13 +341,15 @@ class CapabilityManager:
         if self._requires_document_creation(text, False):
             return False
 
-        if self._contains_any(text, ["このPDF", "このpdf"]):
+        if self._contains_any(text, ["このPDF", "このpdf"]) and not self._has_non_reading_action_intent(text):
             return True
 
         return ("PDF" in text or "pdf" in text) and self._has_reading_intent(text)
 
     def _requires_image_reading(self, text):
-        if self._contains_any(text, ["この画像", "この写真", "このスクショ"]):
+        if self._contains_any(
+            text, ["この画像", "この写真", "このスクショ"]
+        ) and not self._has_non_reading_action_intent(text):
             return True
 
         return (
@@ -352,7 +358,21 @@ class CapabilityManager:
         )
 
     def _requires_file_reading(self, text):
+        if self._has_non_reading_action_intent(text):
+            return self._contains_any(text, ["添付ファイル", "ファイルを読", "ファイルの中身"])
+
         return self._contains_any(text, ["添付ファイル", "ファイルを読", "ファイルの中身", "このファイル"])
+
+    def _has_non_reading_action_intent(self, text):
+        """削除・編集など、読み取り以外の操作を示す動詞を含むかを判定します（Ver2.62）。
+
+        「このファイル」のような素の言及だけで即座にReader要求と判定すると、
+        実際には記憶の削除・編集などを求めているだけの発言（例:「このファイル情報を削除して」）まで
+        Reader未実装の定型応答に誤って回ってしまうため、これらの動詞が含まれる場合は除外します。
+        """
+        return self._contains_any(
+            text, ["削除して", "消して", "編集して", "書き換えて", "書き直して", "修正して"]
+        )
 
     def _requires_document_creation(self, text, requires_file_creation):
         if requires_file_creation:

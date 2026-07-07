@@ -173,18 +173,42 @@ def check_persistence_against_isolated_db():
 def _build_lightweight_personal_ai(fake_get_memories, fake_get_memory_by_id):
     from core.capability_manager import CapabilityManager
     from core.input_analyzer import InputAnalyzer
+    from core.planner import Planner
+    from core.router import Router
+    from core.permission_manager import PermissionManager
+    from core.executor import Executor
     import core.personal_ai as personal_ai_module
     from core.personal_ai import PersonalAI
 
     ai = PersonalAI.__new__(PersonalAI)
     ai.input_analyzer = InputAnalyzer()
     ai.capability_manager = CapabilityManager()
+    # Ver2.62で「このファイルを編集して」のような非読み取り系の発言が
+    # capability_managerのfile_read_required判定に誤ってひっかからなくなったため、
+    # 通常会話の最後（Executor）まで到達できるよう最小限の実体を用意する
+    # （check_personal_ai_edit_flow()側でcore.executor.ask_llmをfakeへ差し替えるため、
+    # 実際のQwen呼び出しは発生しない）。
+    ai.planner = Planner()
+    ai.router = Router()
+    ai.permission_manager = PermissionManager()
+    ai.executor = Executor()
     ai.web_reader_fetcher = None
+    ai.memory_search_func = None
     ai.ask_llm_func = None
     ai.tool_registry = ai.build_tool_registry(None)
     ai.pending_memory_delete_confirmation = None
     ai.pending_memory_edit_input = None
     ai.pending_memory_edit_confirmation = None
+    ai.last_saved_memory_candidate_result = None
+    ai.last_memory_search_intent = None
+    ai.last_memory_search_result = None
+    ai.last_capability_analysis = None
+    ai.last_capabilities = None
+    ai.last_plan = None
+    ai.last_route = None
+    ai.last_permission_decision = None
+    ai.last_preference_confirmation = None
+    ai.pending_preference_confirmation = None
 
     for attr in [
         "pending_preference_confirmation",
@@ -241,6 +265,22 @@ class _FakeMemory:
 
 
 def check_personal_ai_edit_flow():
+    """Ver2.62で「このファイルを編集して」がcapability_manager側で早期には遮られなくなり、
+    通常会話（Executor経由のQwen呼び出し）まで到達しうるようになったため、
+    ここではcore.executor.ask_llmを一時的にfakeへ差し替え、実際のQwen呼び出しをしない。
+    """
+    import core.executor as executor_module
+
+    original_ask_llm = executor_module.ask_llm
+    executor_module.ask_llm = lambda messages: "FAKE_QWEN_CHAT_RESPONSE"
+
+    try:
+        return _check_personal_ai_edit_flow_body()
+    finally:
+        executor_module.ask_llm = original_ask_llm
+
+
+def _check_personal_ai_edit_flow_body():
     fake_memories = [_FakeMemory(1, "好きな食べ物はカレーです")]
 
     def fake_get_memories(limit=20, **kwargs):

@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.61
+現在バージョン: Ver2.62
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -190,6 +190,7 @@ Ver2.58: Web検索が必要な質問への対応（新機能、エスカレー�
 Ver2.59: OpenAI vision（画像入り）の実API検証
 Ver2.60: 通常会話への自動OpenAIエスカレーション拡張
 Ver2.61: Memory編集機能（内容の書き換え）
+Ver2.62: 実機テストで見つかった3件の不具合修正（未実行操作の捏造回答・Memory重複・capability_managerキーワード誤爆）
 ```
 
 ## 現在の主要ファイル
@@ -1042,7 +1043,29 @@ core/personal_ai.pyにself.memory_content_updater（デフォルトは実際のu
 scripts/check_ver2610.py を追加。本番DBには一切触れず、独立したin-memory SQLiteで検証する。
 ```
 
-Ver2.61後の候補:
+Ver2.62で実機テストにより見つかった3件の不具合を修正
+
+```text
+ユーザーがVer2.60/2.61の会話フローを実機で試した結果から、以下3件の不具合を発見・修正した。
+1. [最重要] 「記憶」という語を含まない削除依頼（例:「６を削除して」）は意図検出の対象外
+   （設計通り）で通常会話に流れるが、Qwenが実際には何も削除していないのに「削除しました」と
+   回答してしまう事象があった。DBを確認し実際には削除されていないこと（捏造回答）を確認した。
+   ai/llm.pyのSYSTEM_PROMPTに、実行していない操作を実行したかのように答えない旨を追加した。
+2. [中] memory_keyなしの過去レコードとmemory_keyつきの新しい保存経路が、同じcategory
+   （好きな食べ物など）でも別レコードとして重複し続けるバグがあった。
+   database/memory_manager.pyのsave_memory()に、memory_keyで見つからない場合の
+   category単位フォールバック検索を追加した。
+3. [軽微] capability_managerの「このファイル」等の素の言及判定が、削除・編集依頼にも
+   誤反応し、無関係なReader未実装の定型応答を返す問題があった。
+   _has_non_reading_action_intent()ガードを追加し、削除・編集動詞がある場合は
+   素の言及だけでは即座にtrueにしないよう修正した。
+この挙動変更に伴い、scripts/check_ver2530.py / scripts/check_ver2610.pyのテスト用
+PersonalAIインスタンスにPlanner/Router/PermissionManager/Executorを追加し、
+core.executor.ask_llmをfakeに差し替えて実際のQwen呼び出しを避けるよう更新した。
+scripts/check_ver2620.py を追加。
+```
+
+Ver2.62後の候補:
 
 ```text
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
