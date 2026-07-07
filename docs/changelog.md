@@ -1,5 +1,27 @@
 # Changelog
 
+## Version 2.59
+
+開始内容:
+
+- OpenAI vision（画像入り）の実API検証を実施
+- Ver2.58でテキスト・Web検索の実API検証を行った際、vision（画像解析）はコードの修正を
+  共有しているだけで実際には未検証だったため、実際の画像ファイルで検証した
+- テスト用画像（赤い正方形・青い円、Ver2.47の手動テストと同じ構図）をローカルで生成し、
+  `ai/openai_client.py`の`describe_image_with_openai()`をTier2（gpt-4o-mini）・
+  Tier3（gpt-5.5）の両方で実際に呼び出した
+- 両モデルとも画像の内容（赤い正方形・青い円の位置関係）を正しく説明する応答が返り、
+  Tier3（gpt-5.5）でも`max_completion_tokens`フォールバックが問題なく動作することを確認した
+- 実際に発見されたコードバグはなかった（PowerShellのコンソール出力がcp932のため、
+  日本語レスポンスをそのまま表示すると文字化けする現象があったが、これは表示上の問題であり、
+  ファイルへUTF-8で書き出して確認した内容自体は正しかった）
+- `ai/openai_client.py`の`DEFAULT_POWERFUL_VISION_MODEL`のコメントを、「未検証だが動作見込み」から
+  「Ver2.59で実API確認済み」に更新した
+- 利用額記録（`record_openai_usage`）が今回のTier2/Tier3呼び出し分だけ正しく積み上がることを
+  月間利用額の確認で検証した（検証にかかった実費用は月間上限$5のうち約$0.05程度）
+- `scripts/check_ver2590.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2590.py` を追加
+
 ## Version 2.58
 
 開始内容:

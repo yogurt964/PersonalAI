@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.58
+現在バージョン: Ver2.59
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -187,6 +187,7 @@ Ver2.55: Image Readerの自動OpenAIエスカレーション（ローカル低�
 Ver2.56: Reader経由のテキスト応答（要約・質問）にも自動OpenAIエスカレーションを追加
 Ver2.57: 画像・テキスト両方のエスカレーションにTier3（最上位モデル）を追加
 Ver2.58: Web検索が必要な質問への対応（新機能、エスカレーションとは別枠）を追加
+Ver2.59: OpenAI vision（画像入り）の実API検証
 ```
 
 ## 現在の主要ファイル
@@ -987,10 +988,26 @@ gpt-5.5の実在を確認できたため、Tier3のDEFAULT_POWERFUL_TEXT_MODEL/V
 gpt-4oからgpt-5.5に更新（テキストのみ実確認、visionは同じ修正を共有のため未確認だが動作見込み）。
 ```
 
-Ver2.58後の候補:
+Ver2.59でOpenAI vision（画像入り）の実API検証を実施
 
 ```text
-Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（画像入りで実施、テキスト/検索は確認済み）
+Ver2.58ではテキスト・Web検索のみ実API検証済みで、visionはコード修正を共有しているだけの
+未検証・動作見込みの状態だった。テスト用画像（赤い正方形・青い円、Ver2.47の手動テストと
+同じ構図）をローカルで生成し、describe_image_with_openai()をTier2（gpt-4o-mini）・
+Tier3（gpt-5.5）の両方で実際に呼び出した。
+両モデルとも画像内容を正しく説明する応答が返り、Tier3のmax_completion_tokensフォールバックも
+visionで問題なく動作することを確認した。実際のコードバグは見つからなかった
+（PowerShellのコンソール出力がcp932のため日本語レスポンスの表示が文字化けする現象があったが、
+これは表示上の問題であり、UTF-8でファイルへ書き出した内容自体は正しかった）。
+ai/openai_client.pyのDEFAULT_POWERFUL_VISION_MODELのコメントを「未検証だが動作見込み」から
+「Ver2.59で実API確認済み」に更新した。
+検証にかかった実費用は月間上限$5のうち約$0.05程度。
+scripts/check_ver2590.py を追加。実際のOpenAI API呼び出しは一切行わない。
+```
+
+Ver2.59後の候補:
+
+```text
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: 通常会話など他の場所へのテキストエスカレーション拡張（範囲を都度検討）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）

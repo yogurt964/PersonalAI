@@ -8,8 +8,8 @@ DEFAULT_MONTHLY_CAP_USD = 5.0
 DEFAULT_VISION_MODEL = "gpt-4o-mini"
 DEFAULT_TEXT_MODEL = "gpt-4o-mini"
 
-# Tier3（最上位モデル）用。Ver2.58で実APIにより存在・動作を確認済み（テキストのみ確認、
-# visionはテキストと同じmax_completion_tokens修正を共有しているため未検証だが動作見込み）。
+# Tier3（最上位モデル）用。Ver2.58でテキスト、Ver2.59でvisionの実APIによる
+# 存在・動作（max_completion_tokensフォールバック含む）を確認済み。
 DEFAULT_POWERFUL_VISION_MODEL = "gpt-5.5"
 DEFAULT_POWERFUL_TEXT_MODEL = "gpt-5.5"
 
