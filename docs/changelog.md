@@ -1,5 +1,25 @@
 # Changelog
 
+## Version 2.67
+
+開始内容:
+
+- Web検索/回答生成の分離可否を実APIで調査し、結論を確定
+- Ver2.58で保留にしていた「検索はOpenAI、回答生成はQwenに分離してコストを抑えられないか」
+  という提案について、実際にOpenAI検索APIを呼び`response.output`の中身を詳細に調査した
+- `web_search_call`項目には検索クエリのみが含まれ、`sources`は常に`null`で、生の検索結果
+  （参照ページの本文・スニペット）は含まれていないことを確認した
+- 実質的な回答内容と引用元URLは、`message`項目の`text`/`annotations`（`url_citation`）に
+  合成済みの形でしか存在せず、Qwenが再構成できるだけの生データを取り出す方法がこのAPIには
+  用意されていないことを確認した
+- 上記の結果、この分離は技術的に実現不可能と判断し、一括呼び出しのまま維持する方針を確定した
+  （Ver2.58時点の設計を継続、追加のコード変更は不要）
+- `ai/openai_client.py`の`ask_openai_with_web_search()`docstringを、調査結果を踏まえて更新した
+- 調査に使った実API呼び出し（約$0.015）は`record_openai_usage()`に手動で記録した
+  （直接APIを呼ぶ調査だったため、通常の呼び出し経路を経由せず自動記録されなかったため）
+- `scripts/check_ver2670.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2670.py` を追加
+
 ## Version 2.66
 
 開始内容:

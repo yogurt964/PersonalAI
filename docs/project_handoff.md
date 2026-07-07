@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.66
+現在バージョン: Ver2.67
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -195,6 +195,7 @@ Ver2.63: 商品・価格・実在リンクの断定回答を修正（Web検索�
 Ver2.64: 解釈層全体のレイヤードパイプライン設計（docs/llm_intent_resolver_design.mdに追記、実装なし）
 Ver2.65: エスカレーション条件・検証層・コストガバナンスの詳細設計（実装なし）
 Ver2.66: Stage 1実装（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）
+Ver2.67: Web検索/回答生成の分離可否を実APIで調査し、実現不可能と結論を確定
 ```
 
 ## 現在の主要ファイル
@@ -1133,11 +1134,22 @@ input_analyzer.py/capability_manager.py/tool_request_builder.pyに重複して�
 scripts/check_ver2660.py を追加。
 ```
 
-Ver2.66後の候補:
+Ver2.67でWeb検索/回答生成の分離可否を実APIで調査し、結論を確定
+
+```text
+Ver2.58で保留にしていた「検索はOpenAI、回答生成はQwenに分離してコストを抑えられないか」を
+実APIで調査した。web_search_call項目は検索クエリのみでsourcesは常にnull、実質的な回答内容と
+引用元URLはmessage項目に合成済みの形でしか存在せず、Qwenが再構成できる生データを
+取り出す方法がないことを確認した。分離は技術的に実現不可能と判断し、一括呼び出しのまま
+維持する方針を確定した（追加のコード変更なし）。
+ai/openai_client.pyのask_openai_with_web_search()docstringを調査結果で更新した。
+scripts/check_ver2670.py を追加。
+```
+
+Ver2.67後の候補:
 
 ```text
 Ver2.x: Stage 2（ルーティング分類のハイブリッド化）の実装検討
-Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 

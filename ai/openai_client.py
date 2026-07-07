@@ -164,10 +164,13 @@ def ask_openai_with_web_search(
     tool_choice={"type": "web_search"}を指定しています。
 
     ユーザーから「検索はOpenAI、回答生成はQwenに分離してコストを抑えられないか」という
-    提案があった。実API確認の結果、response.output_textは検索結果を踏まえた合成済みの
-    回答テキストとして返る（生の検索結果と分離されていない）ため、Ver2.58では
-    一括呼び出しのまま実装する。将来的に分離したい場合は、response.outputの
-    web_search_call項目から個別の検索結果を取得できるか別途調査が必要。
+    提案があり、Ver2.67で実APIのresponse.outputの中身を詳しく調査した。
+    web_search_call項目には検索クエリのみが含まれ、sourcesは常にnullで、
+    生の検索結果（参照ページの本文・スニペット）は含まれていなかった。
+    実質的な回答内容と引用元URLは、message項目のtext/annotations(url_citation)に
+    合成済みの形でしか存在せず、Qwenが再構成できるだけの生データを取り出す方法が
+    このAPIには用意されていないことを確認した。そのためこの分離は実現不可能と判断し、
+    一括呼び出しのまま維持する（Ver2.58時点の設計を継続）。
     """
     ensure_budget_available(monthly_cap_usd, usage_total_func)
 
