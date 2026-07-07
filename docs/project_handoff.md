@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.64
+現在バージョン: Ver2.65
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -193,6 +193,7 @@ Ver2.61: Memory編集機能（内容の書き換え）
 Ver2.62: 実機テストで見つかった3件の不具合修正（未実行操作の捏造回答・Memory重複・capability_managerキーワード誤爆）
 Ver2.63: 商品・価格・実在リンクの断定回答を修正（Web検索対象の拡張、SYSTEM_PROMPTの抽象度向上）
 Ver2.64: 解釈層全体のレイヤードパイプライン設計（docs/llm_intent_resolver_design.mdに追記、実装なし）
+Ver2.65: エスカレーション条件・検証層・コストガバナンスの詳細設計（実装なし）
 ```
 
 ## 現在の主要ファイル
@@ -1104,10 +1105,25 @@ input_analyzer.py/capability_manager.py/tool_request_builder.pyに「文書作�
 docs/llm_intent_resolver_design.mdに追記。コード実装は行っていない。
 ```
 
-Ver2.64後の候補:
+Ver2.65でエスカレーション条件・検証層・コストガバナンスの詳細をユーザーとすり合わせ
 
 ```text
-Ver2.x: Stage 1（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）の実装
+エスカレーションは質問内容での事前一括判断ではなく、各層が自分の担当作業をQwenで
+処理できるか個別に判断する設計にする方針を明記した（機能単位モデル選択をレイヤー単位まで
+徹底）。トリガーは検証層の信頼度判定・時間経過・作業難易度の3種類を併用する。
+検証層を検証層A（内容検証・グラウンディング確認）と検証層B（実行ログとの整合性チェック、
+Ver2.62のSYSTEM_PROMPT努力目標を将来構造化する）に分ける方針を明記した。
+検証で問題が見つかった場合は、再生成の見込みがあれば再生成し、難しければ正直に
+「確認できませんでした」と伝える方針とした。
+層単位エスカレーションで増えるOpenAI呼び出し頻度に対応するコストガバナンス方針
+（1ターンあたりの呼び出し上限、利用額の可視化、月間上限到達前の事前警告）も明記した。
+コード実装は行っていない。
+```
+
+Ver2.65後の候補:
+
+```text
+Ver2.x（Ver2.66想定）: Stage 1（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）の実装
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
