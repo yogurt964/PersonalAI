@@ -1,5 +1,34 @@
 # Changelog
 
+## Version 2.68
+
+開始内容:
+
+- Stage 2（`docs/llm_intent_resolver_design.md`のVer2.64/2.65設計）を実装。
+  ルーティング分類系（Reader要否等の`capability_manager.py`、Web検索要否の
+  `web_search_intent.py`）に、`confirmation_intent.py`と同じハイブリッド判定
+  （固定語彙優先、不明時のみLLM）を追加した
+- `CapabilityManager.analyze()`に`ask_llm_func`引数を追加。既存の全キーワード判定
+  （PC操作・文書作成・各Reader要否・外部API・高精度モデル要否・Memory読み書き）に
+  どれも一致しなかった場合のみ、Qwenに既知のラベル（`web_read_required`等、または`none`）を
+  1語で答えさせ、一致すれば該当する未実装capabilityとして扱う
+- `core/web_search_intent.py`の`needs_web_search()`に`ask_llm_func`引数を追加。
+  既存のキーワード（現在情報・商品価格・明示的な検索依頼）にどれも一致しない場合のみ、
+  Qwenにyes/noの1語で判定させる
+- どちらも、LLMの応答が既知のラベル・yes/noのどれにも一致しない場合や、呼び出しに
+  失敗した場合は、安全側に倒して従来通りの挙動（local_conversation / 検索不要）に
+  フォールバックする。`ask_llm_func`を渡さない既存の呼び出し元・test doubleは、
+  暗黙にLLMを呼び出さず今まで通りキーワードのみで動作する（既存の全チェックは無変更で通過）
+- `core/personal_ai.py`から両関数への呼び出しに、`self.ask_llm_func`を渡すよう更新した
+- `core/tool_request_builder.py`（`core/tool_flow.py`経由）は現在の会話フローに一切
+  接続されていない不使用コードであることを監査で確認した。今回のStage 2では対象外とし、
+  削除・再利用は別途ユーザーと相談する
+- 新しいLLM呼び出しが増える分、キーワードに一致しない通常会話では1往復分レイテンシが
+  増える。最終的なUI（通知つきチャットアプリ）では許容範囲とユーザーから確認済みのため、
+  現時点では追加の緩和策は取らない
+- `scripts/check_ver2680.py` を追加。実際のOpenAI API呼び出し・Qwen呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2680.py` を追加
+
 ## Version 2.67
 
 開始内容:

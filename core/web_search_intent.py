@@ -57,11 +57,14 @@ PRODUCT_AND_PRICING_MARKERS = [
 ]
 
 
-def needs_web_search(user_text):
+def needs_web_search(user_text, ask_llm_func=None):
     """この質問がWeb検索を必要としそうかを判定します。
 
-    キーワード一致による簡易判定です。誤検知・見逃しはあり得るため、
-    将来的にはconfirmation_intentと同様のハイブリッド判定への拡張も検討します。
+    まずキーワード一致で判定します（今まで通り、コスト0・瞬時）。
+    Ver2.68: どのキーワードにも一致しない場合のみ、ask_llm_funcが渡されていれば
+    Qwenに1語（yes/no）で判定させるハイブリッド判定を追加で試します
+    （confirmation_intent.pyと同じ考え方）。ask_llm_funcを渡さない場合や、
+    LLMの応答が不明瞭・呼び出し失敗の場合は、安全側に倒してFalse（検索不要）を返します。
     """
     text = str(user_text or "")
 
@@ -71,4 +74,35 @@ def needs_web_search(user_text):
     if any(marker in text for marker in PRODUCT_AND_PRICING_MARKERS):
         return True
 
-    return any(marker in text for marker in CURRENT_INFO_MARKERS)
+    if any(marker in text for marker in CURRENT_INFO_MARKERS):
+        return True
+
+    return _needs_web_search_via_llm(text, ask_llm_func)
+
+
+def _needs_web_search_via_llm(text, ask_llm_func):
+    """固定キーワードで判定できない発言だけを、Qwenにyes/noの1語で答えさせます。
+
+    ask_llm_funcが渡されない場合（デフォルト）は、暗黙にQwenを呼び出さずFalseを返します。
+    既存のtest doubleやcheckはask_llm_funcを渡さないため、この変更の影響を受けません。
+    """
+    if ask_llm_func is None or not text:
+        return False
+
+    prompt = (
+        "次のユーザーの発言について、最新情報・実在する商品や価格・在庫など、"
+        "検索エンジンで現在の情報を確認しないと正確に答えられない可能性が高いかを判定してください。\n"
+        "必要なら yes、不要なら no、必ずこの2つの単語のうち1つだけで答えてください。\n\n"
+        f"発言: {text}"
+    )
+
+    try:
+        response = ask_llm_func([{"role": "user", "content": prompt}])
+    except Exception:
+        return False
+
+    normalized = str(response or "").strip().lower()
+    has_yes = "yes" in normalized
+    has_no = "no" in normalized
+
+    return has_yes and not has_no

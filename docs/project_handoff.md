@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.67
+現在バージョン: Ver2.68
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -196,6 +196,7 @@ Ver2.64: 解釈層全体のレイヤードパイプライン設計（docs/llm_in
 Ver2.65: エスカレーション条件・検証層・コストガバナンスの詳細設計（実装なし）
 Ver2.66: Stage 1実装（input_analyzer/capability_manager/tool_request_builderの重複キーワード統合）
 Ver2.67: Web検索/回答生成の分離可否を実APIで調査し、実現不可能と結論を確定
+Ver2.68: Stage 2実装（ルーティング分類のハイブリッド化: capability_manager/web_search_intent）
 ```
 
 ## 現在の主要ファイル
@@ -1146,10 +1147,26 @@ ai/openai_client.pyのask_openai_with_web_search()docstringを調査結果で更
 scripts/check_ver2670.py を追加。
 ```
 
-Ver2.67後の候補:
+Ver2.68でStage 2（ルーティング分類のハイブリッド化）を実装
 
 ```text
-Ver2.x: Stage 2（ルーティング分類のハイブリッド化）の実装検討
+capability_manager.analyze()とweb_search_intent.needs_web_search()に、
+confirmation_intent.pyと同じハイブリッド判定（固定語彙優先、不明時のみLLM）を追加した。
+既存キーワードにどれも一致しない場合のみQwenに1語で判定させ、LLMの応答が不明瞭・
+呼び出し失敗の場合は安全側に倒して従来の挙動にフォールバックする。ask_llm_funcを
+渡さない既存呼び出し元は暗黙にLLMを呼ばず今まで通り動作し、既存の全チェックは無変更で通過した。
+監査の結果、core/tool_request_builder.py（core/tool_flow.py経由）は現在の会話フローに
+一切接続されていない不使用コードであることが分かった。今回は対象外とし、削除・再利用は
+別途ユーザーと相談する。
+キーワード不一致時は1往復分レイテンシが増えるが、最終UI（通知つきチャットアプリ）では
+許容範囲とユーザーから確認済みのため追加の緩和策は取らない。
+scripts/check_ver2680.py を追加。
+```
+
+Ver2.68後の候補:
+
+```text
+Ver2.x: core/tool_request_builder.py（未使用コード）の削除または再活用の判断
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 

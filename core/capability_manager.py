@@ -6,6 +6,69 @@ from core.reading_keywords import (
     WORD_DOCUMENT_KEYWORDS,
 )
 
+# Ver2.68: キーワードでは判定できなかった入力について、Qwenに1語で分類させる際の
+# 候補ラベルと、それぞれに対応する(tool_name, risk_level, reason, user_message)。
+# キーワード一致時の既存の文言（_missing_result呼び出し）とは独立しており、
+# 既存の挙動には一切影響しない（このdictはLLMフォールバック経路でのみ使う）。
+_MISSING_CAPABILITY_LLM_INFO = {
+    "pc_operation_required": (
+        "pc_operator",
+        "high",
+        "VS Code、PowerShell、ブラウザなどのPC操作が必要そうですが、PC Operatorは未実装です。",
+        "PC操作が必要そうな内容です。必要な操作内容をテキストで教えてくれれば、手順案は説明できます。",
+    ),
+    "document_creation_required": (
+        "document_creator",
+        "medium",
+        "Word / Excel / PDF / Markdownなどの実ファイル作成が必要そうですが、Document Creatorは未実装です。",
+        "実ファイル作成が必要そうな内容です。文書の構成案や本文案なら、現在のQwenで作成できます。",
+    ),
+    "youtube_read_required": (
+        "youtube_reader",
+        "medium",
+        "YouTube動画の内容読み取りが必要そうですが、YouTube Readerは未実装です。",
+        "YouTube動画の内容読み取りが必要そうな内容です。文字起こしや要点を貼ってくれれば、その内容を要約できます。",
+    ),
+    "web_read_required": (
+        "web_reader",
+        "medium",
+        "URL本文の読み取りが必要そうですが、URLが見つかりませんでした。",
+        "Webページの内容が必要そうです。URLを含めて「このURLを読んで」と送ってください。",
+    ),
+    "pdf_read_required": (
+        "pdf_reader",
+        "medium",
+        "PDF本文の読み取りが必要そうですが、PDF Readerは未実装です。",
+        "PDFの内容が必要そうです。本文を貼ってくれれば、その内容を要約できます。",
+    ),
+    "image_read_required": (
+        "image_reader",
+        "medium",
+        "画像の内容読み取りが必要そうですが、Image Readerは未実装です。",
+        "画像の内容が必要そうです。画像の内容を文章で説明してくれれば、それをもとに整理できます。",
+    ),
+    "file_read_required": (
+        "file_reader",
+        "medium",
+        "ローカルファイルや添付ファイルの読み取りが必要そうですが、File Readerは未実装です。",
+        "ファイルの内容が必要そうです。読み取りたい本文を貼ってくれれば、その内容を扱えます。",
+    ),
+    "external_api_required": (
+        "external_api",
+        "medium",
+        "外部API接続が必要そうですが、外部API連携は未実装です。",
+        "外部APIの利用が必要そうです。APIから得た結果を貼ってくれれば、その内容を整理できます。",
+    ),
+    "openai_required": (
+        "openai",
+        "medium",
+        "高精度な判断が必要そうで、Qwenのみでは精度不足の可能性があります。",
+        "この内容は高い正確性が必要そうです。断定せず一般的な整理までに留めます。",
+    ),
+}
+
+_LLM_CAPABILITY_LABELS = list(_MISSING_CAPABILITY_LLM_INFO.keys()) + ["none"]
+
 
 class CapabilityManager:
     """PersonalAIが利用できる能力を管理するクラスです。"""
@@ -95,11 +158,17 @@ class CapabilityManager:
             },
         }
 
-    def analyze(self, user_input, input_analysis=None):
+    def analyze(self, user_input, input_analysis=None, ask_llm_func=None):
         """入力に必要な能力と、今のPersonalAIで対応できるかを判定します。
 
         ここでは実行は行いません。
         「何が必要か」「何が足りないか」を整理して、未実装機能をできたふりしないための判断材料にします。
+
+        Ver2.68: 以下のキーワード判定にどれも一致しなかった場合のみ、ask_llm_funcが
+        渡されていればQwenに1語で分類させるハイブリッド判定を追加で試します
+        （confirmation_intent.pyと同じ考え方）。ask_llm_funcを渡さない場合や、
+        LLMの応答が既知のラベルに一致しない場合、呼び出しに失敗した場合は、
+        安全側に倒して従来通りlocal_conversationのままにします。
         """
         text = str(user_input or "").strip()
         lowered_text = text.lower()
@@ -221,6 +290,12 @@ class CapabilityManager:
                 "過去の記憶参照として、現在のMemory機能で対応可能です。",
                 "",
             )
+
+        llm_capability = self._resolve_missing_capability_via_llm(text, ask_llm_func)
+
+        if llm_capability is not None:
+            tool_name, risk_level, reason, user_message = _MISSING_CAPABILITY_LLM_INFO[llm_capability]
+            return self._missing_result(llm_capability, tool_name, reason, user_message, risk_level=risk_level)
 
         return self._build_result(
             True,
@@ -443,3 +518,37 @@ class CapabilityManager:
 
     def _contains_any(self, text, keywords):
         return any(keyword in text for keyword in keywords)
+
+    def _resolve_missing_capability_via_llm(self, text, ask_llm_func):
+        """キーワードでどれにも一致しなかった入力を、Qwenに1語で分類させます（Ver2.68）。
+
+        ask_llm_funcが渡されない場合（デフォルト）は、暗黙にQwenを呼び出さずNoneを返し、
+        従来通りlocal_conversationにフォールバックします。既存のtest doubleやチェックは
+        ask_llm_funcを渡さないため、この変更による影響を受けません。
+        LLMの応答が既知のラベルのどれにも一致しない場合、複数一致する場合、呼び出しに
+        失敗した場合も、安全側に倒してNoneを返します（silent misroute防止）。
+        """
+        if ask_llm_func is None or not text:
+            return None
+
+        labels = ", ".join(_LLM_CAPABILITY_LABELS)
+        prompt = (
+            "次のユーザーの発言を読んで、必要そうな能力を1つだけ選んでください。\n"
+            f"選択肢: {labels}\n"
+            "どれにも当てはまらない、または通常の会話で答えられる場合は none と答えてください。\n"
+            "説明や記号は付けず、必ずこの中の1つの単語だけで答えてください。\n\n"
+            f"発言: {text}"
+        )
+
+        try:
+            response = ask_llm_func([{"role": "user", "content": prompt}])
+        except Exception:
+            return None
+
+        normalized = str(response or "").strip()
+        matched_labels = [label for label in _MISSING_CAPABILITY_LLM_INFO if label in normalized]
+
+        if len(matched_labels) == 1:
+            return matched_labels[0]
+
+        return None
