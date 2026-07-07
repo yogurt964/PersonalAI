@@ -119,6 +119,7 @@ def check_image_tier3_escalation(tmp_path):
     import database.openai_usage as usage_module
     from core.image_reader_adapter import ImageReaderAdapter
     from core.tool_adapter import ToolRequest
+    from ai.openai_client import DEFAULT_POWERFUL_VISION_MODEL as DEFAULT_POWERFUL_MODEL
 
     temp_engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=temp_engine)
@@ -134,7 +135,7 @@ def check_image_tier3_escalation(tmp_path):
     image_path = _build_fake_png(tmp_path)
 
     def fake_factory_tier2_low_tier3_high(api_key, image_path, prompt, model):
-        if model == "gpt-4o":
+        if model == DEFAULT_POWERFUL_MODEL:
             return "TIER3_VISION_RESULT"
         return "判断できません。"
 
@@ -168,7 +169,7 @@ def check_image_tier3_escalation(tmp_path):
         )
 
         def fake_factory_tier3_fails(api_key, image_path, prompt, model):
-            if model == "gpt-4o":
+            if model == DEFAULT_POWERFUL_MODEL:
                 raise RuntimeError("simulated tier3 failure")
             return "判断できません。"
 
@@ -212,6 +213,7 @@ def check_text_tier3_escalation():
     import database.openai_usage as usage_module
     from core.personal_ai import PersonalAI
     from core.input_analyzer import InputAnalyzer
+    from ai.openai_client import DEFAULT_POWERFUL_TEXT_MODEL as DEFAULT_POWERFUL_MODEL
 
     temp_engine = create_engine("sqlite:///:memory:")
     Base.metadata.create_all(bind=temp_engine)
@@ -227,7 +229,7 @@ def check_text_tier3_escalation():
 
     try:
         def fake_factory_tier2_low_tier3_high(api_key, messages, model):
-            if model == "gpt-4o":
+            if model == DEFAULT_POWERFUL_MODEL:
                 return "TIER3_TEXT_RESULT"
             return "判断できません。"
 
@@ -249,7 +251,7 @@ def check_text_tier3_escalation():
         )
 
         def fake_factory_tier3_fails(api_key, messages, model):
-            if model == "gpt-4o":
+            if model == DEFAULT_POWERFUL_MODEL:
                 raise RuntimeError("simulated tier3 failure")
             return "判断できません。"
 

@@ -8,10 +8,10 @@ DEFAULT_MONTHLY_CAP_USD = 5.0
 DEFAULT_VISION_MODEL = "gpt-4o-mini"
 DEFAULT_TEXT_MODEL = "gpt-4o-mini"
 
-# Tier3（最上位モデル）用。実際にAPIを叩けるようになった時点で、
-# その時点で使える最上位モデルを確認し、必要ならこの定数を更新してください（Ver2.57時点では未検証）。
-DEFAULT_POWERFUL_VISION_MODEL = "gpt-4o"
-DEFAULT_POWERFUL_TEXT_MODEL = "gpt-4o"
+# Tier3（最上位モデル）用。Ver2.58で実APIにより存在・動作を確認済み（テキストのみ確認、
+# visionはテキストと同じmax_completion_tokens修正を共有しているため未検証だが動作見込み）。
+DEFAULT_POWERFUL_VISION_MODEL = "gpt-5.5"
+DEFAULT_POWERFUL_TEXT_MODEL = "gpt-5.5"
 
 # gpt-4o-miniでの1回あたりの想定コスト（安全側に倒した概算値）。
 # 実際の請求額はこれ以下になる想定です。正確な値はOpenAIのpricingページを参照してください。
@@ -19,10 +19,11 @@ ESTIMATED_COST_PER_VISION_CALL_USD = 0.01
 ESTIMATED_COST_PER_TEXT_CALL_USD = 0.005
 
 # Tier3（より高性能・高コストなモデル）での1回あたりの想定コスト（安全側に倒した概算値）。
+# gpt-5.5はgpt-4oより高価な想定のため、引き続き安全側の概算値のまま運用する。
 ESTIMATED_COST_PER_POWERFUL_VISION_CALL_USD = 0.03
 ESTIMATED_COST_PER_POWERFUL_TEXT_CALL_USD = 0.02
 
-# Web検索機能つきモデル用。実際にAPIを叩けるようになった時点で確認してください（Ver2.58時点では未検証）。
+# Web検索機能つきモデル用。Ver2.58で実APIにより動作確認済み（tool_choice強制が必須）。
 DEFAULT_WEB_SEARCH_MODEL = "gpt-4o-mini"
 ESTIMATED_COST_PER_WEB_SEARCH_CALL_USD = 0.015
 
@@ -157,14 +158,16 @@ def ask_openai_with_web_search(
     呼び出し前に必ず月間上限をチェックし、上限に達している場合は例外を送出して
     実際の呼び出し自体を行いません。成功した場合のみ、想定利用額を記録します。
 
-    Ver2.58時点では、実際のOpenAI Web検索API呼び出し（_call_real_openai_web_search）は
-    未検証です（課金設定が完了していないため）。client_factoryを渡さない実運用は、
-    課金設定完了後に改めて確認してください。
+    Ver2.58で実APIによる検証済み（課金設定完了後）。tool_choiceで明示的にweb_searchを
+    強制しないと、曖昧な短い質問ではモデルが検索を省略し、学習時点の古い情報で
+    答えてしまうことがあると判明したため、_call_real_openai_web_searchでは常に
+    tool_choice={"type": "web_search"}を指定しています。
 
     ユーザーから「検索はOpenAI、回答生成はQwenに分離してコストを抑えられないか」という
-    提案があった。responses APIのweb_searchツールが生の検索結果を合成済み回答と分離して
-    返せるかは、実際にAPIを叩いて応答形式を確認するまで判断できないため、Ver2.58では
-    一括呼び出しのまま実装し、実API確認後に分離の是非を改めて判断する。
+    提案があった。実API確認の結果、response.output_textは検索結果を踏まえた合成済みの
+    回答テキストとして返る（生の検索結果と分離されていない）ため、Ver2.58では
+    一括呼び出しのまま実装する。将来的に分離したい場合は、response.outputの
+    web_search_call項目から個別の検索結果を取得できるか別途調査が必要。
     """
     ensure_budget_available(monthly_cap_usd, usage_total_func)
 
@@ -193,6 +196,7 @@ def _call_real_openai_web_search(api_key, query, model):
     response = client.responses.create(
         model=model,
         tools=[{"type": "web_search"}],
+        tool_choice={"type": "web_search"},
         input=query,
     )
 
@@ -204,11 +208,23 @@ def _call_real_openai_text(api_key, messages, model):
 
     client = OpenAI(api_key=api_key)
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=messages,
-        max_tokens=1500,
-    )
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_tokens=1500,
+        )
+    except Exception as error:
+        # gpt-5.5などの新しいモデルはmax_tokensではなくmax_completion_tokensを要求します
+        # （Ver2.58の実API検証で判明。実際にAPIを叩けるようになるまで気づけなかった問題です）。
+        if "max_completion_tokens" not in str(error):
+            raise
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=messages,
+            max_completion_tokens=1500,
+        )
 
     return response.choices[0].message.content
 
@@ -221,21 +237,35 @@ def _call_real_openai_vision(api_key, image_path, prompt, model):
     with open(image_path, "rb") as image_file:
         image_base64 = base64.b64encode(image_file.read()).decode("utf-8")
 
-    response = client.chat.completions.create(
-        model=model,
-        messages=[
-            {
-                "role": "user",
-                "content": [
-                    {"type": "text", "text": prompt},
-                    {
-                        "type": "image_url",
-                        "image_url": {"url": f"data:image/png;base64,{image_base64}"},
-                    },
-                ],
-            }
-        ],
-        max_tokens=1000,
-    )
+    request_messages = [
+        {
+            "role": "user",
+            "content": [
+                {"type": "text", "text": prompt},
+                {
+                    "type": "image_url",
+                    "image_url": {"url": f"data:image/png;base64,{image_base64}"},
+                },
+            ],
+        }
+    ]
+
+    try:
+        response = client.chat.completions.create(
+            model=model,
+            messages=request_messages,
+            max_tokens=1000,
+        )
+    except Exception as error:
+        # gpt-5.5などの新しいモデルはmax_tokensではなくmax_completion_tokensを要求します
+        # （Ver2.58の実API検証で判明。実際にAPIを叩けるようになるまで気づけなかった問題です）。
+        if "max_completion_tokens" not in str(error):
+            raise
+
+        response = client.chat.completions.create(
+            model=model,
+            messages=request_messages,
+            max_completion_tokens=1000,
+        )
 
     return response.choices[0].message.content

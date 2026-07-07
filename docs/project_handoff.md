@@ -975,12 +975,22 @@ featureタグ"web_search"）。personal_ai.py の capability_analysis チェッ�
 また「機能ごとに最適なモデルを個別に割り当てる」という原則も共有され、
 docs/final_product_vision.md 6章に記録した。
 scripts/check_ver2580.py を追加。実際のOpenAI API呼び出しは一切行わない。
+
+--- 実API検証による追記（課金設定完了後）---
+ユーザーの課金設定完了を受け、初めて実際のOpenAI APIでテキスト呼び出し・Web検索呼び出しを
+検証した（最小コストのみ、check scriptは引き続きfakeのみ使用）。以下2件の実バグを発見・修正:
+1. Web検索: tool_choiceを明示しないと、曖昧な短い質問でモデルが検索を省略し古い情報で
+   答えることがあった → tool_choice={"type": "web_search"}を強制するよう修正
+2. gpt-5.5等の新しいモデルはmax_tokensではなくmax_completion_tokensを要求する →
+   text/vision呼び出し両方にフォールバックを追加
+gpt-5.5の実在を確認できたため、Tier3のDEFAULT_POWERFUL_TEXT_MODEL/VISION_MODELを
+gpt-4oからgpt-5.5に更新（テキストのみ実確認、visionは同じ修正を共有のため未確認だが動作見込み）。
 ```
 
 Ver2.58後の候補:
 
 ```text
-Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（ユーザーと一緒に実施、クレジット購入完了後）
+Ver2.x: OpenAI vision実ライブ呼び出しでの動作確認（画像入りで実施、テキスト/検索は確認済み）
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: 通常会話など他の場所へのテキストエスカレーション拡張（範囲を都度検討）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）

@@ -12,6 +12,22 @@
 - `scripts/check_ver2580.py` を追加。実際のOpenAI API呼び出しは一切行わない
 - `scripts/run_ver2_checks.py` に `check_ver2580.py` を追加
 
+### 実API検証による追記（課金設定完了後）
+
+ユーザーの課金設定完了を受けて、初めて実際のOpenAI APIを叩いて検証した。最小コストの
+テキスト呼び出しと利用額記録が正しく動作することを確認した上で、以下2件の実バグを発見・修正:
+
+- Web検索: `tool_choice`を明示的に指定しないと、曖昧な短い質問ではモデルが検索を省略し、
+  学習時点の古い情報で答えてしまうことがあると判明。`_call_real_openai_web_search()`で
+  常に`tool_choice={"type": "web_search"}`を指定するよう修正した
+- 新しいモデル（gpt-5.5等）は`max_tokens`ではなく`max_completion_tokens`を要求する。
+  `_call_real_openai_text()` / `_call_real_openai_vision()`に、`max_tokens`が拒否された
+  場合のフォールバックを追加した
+
+また、`gpt-5.5`が実在するモデルであることを実APIで確認できたため、Tier3（Ver2.57）の
+`DEFAULT_POWERFUL_TEXT_MODEL` / `DEFAULT_POWERFUL_VISION_MODEL`を`gpt-4o`から`gpt-5.5`に
+更新した（テキストのみ実確認、visionは同じ修正を共有しているため未確認だが動作見込み）。
+
 ## Version 2.57
 
 開始内容:
