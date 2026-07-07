@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.59
+現在バージョン: Ver2.60
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -188,6 +188,7 @@ Ver2.56: Reader経由のテキスト応答（要約・質問）にも自動OpenA
 Ver2.57: 画像・テキスト両方のエスカレーションにTier3（最上位モデル）を追加
 Ver2.58: Web検索が必要な質問への対応（新機能、エスカレーションとは別枠）を追加
 Ver2.59: OpenAI vision（画像入り）の実API検証
+Ver2.60: 通常会話への自動OpenAIエスカレーション拡張
 ```
 
 ## 現在の主要ファイル
@@ -1005,11 +1006,27 @@ ai/openai_client.pyのDEFAULT_POWERFUL_VISION_MODELのコメントを「未検�
 scripts/check_ver2590.py を追加。実際のOpenAI API呼び出しは一切行わない。
 ```
 
-Ver2.59後の候補:
+Ver2.60で通常会話への自動OpenAIエスカレーション拡張を実施
+
+```text
+これまでの自動エスカレーション（Ver2.55画像、Ver2.56/2.57テキスト）はReader経由の
+要約・質問に限定されており、通常会話（雑談・質問・提案依頼など）には適用されていなかった。
+最上位方針（final_product_vision.md 1章）の「精度最優先」に沿って対象を拡張した。
+core/personal_ai.pyに_is_qwen_free_form_answer(plan, route)を追加し、Planner/Routerの
+判定結果からQwenが自由生成した回答（chat/recommend/answer_question等）だけを
+エスカレーション対象にする。ask_clarificationや各種unsupported/summarize系の固定案内文は
+対象外にし、無駄なOpenAI呼び出しを避ける。
+handle_user_input()の最後で、この判定を通してから既存の_escalate_text_answer_if_low_confidence()
+（Tier2→Tier3の順に自動エスカレーションする既存ロジック）にそのまま渡すよう変更した。
+新しいエスカレーションロジックは追加しておらず、既存の低信頼判定・budget guard・
+silent fallbackをそのまま再利用しているため、動作の一貫性は既存のReader経由エスカレーションと同じ。
+scripts/check_ver2600.py を追加。実際のOpenAI API呼び出しは一切行わない。
+```
+
+Ver2.60後の候補:
 
 ```text
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
-Ver2.x: 通常会話など他の場所へのテキストエスカレーション拡張（範囲を都度検討）
 Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

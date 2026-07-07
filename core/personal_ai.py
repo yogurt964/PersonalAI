@@ -100,6 +100,18 @@ WEB_READER_PREVIEW_LINE_WIDTH = 90
 SAVED_MEMORY_PREVIEW_MAX_CHARS = 420
 LAST_READ_DOCUMENT_CONTEXT_MAX_CHARS = 4000
 DOCUMENT_TASK_TYPES = ("summarize", "question")
+# Ver2.60: 通常会話でのテキストエスカレーション対象外action。
+# 未実装機能の定型案内文（ask_clarificationや各種unsupported/summarize系）は
+# Qwenの自由な回答ではなく固定テキストのため、低信頼マーカーとは無関係に
+# エスカレーション対象から外す（無駄なOpenAI呼び出しを避けるため）。
+NON_ESCALATABLE_QWEN_ACTIONS = (
+    "ask_clarification",
+    "summarize_youtube",
+    "summarize_url",
+    "create_document",
+    "unsupported_external_reading",
+    "unsupported_file_creation",
+)
 READER_SOURCE_LABELS = {
     "web_reader": "Web Reader",
     "file_reader": "File Reader",
@@ -680,6 +692,10 @@ class PersonalAI:
             conversation_mode,
         )
         ai_response = self.executor.execute(plan, route, messages)
+
+        if self._is_qwen_free_form_answer(plan, route):
+            ai_response = self._escalate_text_answer_if_low_confidence(ai_response, messages)
+
         self.last_response = ai_response
 
         self.save_assistant_message(ai_response)
@@ -2526,6 +2542,31 @@ class PersonalAI:
         local_answer = ask_llm_func(messages)
 
         return self._escalate_text_answer_if_low_confidence(local_answer, messages)
+
+    def _is_qwen_free_form_answer(self, plan, route):
+        """通常会話でのテキストエスカレーション対象かどうかを判定します（Ver2.60）。
+
+        Qwenが実際に自由生成した回答（chat/recommend/answer_question等）だけを対象にし、
+        未実装機能の定型案内文やopenai_candidate分岐はエスカレーション対象外にします。
+        """
+        target = self._get_plan_or_route_value(route, "target")
+
+        if target != "qwen":
+            return False
+
+        action = self._get_plan_or_route_value(plan, "action")
+
+        return action not in NON_ESCALATABLE_QWEN_ACTIONS
+
+    def _get_plan_or_route_value(self, obj, key, default=None):
+        """PlanインスタンスやRouteインスタンス・dict形式のいずれからも値を取り出します。"""
+        if obj is None:
+            return default
+
+        if isinstance(obj, dict):
+            return obj.get(key, default)
+
+        return getattr(obj, key, default)
 
     def _escalate_text_answer_if_low_confidence(self, local_answer, messages):
         """Qwenの回答が低信頼そうな場合、PersonalAIの判断でOpenAI Tier2への再質問を試みます。

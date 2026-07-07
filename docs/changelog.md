@@ -1,5 +1,29 @@
 # Changelog
 
+## Version 2.60
+
+開始内容:
+
+- 通常会話（雑談・質問・提案依頼など）にも自動OpenAIエスカレーションを追加
+- これまでの自動エスカレーション（Ver2.55画像、Ver2.56/2.57テキスト）はReader経由の
+  要約・質問（`build_document_task_response_if_requested()`）に限定されており、
+  通常会話（`handle_user_input()`の最後でExecutor経由でQwenに回答させる部分）には
+  適用されていなかった
+- `core/personal_ai.py`に`_is_qwen_free_form_answer(plan, route)`を追加。
+  Planner/Routerの判定結果を見て、Qwenが実際に自由生成した回答（chat/recommend/
+  answer_question等）だけをエスカレーション対象にする。ask_clarification・
+  summarize_url・summarize_youtube・create_document・unsupported_external_reading・
+  unsupported_file_creationのような固定の未実装案内文や、openai_candidate分岐は
+  対象外にする（無駄なOpenAI呼び出しを避けるため）
+- `handle_user_input()`の最後で、Executorの回答を`_is_qwen_free_form_answer()`で
+  判定してから、既存の`_escalate_text_answer_if_low_confidence()`（Ver2.56で追加、
+  Tier2→Tier3の順に自動エスカレーションする既存ロジックをそのまま再利用）に通すよう変更した
+- 新しいエスカレーションロジックは追加しておらず、既存の低信頼判定・budget guard・
+  silent fallbackの仕組みをそのまま再利用しているため、動作の一貫性は既存Reader経由の
+  エスカレーションと同じ
+- `scripts/check_ver2600.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2600.py` を追加
+
 ## Version 2.59
 
 開始内容:
