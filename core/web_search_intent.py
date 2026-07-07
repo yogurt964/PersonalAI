@@ -35,6 +35,27 @@ EXPLICIT_SEARCH_PHRASES = [
     "インターネットで調べて",
 ]
 
+# Ver2.63: 実機テストで、商品・価格・在庫・比較のような「答えの時点で現在情報が
+# 必要な相談」がこの判定に一切引っかからず、Qwenが実在しない価格・商品・リンクを
+# 断定してしまう問題が見つかった。これらもWeb検索が必要な質問として扱う。
+PRODUCT_AND_PRICING_MARKERS = [
+    "実際の商品",
+    "具体的な商品",
+    "おすすめ商品",
+    "お勧め商品",
+    "価格",
+    "値段",
+    "予算",
+    "在庫",
+    "リンク",
+    "BTO",
+    "bto",
+    "今買うなら",
+    "比較",
+    "ランキング",
+    "セール",
+]
+
 
 def needs_web_search(user_text):
     """この質問がWeb検索を必要としそうかを判定します。
@@ -45,6 +66,9 @@ def needs_web_search(user_text):
     text = str(user_text or "")
 
     if any(phrase in text for phrase in EXPLICIT_SEARCH_PHRASES):
+        return True
+
+    if any(marker in text for marker in PRODUCT_AND_PRICING_MARKERS):
         return True
 
     return any(marker in text for marker in CURRENT_INFO_MARKERS)

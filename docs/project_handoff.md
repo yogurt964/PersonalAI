@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.62
+現在バージョン: Ver2.63
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -191,6 +191,7 @@ Ver2.59: OpenAI vision（画像入り）の実API検証
 Ver2.60: 通常会話への自動OpenAIエスカレーション拡張
 Ver2.61: Memory編集機能（内容の書き換え）
 Ver2.62: 実機テストで見つかった3件の不具合修正（未実行操作の捏造回答・Memory重複・capability_managerキーワード誤爆）
+Ver2.63: 商品・価格・実在リンクの断定回答を修正（Web検索対象の拡張、SYSTEM_PROMPTの抽象度向上）
 ```
 
 ## 現在の主要ファイル
@@ -1065,9 +1066,31 @@ core.executor.ask_llmをfakeに差し替えて実際のQwen呼び出しを避け
 scripts/check_ver2620.py を追加。
 ```
 
-Ver2.62後の候補:
+Ver2.63で商品・価格・実在リンクの断定回答を修正
 
 ```text
+実機テストで、「予算20万円のPCが欲しい」「具体的な構成例と実際の商品を教えて」に対し、
+Web検索なしにQwenが実在しないAmazon/Yodobashiリンク、古い価格、内部矛盾のあるパーツ構成を
+断定的に提示する事象が見つかった。
+core/web_search_intent.pyのneeds_web_search()にPRODUCT_AND_PRICING_MARKERS
+（価格・予算・在庫・リンク・BTO・比較・ランキング・セール・実際の商品等）を追加し、
+これらの質問はVer2.58と同じ経路でOpenAI Web検索へ渡すようにした。
+用途・予算が未確定な最初の漠然とした相談は、Qwenが聞き返す既存の良い挙動を壊さないよう
+あえて対象外のままにした。
+ai/llm.pyのSYSTEM_PROMPTに、機能個別ではなく抽象度を上げた一般原則として、根拠のない
+具体的事実（商品名・価格・URL等）を断定しないこと、確信度を区別することを追加した。
+一般知識の細部不正確さはQwen(8B)自体の能力限界に起因する部分が大きく、今回では
+完全には解決しない（ModelRouterでの高精度モデルエスカレーション拡大が本質的な対応）。
+ユーザーから、キーワード羅列よりLLM解釈でツール選択すべきという指摘があり、これは
+docs/llm_intent_resolver_design.md（Ver2.26）の既存方針と一致する。ただしneeds_web_search()は
+毎ターン呼ばれるため、LLM解釈への置き換えはレイテンシ影響を見極めてから別Verで検討する。
+scripts/check_ver2630.py を追加。
+```
+
+Ver2.63後の候補:
+
+```text
+Ver2.x: LLM Intent Resolverの段階的適用（web検索要否・ツール選択など、レイテンシ影響を見ながら）
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
