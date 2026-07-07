@@ -20,6 +20,16 @@ MEMORY_DELETE_VERBS = [
     "忘れて",
 ]
 
+MEMORY_EDIT_VERBS = [
+    "編集して",
+    "編集したい",
+    "書き換えて",
+    "書き直して",
+    "内容を変更して",
+    "内容を変えて",
+    "修正して",
+]
+
 MEMORY_REFERENCE_WORDS = [
     "記憶",
     "Memory",
@@ -53,6 +63,25 @@ def detect_memory_delete_request(user_input):
     memory_id = _extract_memory_id(text)
 
     return {"is_delete_request": True, "memory_id": memory_id}
+
+
+def detect_memory_edit_request(user_input):
+    """ユーザー入力が特定Memoryの内容編集（書き換え）を求めているか判定します（Ver2.61）。
+
+    削除判定と同じく、「記憶」「Memory」への言及と編集を示す動詞の両方が含まれる場合のみ
+    編集意図として扱います（無関係な編集依頼と衝突しないようにするためです）。
+    """
+    text = _clean_text(user_input)
+
+    has_edit_verb = any(verb in text for verb in MEMORY_EDIT_VERBS)
+    has_memory_reference = any(word in text for word in MEMORY_REFERENCE_WORDS)
+
+    if not (has_edit_verb and has_memory_reference):
+        return {"is_edit_request": False, "memory_id": None}
+
+    memory_id = _extract_memory_id(text)
+
+    return {"is_edit_request": True, "memory_id": memory_id}
 
 
 def _extract_memory_id(text):

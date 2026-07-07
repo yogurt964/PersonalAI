@@ -260,6 +260,32 @@ def get_memory_by_id(memory_id, include_inactive=True):
         db.close()
 
 
+def update_memory_content(memory_id, new_content):
+    """Memoryのcontentだけを書き換えます（Ver2.61）。
+
+    物理削除ではなく、既存レコードのcontentを上書きします。
+    書き換え前の内容は保持しないため、呼び出し側で確認を取ってから使う想定です。
+    """
+    db = SessionLocal()
+
+    try:
+        memory = db.query(Memory).filter(Memory.id == memory_id).first()
+
+        if memory is None:
+            return None
+
+        memory.content = str(new_content)
+        memory.updated_at = datetime.now().isoformat()
+        db.commit()
+        db.refresh(memory)
+
+        # commit後に属性が期限切れにならないよう、返す前に切り離します。
+        db.expunge(memory)
+        return memory
+    finally:
+        db.close()
+
+
 def set_memory_active(memory_id, is_active):
     """Memoryを削除せず、is_activeだけを変更します。"""
     db = SessionLocal()

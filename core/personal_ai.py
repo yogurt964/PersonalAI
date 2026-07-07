@@ -29,11 +29,16 @@ from core.memory_candidate_saver import save_memory_candidate
 from core.memory_management import (
     build_memory_delete_confirmation,
     build_memory_delete_result_response,
+    build_memory_edit_confirmation,
+    build_memory_edit_prompt,
+    build_memory_edit_result_response,
     build_memory_list_response,
     resolve_memory_delete_confirmation_response,
+    resolve_memory_edit_confirmation_response,
 )
 from core.memory_management_intent import (
     detect_memory_delete_request,
+    detect_memory_edit_request,
     detect_memory_list_request,
 )
 from core.memory_search import (
@@ -90,7 +95,13 @@ from core.web_reader_confirmation import (
 )
 from database.chat_history import get_recent_messages, save_message
 from database.memory_candidates import save_memory_candidate_record
-from database.memory_manager import get_memories, get_memory_by_id, save_memory, set_memory_active
+from database.memory_manager import (
+    get_memories,
+    get_memory_by_id,
+    save_memory,
+    set_memory_active,
+    update_memory_content,
+)
 from database.models import create_database
 from database.reader_results import save_reader_result
 
@@ -248,6 +259,7 @@ class PersonalAI:
         self.reader_result_saver = save_reader_result
         self.memory_candidate_recorder = save_memory_candidate_record
         self.memory_deactivator = set_memory_active
+        self.memory_content_updater = update_memory_content
         # 自動checkで、実際のOpenAI呼び出しをせずテキスト自動エスカレーションのロジックだけを
         # 検証できるようにします（Noneの場合はai/openai_client.pyの実際のOpenAI呼び出しを使います）。
         self.openai_text_client_factory = None
@@ -327,6 +339,8 @@ class PersonalAI:
         self.pending_youtube_reader_confirmation = None
         self.pending_image_reader_confirmation = None
         self.pending_memory_delete_confirmation = None
+        self.pending_memory_edit_input = None
+        self.pending_memory_edit_confirmation = None
         self.last_response = None
 
     def build_tool_registry(self, web_reader_fetcher=None):
@@ -446,6 +460,20 @@ class PersonalAI:
             self.last_response = pending_memory_delete_response
             self.save_assistant_message(pending_memory_delete_response)
             return pending_memory_delete_response
+
+        pending_memory_edit_input_response = self.handle_pending_memory_edit_input(user_input)
+
+        if pending_memory_edit_input_response:
+            self.last_response = pending_memory_edit_input_response
+            self.save_assistant_message(pending_memory_edit_input_response)
+            return pending_memory_edit_input_response
+
+        pending_memory_edit_confirmation_response = self.handle_pending_memory_edit_confirmation(user_input)
+
+        if pending_memory_edit_confirmation_response:
+            self.last_response = pending_memory_edit_confirmation_response
+            self.save_assistant_message(pending_memory_edit_confirmation_response)
+            return pending_memory_edit_confirmation_response
 
         recent_saved_memory_response = self.handle_recent_saved_memory_request(user_input)
 
@@ -624,6 +652,25 @@ class PersonalAI:
             self.last_response = delete_message
             self.save_assistant_message(delete_message)
             return delete_message
+
+        # Ver2.61: Memory編集（内容の書き換え）は、新しい内容の入力→確認を経て実行します。
+        memory_edit_intent = detect_memory_edit_request(user_input)
+
+        if memory_edit_intent.get("is_edit_request"):
+            memory_id = memory_edit_intent.get("memory_id")
+            target_memory = get_memory_by_id(memory_id) if memory_id is not None else None
+            edit_prompt = build_memory_edit_prompt(memory_id, target_memory)
+
+            if edit_prompt.get("needs_new_content"):
+                self.pending_memory_edit_input = {
+                    "memory_id": memory_id,
+                    "original_content": edit_prompt.get("original_content"),
+                }
+
+            edit_message = edit_prompt.get("message")
+            self.last_response = edit_message
+            self.save_assistant_message(edit_message)
+            return edit_message
 
         # 通常会話ではMemoryを控えめにし、記憶参照では詳しく使います。
         memory_usage = decide_memory_usage(user_input, input_analysis)
@@ -1735,6 +1782,66 @@ class PersonalAI:
         deactivated_memory = deactivator(memory_id, False)
 
         return build_memory_delete_result_response(deactivated_memory, memory_id)
+
+    def handle_pending_memory_edit_input(self, user_input):
+        """Memory編集の新しい内容を受け取り、確認待ちへ進めます（Ver2.61）。
+
+        この時点ではDBへ一切アクセスせず、確認メッセージを作るだけです。
+        """
+        pending_edit = getattr(self, "pending_memory_edit_input", None)
+
+        if not pending_edit:
+            return None
+
+        result = build_memory_edit_confirmation(
+            pending_edit.get("memory_id"),
+            pending_edit.get("original_content"),
+            user_input,
+        )
+
+        self.pending_memory_edit_input = None
+
+        if result.get("needs_confirmation"):
+            self.pending_memory_edit_confirmation = result
+
+        return result.get("message")
+
+    def handle_pending_memory_edit_confirmation(self, user_input):
+        """Memory編集確認後の返答を扱います（Ver2.61）。
+
+        書き換えは物理削除ではありませんが、元の内容を保持しないため、
+        memory_content_updaterが設定されている場合のみ実際にDBを更新します
+        （テスト用インスタンスでは属性が未設定のため、暗黙にDBへ書き込みません）。
+        """
+        pending_confirmation = getattr(self, "pending_memory_edit_confirmation", None)
+
+        if not pending_confirmation:
+            return None
+
+        result = resolve_memory_edit_confirmation_response(
+            user_input,
+            pending_confirmation,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
+        )
+
+        if result.get("status") in ["confirmed", "cancelled"]:
+            self.pending_memory_edit_confirmation = None
+
+        if result.get("status") != "confirmed":
+            return result.get("message")
+
+        memory_id = result.get("memory_id")
+        new_content = pending_confirmation.get("new_content")
+        updater = getattr(self, "memory_content_updater", None)
+
+        if updater is None:
+            return "現在の設定では記憶の編集を実行できません。"
+
+        updated_memory = updater(memory_id, new_content)
+
+        return build_memory_edit_result_response(
+            updated_memory, memory_id, pending_confirmation.get("original_content")
+        )
 
     def execute_web_reader_tool_request_candidate(self, candidate):
         """Web Readerの実行候補をToolRunnerへ渡し、結果を会話返答にします。"""

@@ -1,5 +1,33 @@
 # Changelog
 
+## Version 2.61
+
+開始内容:
+
+- Memory編集機能（保存済み記憶の内容書き換え）を追加
+- Ver2.53では「より複雑なUX設計が必要」として対象外にしていた、Memory内容自体の
+  書き換え機能を実装した
+- 「(番号)の記憶を編集して」のように送ると、対象の記憶を提示した上で新しい内容の
+  入力を求める。新しい内容を送ると、変更前・変更後を並べた確認メッセージを出し、
+  「はい」で実行、「いいえ」でキャンセルする2段階の確認フローにした
+  （削除フローと違い、新しい内容そのものを受け取る手順が1つ増える）
+- `core/memory_management_intent.py` に `detect_memory_edit_request()` を追加。
+  削除判定と同じく「記憶」「Memory」への言及と編集動詞（編集して/書き換えて等）の
+  両方が揃った場合のみ編集意図として扱う
+- `core/memory_management.py` に `build_memory_edit_prompt()` / `build_memory_edit_confirmation()` /
+  `resolve_memory_edit_confirmation_response()` / `build_memory_edit_result_response()` を追加
+- `core/confirmation_intent.py` の `GENERIC_CONFIRMATION_CONTEXTS` に `context_type="memory_edit"` を
+  追加し、他のReader・Memory削除と同じハイブリッド確認判定（固定語彙優先＋不明時のみLLM）を再利用した
+- `database/memory_manager.py` に `update_memory_content()` を追加。物理削除ではなく、
+  既存レコードのcontentだけを上書きする（書き換え前の内容は保持しない）
+- `core/personal_ai.py` に `pending_memory_edit_input` / `pending_memory_edit_confirmation` と、
+  `self.memory_content_updater`（デフォルトは実際の`update_memory_content`）を追加。
+  属性未設定のtest doubleは暗黙にDBへ書き込まない設計にした（Ver2.53のmemory_deactivatorと同じパターン）
+- Memory一覧表示（`build_memory_list_response()`）に編集方法の案内行を追加した
+- `scripts/check_ver2610.py` を追加。本番DBには一切触れず、独立したin-memory SQLiteで
+  実際のSQL動作（content書き換え・永続化確認）を検証する
+- `scripts/run_ver2_checks.py` に `check_ver2610.py` を追加
+
 ## Version 2.60
 
 開始内容:

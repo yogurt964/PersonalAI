@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.60
+現在バージョン: Ver2.61
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -189,6 +189,7 @@ Ver2.57: 画像・テキスト両方のエスカレーションにTier3（最上
 Ver2.58: Web検索が必要な質問への対応（新機能、エスカレーションとは別枠）を追加
 Ver2.59: OpenAI vision（画像入り）の実API検証
 Ver2.60: 通常会話への自動OpenAIエスカレーション拡張
+Ver2.61: Memory編集機能（内容の書き換え）
 ```
 
 ## 現在の主要ファイル
@@ -1023,11 +1024,28 @@ silent fallbackをそのまま再利用しているため、動作の一貫性�
 scripts/check_ver2600.py を追加。実際のOpenAI API呼び出しは一切行わない。
 ```
 
-Ver2.60後の候補:
+Ver2.61でMemory編集機能（内容の書き換え）を追加
+
+```text
+Ver2.53では「より複雑なUX設計が必要」として対象外にしていた、Memory内容自体の書き換え機能を実装した。
+「(番号)の記憶を編集して」→新しい内容の入力→変更前後を並べた確認→実行、の2段階確認フローにした。
+core/memory_management_intent.pyにdetect_memory_edit_request()を追加し、削除判定と同じく
+「記憶」「Memory」への言及と編集動詞の両方が揃った場合のみ編集意図として扱う。
+core/memory_management.pyにbuild_memory_edit_prompt() / build_memory_edit_confirmation() /
+resolve_memory_edit_confirmation_response() / build_memory_edit_result_response()を追加し、
+core/confirmation_intent.pyにcontext_type="memory_edit"を追加して、他のReader・Memory削除と
+同じハイブリッド確認判定を再利用した。
+database/memory_manager.pyにupdate_memory_content()を追加。物理削除ではなく、既存レコードの
+contentだけを上書きする（書き換え前の内容は保持しない）。
+core/personal_ai.pyにself.memory_content_updater（デフォルトは実際のupdate_memory_content）を
+追加し、属性未設定のtest doubleは暗黙にDBへ書き込まない設計にした（memory_deactivatorと同じパターン）。
+scripts/check_ver2610.py を追加。本番DBには一切触れず、独立したin-memory SQLiteで検証する。
+```
+
+Ver2.61後の候補:
 
 ```text
 Ver2.x: Web検索とTier3の実API確認後、検索/回答生成の分離が可能か判断
-Ver2.x: Memory編集機能（内容の書き換え、Ver2.53では対象外にした部分）
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 
