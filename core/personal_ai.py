@@ -700,6 +700,7 @@ class PersonalAI:
             input_analysis,
             ask_llm_func=getattr(self, "ask_llm_func", None),
             openai_client_factory=getattr(self, "openai_text_client_factory", None),
+            conversation_context=conversation_context,
         )
         self.last_capability_analysis = capability_analysis
 

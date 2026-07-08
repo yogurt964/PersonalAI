@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.74
+現在バージョン: Ver2.75
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -203,6 +203,7 @@ Ver2.71: Stage 2フォールバックを4段階に拡張（キーワード→Qwe
 Ver2.72: Qwen分類精度を実測（capability_managerは83.3%で基準未達、直接OpenAI方式に変更）
 Ver2.73: 短い追質問がWeb検索に文脈なしで渡り誤判定・誤検索される不具合を修正
 Ver2.74: 文脈取得を記憶検索段階に一本化、needs_web_searchのキーワード優先を是正
+Ver2.75: capability_manager分類の文脈無視・誤分類3件を修正（YouTube誤分類/問題作成誤分類/推測羅列）
 ```
 
 ## 現在の主要ファイル
@@ -1292,6 +1293,33 @@ scripts/check_ver2740.py を追加。
 ```
 
 Ver2.74後の候補:
+
+```text
+Ver2.x: 「前に」「以前」「頼んでおいた」等でMemory検索を優先するトリガーの追加
+Ver2.x: current_topic（直前の話題）保持の一般化、follow-up検出の拡張
+Ver2.x: 実用アドバイス（筋トレ相談等）でのヒアリング強化
+Ver2.x: Web検索使用有無の表示精度の改善
+Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
+Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
+```
+
+Ver2.75でcapability_manager分類の文脈無視・誤分類3件を修正
+
+```text
+実機テストで、「Youtubeで配信しています」（直前のエリモ・クドリャフカの話への補足）が
+文脈なしでYouTube読み取り要求と誤分類される事象が見つかった。needs_web_search()には
+Ver2.73/2.74で会話文脈を渡すよう修正済みだったが、capability_manager.analyze()には
+渡していなかった。analyze()にconversation_context引数を追加し、
+_resolve_missing_capability_via_llm()/_ask_openai_for_capability_label()まで一貫して渡した。
+「テスト問題を作ってください」がdocument_creation_requiredと誤分類される事象も見つかり、
+分類プロンプトに実ファイル作成とチャット内完結コンテンツ生成（クイズ問題等）を区別する
+注意書きを追加した。同様に読み取り系ラベルも補足説明には使わないよう明記した。
+未知の固有名詞について複数の推測を長々と列挙する回答も見つかり、ai/llm.pyのSYSTEM_PROMPTに
+簡潔な「わかりません」＋1つの具体的な確認質問、補足発言を無関係な新規依頼と誤解しないことを追加した。
+scripts/check_ver2750.py を追加。
+```
+
+Ver2.75後の候補:
 
 ```text
 Ver2.x: 「前に」「以前」「頼んでおいた」等でMemory検索を優先するトリガーの追加

@@ -1,5 +1,30 @@
 # Changelog
 
+## Version 2.75
+
+開始内容:
+
+- 実機テストで見つかった、`capability_manager`分類の文脈無視・誤分類3件を修正
+- **「Youtubeで配信しています」の誤分類**: 直前に「エリモ・クドリャフカについて教えて」と
+  尋ねた直後、その補足説明のつもりで送った発言が、文脈を無視して「YouTube動画の読み取りが
+  必要」と誤分類された（Ver2.73/2.74でneeds_web_search()には会話文脈を渡すよう修正済み
+  だったが、capability_manager.analyze()には渡していなかった）。`analyze()`に
+  `conversation_context`引数を追加し、`_resolve_missing_capability_via_llm()`/
+  `_ask_openai_for_capability_label()`まで一貫して渡すようにした
+- **「テスト問題を作ってください」の誤分類**: クイズ問題の生成依頼が「実ファイル作成が
+  必要」（document_creation_required）と誤分類された。分類プロンプトに、
+  document_creation_requiredは実際にファイルを作成・保存する依頼にのみ使い、
+  チャット内で完結する内容生成（クイズ問題・文章・要約等）には使わないことを明記した
+- 同様に、youtube_read_required等の読み取り系ラベルも、直前の話題についての補足説明には
+  安易に使わないことを分類プロンプトに明記した
+- **推測の羅列**: 「エリモ・クドリャフカ」のような未知の固有名詞について尋ねられた際、
+  複数の推測（地名の可能性、人名の可能性、誤記の可能性...）を長々と列挙する回答が
+  見つかった。`ai/llm.py`のSYSTEM_PROMPTに、簡潔に「わかりません」と伝え、特定に必要な
+  情報を1つ具体的に尋ねること、直前の話題への補足発言を無関係な新しい依頼と誤解しないことを
+  追加した
+- `scripts/check_ver2750.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2750.py` を追加
+
 ## Version 2.74
 
 開始内容:

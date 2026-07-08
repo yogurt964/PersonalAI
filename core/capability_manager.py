@@ -158,7 +158,14 @@ class CapabilityManager:
             },
         }
 
-    def analyze(self, user_input, input_analysis=None, ask_llm_func=None, openai_client_factory=None):
+    def analyze(
+        self,
+        user_input,
+        input_analysis=None,
+        ask_llm_func=None,
+        openai_client_factory=None,
+        conversation_context=None,
+    ):
         """入力に必要な能力と、今のPersonalAIで対応できるかを判定します。
 
         ここでは実行は行いません。
@@ -175,6 +182,11 @@ class CapabilityManager:
            local_conversationのままにする
         ask_llm_funcを渡さない場合（デフォルト、既存のtest double含む）は、このハイブリッド
         フォールバック自体を行わず、OpenAIを呼び出しません（Ver2.68と同じ既存動作を維持）。
+
+        Ver2.75: 実機テストで、直前の話題（人物・キャラクターの話）を補足するだけの発言
+        （例:「Youtubeで配信しています」）が、文脈なしでYouTube Reader要求と誤分類される
+        事象が見つかった。conversation_contextを渡すと、OpenAIの分類プロンプトに直近の
+        会話を含め、話題の補足なのかを踏まえて判定できるようにする。
         """
         text = str(user_input or "").strip()
         lowered_text = text.lower()
@@ -297,7 +309,9 @@ class CapabilityManager:
                 "",
             )
 
-        llm_capability = self._resolve_missing_capability_via_llm(text, ask_llm_func, openai_client_factory)
+        llm_capability = self._resolve_missing_capability_via_llm(
+            text, ask_llm_func, openai_client_factory, conversation_context
+        )
 
         if llm_capability is not None:
             tool_name, risk_level, reason, user_message = _MISSING_CAPABILITY_LLM_INFO[llm_capability]
@@ -525,8 +539,10 @@ class CapabilityManager:
     def _contains_any(self, text, keywords):
         return any(keyword in text for keyword in keywords)
 
-    def _resolve_missing_capability_via_llm(self, text, ask_llm_func, openai_client_factory=None):
-        """キーワードでどれにも一致しなかった入力を分類します（Ver2.68/2.71/2.72）。
+    def _resolve_missing_capability_via_llm(
+        self, text, ask_llm_func, openai_client_factory=None, conversation_context=None
+    ):
+        """キーワードでどれにも一致しなかった入力を分類します（Ver2.68/2.71/2.72/2.75）。
 
         Ver2.72: `scripts/benchmark_capability_classification.py`で実際にQwenの分類精度を
         測定した結果、キーワードでは拾えないケースでの正解率は83.3%にとどまり、ユーザーと
@@ -543,6 +559,12 @@ class CapabilityManager:
         （特別な能力は不要）と正しく答えた場合は、それ自体が有効な分類結果であり、
         「分類に失敗した」場合とは異なる（"none"の場合はNone＝missing capabilityなしを返す）。
 
+        Ver2.75: 実機テストで、直前の話題を補足するだけの発言（例:「Youtubeで配信して
+        います」が、直前に話していた人物についての補足だったケース）が、文脈なしで
+        youtube_read_requiredと誤分類される事象が見つかった。conversation_contextを渡すと、
+        OpenAIの分類プロンプトに直近の会話を含め、話題の補足なのかを踏まえて判定できる
+        ようにする。
+
         ask_llm_funcが渡されない場合（デフォルト）は、このフォールバック自体を行わず
         Noneを返します。既存のtest doubleやチェックはask_llm_funcを渡さないため、
         この変更による影響を受けません（ask_llm_func自体は呼び出しません。この分類タスクを
@@ -552,26 +574,46 @@ class CapabilityManager:
         if ask_llm_func is None or not text:
             return None
 
-        openai_label = self._ask_openai_for_capability_label(text, openai_client_factory)
+        openai_label = self._ask_openai_for_capability_label(text, openai_client_factory, conversation_context)
 
         if openai_label == "none":
             return None
 
         return openai_label
 
-    def _ask_openai_for_capability_label(self, text, openai_client_factory):
+    def _ask_openai_for_capability_label(self, text, openai_client_factory, conversation_context=None):
         """Qwenでは判定できなかった入力について、OpenAIに同じ分類を依頼します（Ver2.71）。
 
         予算超過・キー未設定などでOpenAIが使えない場合も、安全側に倒してNoneを返します
         （呼び出し元がlocal_conversationにフォールバックします）。
+
+        Ver2.75: 分類を誤りやすかった2点を明確化した。
+        - document_creation_required は、実際にファイルを作成・保存する依頼にのみ使い、
+          クイズ問題・文章・詩など「チャットの中でそのまま答えられる内容」の生成依頼には
+          使わない（noneまたは他の適切なラベルにする）よう明記した
+        - youtube_read_required 等の読み取り系ラベルは、対象コンテンツの中身を実際に
+          読み取ってほしい依頼にのみ使い、「直前の話題についての補足説明」のような
+          文脈依存の発言には安易に使わないよう明記した
         """
         from ai.openai_client import ask_openai_text
 
         labels = ", ".join(_LLM_CAPABILITY_LABELS)
+        context_section = f"直前の会話:\n{conversation_context}\n\n" if conversation_context else ""
         prompt = (
+            f"{context_section}"
             "次のユーザーの発言を読んで、必要そうな能力を1つだけ選んでください。\n"
-            f"選択肢: {labels}\n"
-            "どれにも当てはまらない、または通常の会話で答えられる場合は none と答えてください。\n"
+            f"選択肢: {labels}\n\n"
+            "判定の注意点:\n"
+            "- document_creation_required は、実際にファイルを作成・保存してほしい依頼にのみ"
+            "使ってください。クイズ問題・文章・要約・アイデアなど、チャットの中でそのまま"
+            "答えられる内容を作ってほしいだけの依頼には使わないでください（その場合はnoneが"
+            "適切です）。\n"
+            "- youtube_read_required・web_read_required・pdf_read_required・"
+            "image_read_required・file_read_required は、実際にその対象の中身を読み取って"
+            "ほしい依頼にのみ使ってください。直前の会話で話していた話題についての補足説明や"
+            "追加情報を述べているだけの発言（例:「その人はYoutubeで配信しています」）には"
+            "安易に使わないでください。\n"
+            "- どれにも当てはまらない、または通常の会話で答えられる場合は none と答えてください。\n"
             "説明や記号は付けず、必ずこの中の1つの単語だけで答えてください。\n\n"
             f"発言: {text}"
         )
