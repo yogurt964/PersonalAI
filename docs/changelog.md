@@ -1,5 +1,27 @@
 # Changelog
 
+## Version 2.74
+
+開始内容:
+
+- Ver2.73へのユーザーフィードバックを受け、会話文脈の取得場所とWeb検索判定のキーワード
+  優先度を修正
+- **文脈取得を「解釈の次の記憶検索段階」に一本化**: `_build_recent_conversation_context()`を
+  `build_web_search_response_if_needed()`内での個別取得から、`handle_user_input()`の
+  `input_analysis`直後（レイヤードパイプライン設計の「記憶検索」段階に相当）へ移動した。
+  `self.last_conversation_context`として保持し、以後この値をそのまま関数へ渡す
+- **`needs_web_search()`がキーワード判定に頼りすぎていた点を修正**: `ask_llm_func`が
+  使える場合は、キーワード一致にかかわらず必ずLLM判定（文脈込み）を優先するよう変更した。
+  Ver2.72のベンチマークでこの判定タスクはQwen単独で100%の精度だったため、キーワードで
+  即決する意味が薄く、かつキーワード一致が文脈を考慮せずに即決してしまう（例:「予算」という
+  単語が会話の続きの中に出てきただけで誤ってWeb検索に流れる）リスクがあった。
+  `ask_llm_func`を渡さない場合（デフォルト、既存のtest double含む）は、引き続き
+  キーワードのみで決定論的に判定する
+- `scripts/check_ver2680.py`の`needs_web_search`関連テストを、新しい優先順位
+  （LLMが使えるなら常にLLM判定）に合わせて更新した
+- `scripts/check_ver2740.py` を追加。実際のOpenAI API呼び出し・Qwen呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2740.py` を追加
+
 ## Version 2.73
 
 開始内容:

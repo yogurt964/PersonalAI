@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.73
+現在バージョン: Ver2.74
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -202,6 +202,7 @@ Ver2.70: 検証層B実装（通常会話の記憶操作捏造を検出し正直�
 Ver2.71: Stage 2フォールバックを4段階に拡張（キーワード→Qwen→OpenAI→安全な既定値）
 Ver2.72: Qwen分類精度を実測（capability_managerは83.3%で基準未達、直接OpenAI方式に変更）
 Ver2.73: 短い追質問がWeb検索に文脈なしで渡り誤判定・誤検索される不具合を修正
+Ver2.74: 文脈取得を記憶検索段階に一本化、needs_web_searchのキーワード優先を是正
 ```
 
 ## 現在の主要ファイル
@@ -1266,6 +1267,31 @@ scripts/check_ver2730.py を追加。
 Web検索表示の正確性、ドメイン固有用語の精度）は次Ver以降で順次対応する。
 
 Ver2.73後の候補:
+
+```text
+Ver2.x: 「前に」「以前」「頼んでおいた」等でMemory検索を優先するトリガーの追加
+Ver2.x: current_topic（直前の話題）保持の一般化、follow-up検出の拡張
+Ver2.x: 実用アドバイス（筋トレ相談等）でのヒアリング強化
+Ver2.x: Web検索使用有無の表示精度の改善
+Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
+Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
+```
+
+Ver2.74で文脈取得の一本化とneeds_web_searchのキーワード優先是正
+
+```text
+Ver2.73へのユーザーフィードバックを受けて2点修正した。
+1. 会話文脈の取得を、build_web_search_response_if_needed()内の個別取得から
+   handle_user_input()の解釈（input_analysis）直後（記憶検索段階に相当）へ移動し、
+   self.last_conversation_contextとして共有する設計にした。
+2. needs_web_search()が、ask_llm_funcが使える場合はキーワード一致より常にLLM判定
+   （文脈込み）を優先するよう変更した。Ver2.72のベンチマークでこの判定はQwen単独で
+   100%だったこと、キーワード一致が文脈を考慮せず即決してしまうリスクがあったことが理由。
+   ask_llm_funcがない場合は従来通りキーワードのみで判定する。
+scripts/check_ver2740.py を追加。
+```
+
+Ver2.74後の候補:
 
 ```text
 Ver2.x: 「前に」「以前」「頼んでおいた」等でMemory検索を優先するトリガーの追加

@@ -62,36 +62,41 @@ PRODUCT_AND_PRICING_MARKERS = [
 def needs_web_search(user_text, ask_llm_func=None, openai_client_factory=None, conversation_context=None):
     """この質問がWeb検索を必要としそうかを判定します。
 
-    まずキーワード一致で判定します（今まで通り、コスト0・瞬時）。
-    Ver2.68/2.71: どのキーワードにも一致しない場合のみ、4段階のフォールバックで
-    追加判定を試します（Qwenの自己申告確信度には一切頼らない設計、
-    docs/llm_intent_resolver_design.md参照）。
-    1. ask_llm_funcが渡されていればQwenにyes/noの1語で判定させる
+    Ver2.74: LLM（Qwen）が使える場合は、キーワード一致に頼らず、LLMの判定
+    （文脈込み）を優先します。scripts/benchmark_capability_classification.pyの実測で、
+    この判定タスクはQwen単独で100%の精度だったこと（Ver2.72）に加え、キーワード一致を
+    先に見る設計だと、会話の文脈を考慮せずに「価格」「予算」等の単語だけで即決してしまい、
+    直前の話題を引き継ぐ追質問を誤判定する恐れがあるためです（ask_llm_funcを渡さない
+    場合は、これまで通りキーワードによる決定論的な判定にフォールバックします）。
+    1. ask_llm_funcが渡されていればQwenにyes/noの1語で判定させる（文脈込み）
     2. Qwenの応答がyes/noのどちらでもない（不明瞭・呼び出し失敗）場合、
        OpenAIに同じ判定を依頼する
     3. OpenAIの応答も不明瞭なら、安全側に倒してFalse（検索不要）を返す
-    ask_llm_funcを渡さない場合（デフォルト、既存のtest double含む）は、この
-    フォールバック自体を行わず、Qwen・OpenAIのどちらも呼び出しません。
+    ask_llm_funcを渡さない場合（デフォルト、既存のtest double含む）は、キーワード
+    （EXPLICIT_SEARCH_PHRASES / PRODUCT_AND_PRICING_MARKERS / CURRENT_INFO_MARKERS）
+    による判定のみを行い、Qwen・OpenAIのどちらも呼び出しません。
 
     Ver2.73: 実機テストで、「構成を教えてください」のような直前の話題を引き継ぐ
-    短い追質問が、文脈なしでLLMフォールバックに渡されたために「言葉の意味を検索すべき
-    質問」と誤判定される事象が見つかった（実際には直前のゲーム武器の話の続きだった）。
-    conversation_contextを渡すと、LLMフォールバックのプロンプトに直近の会話を含め、
-    話題の続きなのかを踏まえて判定できるようにする。conversation_contextは
-    キーワードによる高速判定には影響しない（キーワード一致は今まで通り即決する）。
+    短い追質問が、文脈なしでLLM判定に渡されたために「言葉の意味を検索すべき質問」と
+    誤判定される事象が見つかった（実際には直前のゲーム武器の話の続きだった）。
+    conversation_contextを渡すと、LLM判定のプロンプトに直近の会話を含め、話題の続きなのかを
+    踏まえて判定できるようにする。
     """
     text = str(user_text or "")
 
-    if any(phrase in text for phrase in EXPLICIT_SEARCH_PHRASES):
-        return True
+    if ask_llm_func is None:
+        if any(phrase in text for phrase in EXPLICIT_SEARCH_PHRASES):
+            return True
 
-    if any(marker in text for marker in PRODUCT_AND_PRICING_MARKERS):
-        return True
+        if any(marker in text for marker in PRODUCT_AND_PRICING_MARKERS):
+            return True
 
-    if any(marker in text for marker in CURRENT_INFO_MARKERS):
-        return True
+        if any(marker in text for marker in CURRENT_INFO_MARKERS):
+            return True
 
-    if ask_llm_func is None or not text:
+        return False
+
+    if not text:
         return False
 
     qwen_verdict = _ask_llm_needs_web_search(text, ask_llm_func, conversation_context)

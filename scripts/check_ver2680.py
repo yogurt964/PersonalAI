@@ -215,6 +215,13 @@ def _check_capability_manager_hybrid_fallback_body():
 
 
 def check_needs_web_search_hybrid_fallback():
+    """needs_web_search()のLLM判定を検証する。
+
+    Ver2.74: LLM（Qwen）が使える場合はキーワード一致に頼らず、常にLLMの判定
+    （文脈込み）を優先する設計に変更した（scripts/benchmark_capability_classification.pyの
+    実測でQwen単独の精度が100%だったことと、会話の文脈を考慮した判定が必要だったため）。
+    そのため、キーワードに一致する入力でもask_llm_funcが渡されていればLLMが呼ばれる。
+    """
     from core.web_search_intent import needs_web_search
 
     failures = 0
@@ -223,7 +230,7 @@ def check_needs_web_search_hybrid_fallback():
         return "yes"
 
     failures += check_true(
-        "LLM fallback can flag a search-needing question keywords missed",
+        "LLM judgement can flag a search-needing question keywords missed",
         needs_web_search("私の街で今開催中の変わったイベントある？", ask_llm_func=fake_yes) is True,
     )
 
@@ -231,7 +238,7 @@ def check_needs_web_search_hybrid_fallback():
         return "no"
 
     failures += check_true(
-        "LLM fallback saying 'no' returns False",
+        "LLM judgement saying 'no' returns False",
         needs_web_search("こんにちは", ask_llm_func=fake_no) is False,
     )
 
@@ -248,12 +255,18 @@ def check_needs_web_search_hybrid_fallback():
         needs_web_search("こんにちは") is False,
     )
 
-    def should_not_be_called(messages):
-        raise AssertionError("keyword-matched input must not call the LLM fallback")
+    failures += check_true(
+        "no ask_llm_func still catches an obvious keyword-matched case",
+        needs_web_search("今日の天気を教えて") is True,
+    )
+
+    def fake_yes_for_obvious_case(messages):
+        return "yes"
 
     failures += check_true(
-        "keyword-matched search need short-circuits before the LLM fallback",
-        needs_web_search("今日の天気を教えて", ask_llm_func=should_not_be_called) is True,
+        "when ask_llm_func is available, even a keyword-matched case goes through the LLM "
+        "(so conversation context can still override an out-of-context keyword match)",
+        needs_web_search("今日の天気を教えて", ask_llm_func=fake_yes_for_obvious_case) is True,
     )
 
     return failures

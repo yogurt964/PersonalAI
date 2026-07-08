@@ -279,6 +279,7 @@ class PersonalAI:
         self.last_preference_confirmation = None
         self.last_memory_usage = None
         self.last_conversation_mode = None
+        self.last_conversation_context = None
         self.last_conversation_quality_guidance = None
         self.last_web_reader_confirmation = None
         self.last_web_reader_confirmation_result = None
@@ -495,6 +496,13 @@ class PersonalAI:
         input_analysis = self.input_analyzer.analyze(user_input)
         self.last_input_analysis = input_analysis
 
+        # Ver2.74: 解釈の直後（記憶検索の段階）で直近の会話文脈を1回だけ取得し、
+        # 後続の判断（Web検索要否など）で共有します。以前はbuild_web_search_response_if_needed()
+        # 内で個別に取得していましたが、レイヤードパイプライン設計
+        # （docs/llm_intent_resolver_design.md）に合わせ、解釈の次の段階として一本化しました。
+        conversation_context = self._build_recent_conversation_context()
+        self.last_conversation_context = conversation_context
+
         # Ver2.3では、URLを含む入力に対してWeb Reader実行前の確認メッセージだけを返します。
         # ここではWebアクセスせず、許可後の実行接続もまだ行いません。
         web_reader_confirmation = build_web_reader_confirmation(user_input)
@@ -702,7 +710,7 @@ class PersonalAI:
             return ai_response
 
         # Ver2.58: 最新情報が必要そうな質問は、Qwenではなく最初からOpenAIのWeb検索機能を使います。
-        web_search_response = self.build_web_search_response_if_needed(user_input)
+        web_search_response = self.build_web_search_response_if_needed(user_input, conversation_context)
 
         if web_search_response:
             self.last_response = web_search_response
@@ -756,7 +764,7 @@ class PersonalAI:
 
         return ai_response
 
-    def build_web_search_response_if_needed(self, user_input):
+    def build_web_search_response_if_needed(self, user_input, conversation_context=None):
         """最新情報が必要そうな質問には、Qwenではなく最初からOpenAIのWeb検索機能を使います。
 
         Tierエスカレーション（低信頼を検知してから遡る）とは異なり、質問の時点で
@@ -770,9 +778,11 @@ class PersonalAI:
         見当違いの挙動になる事象が見つかった（実際には直前のゲーム武器の話の続きだった）。
         直近の会話履歴を要否判定・検索クエリの両方に含めることで、文脈を踏まえた
         判定・検索ができるようにする。
-        """
-        conversation_context = self._build_recent_conversation_context()
 
+        Ver2.74: conversation_contextはhandle_user_input()側で「解釈の直後（記憶検索の
+        段階）」として1回だけ取得し、ここには引数として渡します（レイヤードパイプライン
+        設計に合わせ、この関数の中で個別に取得する設計をやめました）。
+        """
         if not needs_web_search(
             user_input,
             ask_llm_func=getattr(self, "ask_llm_func", None),
