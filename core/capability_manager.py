@@ -164,16 +164,17 @@ class CapabilityManager:
         ここでは実行は行いません。
         「何が必要か」「何が足りないか」を整理して、未実装機能をできたふりしないための判断材料にします。
 
-        Ver2.68/2.71: 以下のキーワード判定にどれも一致しなかった場合のみ、4段階の
-        フォールバックで追加判定を試します（Qwenの自己申告確信度には一切頼らない設計、
-        docs/llm_intent_resolver_design.md参照）。
-        1. まずask_llm_funcが渡されていればQwenに1語で分類させる
-        2. Qwenの応答が既知のラベルにきれいに一致しなければ（呼び出し失敗・不一致・複数一致）、
-           OpenAIに同じ分類を依頼する
-        3. OpenAIの応答も一致しなければ、安全側に倒して従来通りlocal_conversationのままにする
+        Ver2.68/2.71/2.72: 以下のキーワード判定にどれも一致しなかった場合のみ、追加判定を
+        試します（Qwenの自己申告確信度には一切頼らない設計、docs/llm_intent_resolver_design.md
+        参照）。
+        1. ask_llm_funcが渡されていれば（このハイブリッド判定を有効にする合図として）、
+           OpenAIに1語で分類を依頼する（Ver2.72: 実測ベンチマークでQwen単独の正解率が
+           83.3%にとどまり95%の基準を満たさなかったため、このタスクに限りQwenへの
+           問い合わせは行わない設計に変更した）
+        2. OpenAIの応答が既知のラベルに一致しなければ、安全側に倒して従来通り
+           local_conversationのままにする
         ask_llm_funcを渡さない場合（デフォルト、既存のtest double含む）は、このハイブリッド
-        フォールバック自体を行わず、Qwen・OpenAIのどちらも呼び出しません（Ver2.68と同じ
-        既存動作を維持）。
+        フォールバック自体を行わず、OpenAIを呼び出しません（Ver2.68と同じ既存動作を維持）。
         """
         text = str(user_input or "").strip()
         lowered_text = text.lower()
@@ -525,46 +526,38 @@ class CapabilityManager:
         return any(keyword in text for keyword in keywords)
 
     def _resolve_missing_capability_via_llm(self, text, ask_llm_func, openai_client_factory=None):
-        """キーワードでどれにも一致しなかった入力を分類します（Ver2.68/2.71）。
+        """キーワードでどれにも一致しなかった入力を分類します（Ver2.68/2.71/2.72）。
 
-        4段階フォールバックのうちの2〜3段目を担います（1段目のキーワード判定はanalyze()側）。
-        まずQwenに1語で分類させ、応答が既知のラベルにきれいに一致しなければ（呼び出し失敗・
-        不一致・複数一致）、OpenAIに同じ分類を依頼します。どちらも失敗すればNoneを返し、
-        呼び出し元は従来通りlocal_conversationにフォールバックします。
-        自己申告の確信度には一切頼らず、「応答が既知のラベルに形式的に一致するか」だけで
-        機械的に判定します（docs/llm_intent_resolver_design.md参照）。
+        Ver2.72: `scripts/benchmark_capability_classification.py`で実際にQwenの分類精度を
+        測定した結果、キーワードでは拾えないケースでの正解率は83.3%にとどまり、ユーザーと
+        合意した95%の基準を下回ることが判明した。しかも誤りの多くは「形式は正しいが中身が
+        間違っている」回答（例: youtube_read_requiredをnoneと判定、pdf_read_requiredを
+        file_read_requiredと判定）であり、既存の「応答が既知の形式にきれいに一致するか」
+        という形式チェックでは検出できない種類の誤りだった。そのため、この分類タスクに
+        限りQwenへの問い合わせを行わず、直接OpenAIに判定を依頼する設計に変更した
+        （`core/web_search_intent.py`のyes/no判定は同じベンチマークで100%だったため、
+        そちらはQwen優先のまま変更していない）。
+
+        自己申告の確信度には一切頼らず、OpenAIの応答が既知のラベルに形式的に一致するかだけで
+        機械的に判定する（docs/llm_intent_resolver_design.md参照）。LLMが明示的に"none"
+        （特別な能力は不要）と正しく答えた場合は、それ自体が有効な分類結果であり、
+        「分類に失敗した」場合とは異なる（"none"の場合はNone＝missing capabilityなしを返す）。
 
         ask_llm_funcが渡されない場合（デフォルト）は、このフォールバック自体を行わず
         Noneを返します。既存のtest doubleやチェックはask_llm_funcを渡さないため、
-        この変更による影響を受けません。
+        この変更による影響を受けません（ask_llm_func自体は呼び出しません。この分類タスクを
+        ハイブリッド判定として有効化するかどうかのスイッチとして、既存の呼び出し規約を
+        維持するためだけに引数として残しています）。
         """
         if ask_llm_func is None or not text:
             return None
 
-        qwen_label = self._ask_llm_for_capability_label(text, ask_llm_func)
+        openai_label = self._ask_openai_for_capability_label(text, openai_client_factory)
 
-        if qwen_label is not None:
-            return qwen_label
-
-        return self._ask_openai_for_capability_label(text, openai_client_factory)
-
-    def _ask_llm_for_capability_label(self, text, ask_llm_func):
-        """Qwen（またはask_llm_funcで注入された任意のLLM）に1語で分類させます。"""
-        labels = ", ".join(_LLM_CAPABILITY_LABELS)
-        prompt = (
-            "次のユーザーの発言を読んで、必要そうな能力を1つだけ選んでください。\n"
-            f"選択肢: {labels}\n"
-            "どれにも当てはまらない、または通常の会話で答えられる場合は none と答えてください。\n"
-            "説明や記号は付けず、必ずこの中の1つの単語だけで答えてください。\n\n"
-            f"発言: {text}"
-        )
-
-        try:
-            response = ask_llm_func([{"role": "user", "content": prompt}])
-        except Exception:
+        if openai_label == "none":
             return None
 
-        return self._parse_capability_label(response)
+        return openai_label
 
     def _ask_openai_for_capability_label(self, text, openai_client_factory):
         """Qwenでは判定できなかった入力について、OpenAIに同じ分類を依頼します（Ver2.71）。
@@ -595,8 +588,15 @@ class CapabilityManager:
         return self._parse_capability_label(response)
 
     def _parse_capability_label(self, response):
+        """応答を既知のラベル（9種の不足capability、または"none"）に対応付けます（Ver2.72）。
+
+        "none"も_LLM_CAPABILITY_LABELSに含めて判定対象にすることで、「特別な能力は
+        不要」という正しい判断と、「応答が何にも一致しなかった（分類失敗）」を区別できる
+        ようにしています（Ver2.68時点ではこの区別がなく、"none"も分類失敗と同じ扱いに
+        なってしまうバグがありました）。
+        """
         normalized = str(response or "").strip()
-        matched_labels = [label for label in _MISSING_CAPABILITY_LLM_INFO if label in normalized]
+        matched_labels = [label for label in _LLM_CAPABILITY_LABELS if label in normalized]
 
         if len(matched_labels) == 1:
             return matched_labels[0]

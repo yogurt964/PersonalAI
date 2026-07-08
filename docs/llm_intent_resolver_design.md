@@ -289,6 +289,52 @@ Ver2.62でSYSTEM_PROMPTの努力目標として頼っていた部分（実行し
 Ver2.65は設計のみであり、既存の解釈ロジック・エスカレーションロジックの動作は変更しない。
 次のVer2.66からStage 1（重複キーワード統合）の実装に着手する。
 
+## Ver2.71/2.72: Stage 2フォールバックの実装とQwen分類精度の実測
+
+Ver2.66（Stage 1）に続き、Ver2.71でStage 2（ルーティング分類のハイブリッド化）を実装した。
+`core/capability_manager.py`と`core/web_search_intent.py`のLLMフォールバックを、
+「キーワード→Qwen→OpenAI→安全な既定値」の4段階にした（判定基準はQwenの自己申告確信度
+ではなく、応答が既知の形式にきれいに一致するかという機械的な基準のみ）。
+
+ユーザーから「95%以上の精度を確実に欲しい、最悪Qwenを一切使わない設計になっても構わない」
+という明確な基準を受け、`scripts/benchmark_capability_classification.py`を作成し、実際の
+Qwen（ローカル、無料）で分類精度を実測した。
+
+### ベンチマーク結果
+
+| タスク | キーワードで拾えないケースの正解率 |
+|---|---|
+| `web_search_intent`（Web検索要否のyes/no判定） | 7/7 = **100%** |
+| `capability_manager`（Reader種別等の分類） | 15/18 = **83.3%** |
+
+`web_search_intent`は95%基準を満たしたためQwen優先のまま維持した。`capability_manager`は
+基準を下回ったため、Ver2.72でQwenへの問い合わせを取りやめ、キーワード不一致時は直接
+OpenAIに判定を依頼する設計に変更した（`_ask_llm_for_capability_label()`を削除）。
+
+誤りの内訳（`capability_manager`）:
+- youtube_read_requiredをnoneと誤判定（動画コンテンツの示唆を見逃す）
+- pdf_read_requiredをfile_read_requiredと誤判定（PDFという形式を明示しない発言で、
+  近いが不正確なReader種別を選ぶ）
+- openai_required（専門的判断が必要）をnoneと誤判定（2件）
+
+これらは全て「形式的には正しいラベル」で返ってきており、既存の形式チェック
+（応答が既知のラベルに一致するか）では検出できない種類の誤りだった。
+
+### ベンチマーク中に見つかった実バグ
+
+1回目の実行で、`_parse_capability_label()`が`_MISSING_CAPABILITY_LLM_INFO`のキー
+（9種の不足capability）だけを判定対象にしており、`"none"`を含んでいなかったことが
+判明した。そのため、Qwenが正しく「特別な能力は不要（none）」と判断した場合でも、
+常に「分類失敗」として扱われ、毎回OpenAIへ無駄にエスカレーションしてしまうバグが
+あった（修正前は同じベンチマークで50%、修正後は83.3%）。`_LLM_CAPABILITY_LABELS`
+（"none"を含む）を判定対象にするよう修正した。
+
+### 今後の方針
+
+`scripts/benchmark_capability_classification.py`は自動チェック（`run_ver2_checks.py`）
+には含めない（実際のQwen呼び出しを伴うため）。今後、新しい分類タスクをQwenに任せるかどうか
+判断する際は、同じ方法（実測・95%基準）で都度検証する。
+
 ## Ver2.26でやらないこと
 
 - `core/confirmation_intent.py` / `core/memory_candidate_confirmation.py` の実装変更

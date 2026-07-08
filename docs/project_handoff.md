@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.71
+現在バージョン: Ver2.72
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -200,6 +200,7 @@ Ver2.68: Stage 2実装（ルーティング分類のハイブリッド化: capab
 Ver2.69: 不使用コード削除（tool_request_builder.py/tool_flow.py、影響する8チェックを外科的修正）
 Ver2.70: 検証層B実装（通常会話の記憶操作捏造を検出し正直な注記を追加）
 Ver2.71: Stage 2フォールバックを4段階に拡張（キーワード→Qwen→OpenAI→安全な既定値）
+Ver2.72: Qwen分類精度を実測（capability_managerは83.3%で基準未達、直接OpenAI方式に変更）
 ```
 
 ## 現在の主要ファイル
@@ -1226,10 +1227,24 @@ Qwenの回答までは検出できない限界がある。95%以上の精度保�
 scripts/check_ver2710.py を追加。
 ```
 
-Ver2.71後の候補:
+Ver2.72でQwen分類精度を実測し、capability_managerを直接OpenAI方式に変更
 
 ```text
-Ver2.x: Qwenの分類精度を実測するベンチマークの作成（95%基準を満たすか検証）
+95%以上の精度基準（ユーザー確認済み、最悪Qwenを一切使わない設計でも可）に基づき、
+scripts/benchmark_capability_classification.pyで実際のQwenの分類精度を測定した。
+web_search_intent（Web検索要否）は100%で基準を満たしQwen優先を維持、capability_manager
+（Reader種別等）は83.3%で基準未達となり、Qwenへの問い合わせを取りやめ直接OpenAIに
+判定を依頼する設計に変更した。誤りは全て「形式は正しいが中身が間違っている」もので、
+既存の形式チェックでは検出できない種類だった。
+ベンチマーク中に実バグも発見: "none"判定がQwenの正しい回答として認識されず、常にOpenAIへ
+エスカレーションしていた問題を修正した（修正前50%→修正後83.3%）。
+scripts/check_ver2680.py / check_ver2710.pyのcapability_manager関連テストを新しい経路に
+合わせて更新した。scripts/benchmark_capability_classification.pyは自動チェックには含めない。
+```
+
+Ver2.72後の候補:
+
+```text
 Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

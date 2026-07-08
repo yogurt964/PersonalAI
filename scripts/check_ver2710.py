@@ -122,40 +122,49 @@ def _with_fake_openai_key(func):
 
 
 def check_capability_manager_openai_fallback_tier():
+    """capability_manager.analyze()のLLMフォールバックを検証する。
+
+    Ver2.71時点ではQwen→OpenAIの2段構えだったが、Ver2.72で実測ベンチマークにより
+    Qwen単独の分類精度が95%基準を満たさないと判明したため、capability_manager側は
+    Qwenへの問い合わせを行わず直接OpenAIに判定を依頼する設計に変更された
+    （scripts/check_ver2680.pyのcheck_capability_manager_hybrid_fallback()で、
+    この新しい経路を詳しく検証している）。ここではask_llm_func（Qwen）が一切
+    呼び出されないことも合わせて確認する。
+    """
     from core.capability_manager import CapabilityManager
 
     def run():
         cm = CapabilityManager()
         failures = 0
 
-        def fake_qwen_garbled(messages):
-            return "よくわかりません、判断できません"
+        def fake_ask_llm_func(messages):
+            raise AssertionError("Ver2.72: capability classification must not call ask_llm_func (Qwen)")
 
         def fake_openai_web_read(api_key, messages, model):
             return "web_read_required"
 
         result = cm.analyze(
             "あのウェブサイトの中身教えて",
-            ask_llm_func=fake_qwen_garbled,
+            ask_llm_func=fake_ask_llm_func,
             openai_client_factory=fake_openai_web_read,
         )
         failures += check_true(
-            "malformed Qwen answer falls through to the OpenAI classification tier",
+            "capability classification goes straight to OpenAI, never calling Qwen",
             result["can_handle_now"] is False and result["primary_capability"] == "web_read_required",
         )
 
         def fake_openai_also_garbled(api_key, messages, model):
             return "still not sure"
 
-        result_both_unclear = cm.analyze(
+        result_unclear = cm.analyze(
             "あのウェブサイトの中身教えて",
-            ask_llm_func=fake_qwen_garbled,
+            ask_llm_func=fake_ask_llm_func,
             openai_client_factory=fake_openai_also_garbled,
         )
         failures += check_true(
-            "both Qwen and OpenAI unclear falls back to local_conversation",
-            result_both_unclear["can_handle_now"] is True
-            and result_both_unclear["primary_capability"] == "local_conversation",
+            "unclear OpenAI answer falls back to local_conversation",
+            result_unclear["can_handle_now"] is True
+            and result_unclear["primary_capability"] == "local_conversation",
         )
 
         def fake_openai_fails(api_key, messages, model):
@@ -163,31 +172,13 @@ def check_capability_manager_openai_fallback_tier():
 
         result_openai_fails = cm.analyze(
             "あのウェブサイトの中身教えて",
-            ask_llm_func=fake_qwen_garbled,
+            ask_llm_func=fake_ask_llm_func,
             openai_client_factory=fake_openai_fails,
         )
         failures += check_true(
             "OpenAI call failure fails safe to local_conversation",
             result_openai_fails["can_handle_now"] is True
             and result_openai_fails["primary_capability"] == "local_conversation",
-        )
-
-        # Qwenが明確なラベルを返せた場合は、OpenAIへは進まない（呼ばれたら即失敗させる）。
-        def fake_qwen_clean(messages):
-            return "pdf_read_required"
-
-        def should_not_be_called(api_key, messages, model):
-            raise AssertionError("OpenAI fallback must not be reached when Qwen's answer is clean")
-
-        result_qwen_clean = cm.analyze(
-            "このPDFの内容が知りたい",
-            ask_llm_func=fake_qwen_clean,
-            openai_client_factory=should_not_be_called,
-        )
-        failures += check_true(
-            "a clean Qwen label short-circuits before the OpenAI fallback tier",
-            result_qwen_clean["can_handle_now"] is False
-            and result_qwen_clean["primary_capability"] == "pdf_read_required",
         )
 
         return failures

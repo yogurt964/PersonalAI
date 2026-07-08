@@ -1,5 +1,32 @@
 # Changelog
 
+## Version 2.72
+
+開始内容:
+
+- Qwenの分類精度を実測するベンチマーク（`scripts/benchmark_capability_classification.py`）を
+  作成し、実際のQwen（ローカル、無料）で`capability_manager`/`web_search_intent`のLLM
+  フォールバック精度を測定した
+- 実測の結果、`web_search_intent`（Web検索要否のyes/no判定）は7/7=100%で95%基準を満たしたが、
+  `capability_manager`（Reader種別等の分類）は15/18=83.3%で基準を下回った
+- `capability_manager`の誤りは全て「形式的には正しいラベルだが中身が間違っている」もので
+  （youtube_read_requiredをnoneと誤判定、pdf_read_requiredをfile_read_requiredと誤判定等）、
+  既存の形式チェックでは検出できない種類だった
+- ユーザーとの合意により、`capability_manager`のLLMフォールバックからQwenへの問い合わせを
+  取りやめ、キーワード不一致時は直接OpenAIに判定を依頼する設計に変更した
+  （`_ask_llm_for_capability_label()`を削除）。`web_search_intent`は実測で基準を満たした
+  ためQwen優先のまま維持している
+- ベンチマーク実施中に実バグを発見・修正: `_parse_capability_label()`が`"none"`を判定対象に
+  含めておらず、Qwenが正しく「特別な能力は不要」と判断した場合でも常にOpenAIへ
+  エスカレーションしてしまっていた（修正前50%→修正後83.3%）。`_LLM_CAPABILITY_LABELS`
+  （"none"を含む）を判定対象にするよう修正した
+- `scripts/check_ver2680.py` / `scripts/check_ver2710.py`の`capability_manager`関連テストを、
+  新しい経路（OpenAI直接）に合わせて更新した
+- `scripts/benchmark_capability_classification.py`は自動チェック（`run_ver2_checks.py`）には
+  含めない（実際のQwen呼び出しを伴うため）
+- `scripts/check_ver2720.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2720.py` を追加
+
 ## Version 2.71
 
 開始内容:
