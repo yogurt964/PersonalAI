@@ -1,5 +1,28 @@
 # Changelog
 
+## Version 2.70
+
+開始内容:
+
+- 検証層B（実行整合性チェック、`docs/llm_intent_resolver_design.md`のVer2.65設計）を実装
+- 通常会話（Executor経由のQwen自由生成）は、記憶の削除・編集・保存を実際には一切実行しない
+  （これらは専用の確認フローか`extract_and_save_memories()`でのみ実行され、後者は
+  結果を返した場合に早期returnするため通常会話には到達しない）にもかかわらず、
+  Ver2.62で見つかったようにQwenがこれらの操作を実行したと捏造して回答することがある
+- `core/execution_claim_check.py` を追加。`contains_unverified_action_claim()`が、
+  「記憶」への言及と操作完了を示す表現（「削除しました」「編集しました」「保存しました」等）
+  の両方を含むかを判定する（無関係な「ファイルを保存しました」等には反応しない）
+- `core/personal_ai.py`の`handle_user_input()`で、通常会話の自由回答（`_is_qwen_free_form_answer`
+  がTrueの経路）に対し、Tierエスカレーション後に`_annotate_unverified_action_claim()`を通すよう
+  追加した。該当する場合、回答本文は残したまま「この会話の中では記憶の削除・編集・保存を
+  実際に実行する仕組みは動いていません」という正直な注記を追記する（本文の書き換え・削除は
+  行わず、注記の追加のみ）
+- 完全一致の言い換え検知には限界があり、過去に実行済みの操作を正しく振り返って説明している
+  発言にも注記が付く場合がある。ただしその場合も注記自体（今この場では実行していない）は
+  常に事実であるため、誤りにはならない設計にした
+- `scripts/check_ver2700.py` を追加。実際のOpenAI API呼び出し・Qwen呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2700.py` を追加
+
 ## Version 2.69
 
 開始内容:

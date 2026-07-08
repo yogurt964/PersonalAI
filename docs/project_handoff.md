@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.69
+現在バージョン: Ver2.70
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -198,6 +198,7 @@ Ver2.66: Stage 1実装（input_analyzer/capability_manager/tool_request_builder�
 Ver2.67: Web検索/回答生成の分離可否を実APIで調査し、実現不可能と結論を確定
 Ver2.68: Stage 2実装（ルーティング分類のハイブリッド化: capability_manager/web_search_intent）
 Ver2.69: 不使用コード削除（tool_request_builder.py/tool_flow.py、影響する8チェックを外科的修正）
+Ver2.70: 検証層B実装（通常会話の記憶操作捏造を検出し正直な注記を追加）
 ```
 
 ## 現在の主要ファイル
@@ -1183,6 +1184,28 @@ Ver2.69後の候補:
 
 ```text
 Ver2.x: 検証層B（実行整合性チェック）の実装
+Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
+```
+
+Ver2.70で検証層B（実行整合性チェック）を実装
+
+```text
+通常会話（Executor経由のQwen自由生成）は記憶の削除・編集・保存を実際には一切実行しないため、
+Ver2.62で見つかったような「実行していない操作を実行したと捏造する」問題への構造的な対策として、
+core/execution_claim_check.pyのcontains_unverified_action_claim()を追加した。
+「記憶」への言及と操作完了表現（削除しました/編集しました/保存しました等）の両方を含む場合のみ
+反応する（無関係な「ファイルを保存しました」等には反応しない）。
+handle_user_input()の自由回答経路で、Tierエスカレーション後にこの判定を通し、該当する場合は
+本文を書き換えずに「この会話の中では実際に実行する仕組みは動いていません」という正直な注記を
+追記する。完全一致検知の限界により、過去の実行済み操作を正しく振り返る発言にも注記が付く
+場合があるが、注記自体は常に事実であるため誤りにはならない。
+scripts/check_ver2700.py を追加。
+```
+
+Ver2.70後の候補:
+
+```text
+Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```
 

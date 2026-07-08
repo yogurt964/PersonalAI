@@ -17,6 +17,7 @@ from ai.preference_confirmation import (
 from ai.preference_memory import save_preference_memories
 from core.capability_manager import CapabilityManager
 from core.confidence_check import seems_low_confidence
+from core.execution_claim_check import contains_unverified_action_claim
 from core.web_search_intent import needs_web_search
 from core.executor import Executor
 from core.input_analyzer import InputAnalyzer
@@ -744,6 +745,7 @@ class PersonalAI:
 
         if self._is_qwen_free_form_answer(plan, route):
             ai_response = self._escalate_text_answer_if_low_confidence(ai_response, messages)
+            ai_response = self._annotate_unverified_action_claim(ai_response)
 
         self.last_response = ai_response
 
@@ -2710,6 +2712,23 @@ class PersonalAI:
                 f"{tier2_answer}\n\n"
                 "（Qwenでの回答が不明瞭だったため、PersonalAIの判断でOpenAIに再質問しました）"
             )
+
+    def _annotate_unverified_action_claim(self, ai_response):
+        """通常会話の回答が記憶操作を実行したと主張している場合、注記を追加します（Ver2.70）。
+
+        通常会話（Executor経由のQwen自由生成）は記憶の削除・編集・保存を実際には
+        一切実行しないため、そのような主張が含まれる場合は、実行の保証がないことを
+        正直に伝えます（docs/llm_intent_resolver_design.mdの検証層B）。
+        """
+        if not contains_unverified_action_claim(ai_response):
+            return ai_response
+
+        return (
+            f"{ai_response}\n\n"
+            "（念のため: この通常会話の中では記憶の削除・編集・保存を実際に実行する仕組みは"
+            "動いていません。実行してほしい場合は「(番号)の記憶を削除して」"
+            "「(番号)の記憶を編集して」のように送ってください）"
+        )
 
     def _ask_openai_text_tier2(self, messages):
         from ai.openai_client import ask_openai_text
