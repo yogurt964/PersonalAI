@@ -59,7 +59,7 @@ PRODUCT_AND_PRICING_MARKERS = [
 ]
 
 
-def needs_web_search(user_text, ask_llm_func=None, openai_client_factory=None):
+def needs_web_search(user_text, ask_llm_func=None, openai_client_factory=None, conversation_context=None):
     """この質問がWeb検索を必要としそうかを判定します。
 
     まずキーワード一致で判定します（今まで通り、コスト0・瞬時）。
@@ -72,6 +72,13 @@ def needs_web_search(user_text, ask_llm_func=None, openai_client_factory=None):
     3. OpenAIの応答も不明瞭なら、安全側に倒してFalse（検索不要）を返す
     ask_llm_funcを渡さない場合（デフォルト、既存のtest double含む）は、この
     フォールバック自体を行わず、Qwen・OpenAIのどちらも呼び出しません。
+
+    Ver2.73: 実機テストで、「構成を教えてください」のような直前の話題を引き継ぐ
+    短い追質問が、文脈なしでLLMフォールバックに渡されたために「言葉の意味を検索すべき
+    質問」と誤判定される事象が見つかった（実際には直前のゲーム武器の話の続きだった）。
+    conversation_contextを渡すと、LLMフォールバックのプロンプトに直近の会話を含め、
+    話題の続きなのかを踏まえて判定できるようにする。conversation_contextは
+    キーワードによる高速判定には影響しない（キーワード一致は今まで通り即決する）。
     """
     text = str(user_text or "")
 
@@ -87,22 +94,32 @@ def needs_web_search(user_text, ask_llm_func=None, openai_client_factory=None):
     if ask_llm_func is None or not text:
         return False
 
-    qwen_verdict = _ask_llm_needs_web_search(text, ask_llm_func)
+    qwen_verdict = _ask_llm_needs_web_search(text, ask_llm_func, conversation_context)
 
     if qwen_verdict is not None:
         return qwen_verdict
 
-    openai_verdict = _ask_openai_needs_web_search(text, openai_client_factory)
+    openai_verdict = _ask_openai_needs_web_search(text, openai_client_factory, conversation_context)
 
     return bool(openai_verdict)
 
 
 _WEB_SEARCH_JUDGEMENT_PROMPT_TEMPLATE = (
+    "{context_section}"
     "次のユーザーの発言について、最新情報・実在する商品や価格・在庫など、"
     "検索エンジンで現在の情報を確認しないと正確に答えられない可能性が高いかを判定してください。\n"
+    "直前の会話の続きとして、既に話していた話題の詳細化・言い換えを求めているだけの場合は、"
+    "検索は不要（no）と判定してください。\n"
     "必要なら yes、不要なら no、必ずこの2つの単語のうち1つだけで答えてください。\n\n"
     "発言: {text}"
 )
+
+
+def _build_context_section(conversation_context):
+    if not conversation_context:
+        return ""
+
+    return f"直前の会話:\n{conversation_context}\n\n"
 
 
 def _parse_yes_no(response):
@@ -126,13 +143,15 @@ def _parse_yes_no(response):
     return None
 
 
-def _ask_llm_needs_web_search(text, ask_llm_func):
+def _ask_llm_needs_web_search(text, ask_llm_func, conversation_context=None):
     """固定キーワードで判定できない発言だけを、Qwenにyes/noの1語で答えさせます。
 
     応答がyes/noのどちらか一方に明確に一致しない場合（不明瞭・呼び出し失敗）はNoneを
     返し、呼び出し元でOpenAIへのフォールバックを判断できるようにします。
     """
-    prompt = _WEB_SEARCH_JUDGEMENT_PROMPT_TEMPLATE.format(text=text)
+    prompt = _WEB_SEARCH_JUDGEMENT_PROMPT_TEMPLATE.format(
+        context_section=_build_context_section(conversation_context), text=text
+    )
 
     try:
         response = ask_llm_func([{"role": "user", "content": prompt}])
@@ -142,7 +161,7 @@ def _ask_llm_needs_web_search(text, ask_llm_func):
     return _parse_yes_no(response)
 
 
-def _ask_openai_needs_web_search(text, openai_client_factory):
+def _ask_openai_needs_web_search(text, openai_client_factory, conversation_context=None):
     """Qwenでは判定できなかった発言について、OpenAIに同じ判定を依頼します（Ver2.71）。
 
     予算超過・キー未設定などでOpenAIが使えない場合は、安全側に倒してNoneを返します
@@ -150,7 +169,9 @@ def _ask_openai_needs_web_search(text, openai_client_factory):
     """
     from ai.openai_client import ask_openai_text
 
-    prompt = _WEB_SEARCH_JUDGEMENT_PROMPT_TEMPLATE.format(text=text)
+    prompt = _WEB_SEARCH_JUDGEMENT_PROMPT_TEMPLATE.format(
+        context_section=_build_context_section(conversation_context), text=text
+    )
 
     try:
         response = ask_openai_text(

@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.72
+現在バージョン: Ver2.73
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -201,6 +201,7 @@ Ver2.69: 不使用コード削除（tool_request_builder.py/tool_flow.py、影�
 Ver2.70: 検証層B実装（通常会話の記憶操作捏造を検出し正直な注記を追加）
 Ver2.71: Stage 2フォールバックを4段階に拡張（キーワード→Qwen→OpenAI→安全な既定値）
 Ver2.72: Qwen分類精度を実測（capability_managerは83.3%で基準未達、直接OpenAI方式に変更）
+Ver2.73: 短い追質問がWeb検索に文脈なしで渡り誤判定・誤検索される不具合を修正
 ```
 
 ## 現在の主要ファイル
@@ -1242,9 +1243,35 @@ scripts/check_ver2680.py / check_ver2710.pyのcapability_manager関連テスト�
 合わせて更新した。scripts/benchmark_capability_classification.pyは自動チェックには含めない。
 ```
 
-Ver2.72後の候補:
+Ver2.73で短い追質問のWeb検索誤判定・誤検索を修正
 
 ```text
+実機テストで、「スプラトゥーンのわかばシューターのギア構成」の話をした直後に
+「構成を教えてください」と聞くと、直前の話題を無視して「構成」という単語の辞書的な
+意味をWeb検索して答えてしまう不具合が見つかった。
+needs_web_search()がuser_input単体しか見ておらず、実際の検索クエリも会話履歴を
+含まない生のuser_inputだけだったことが原因だった。
+core/personal_ai.pyに_build_recent_conversation_context()（直近の会話を短い文脈テキストに、
+今回保存済みの自分自身の発言は除外）と_build_context_aware_search_query()
+（検索クエリに文脈を含める）を追加し、core/web_search_intent.pyのneeds_web_search()系にも
+conversation_context引数を追加して、LLMフォールバックの判定プロンプトに文脈を含めた。
+「直前の話題の詳細化・言い換えは検索不要」という指示も明記した。
+キーワードによる高速判定は今まで通り影響を受けない。
+scripts/check_ver2730.py を追加。
+```
+
+このVerは、ユーザーが報告した「次Ver: 会話文脈・Memory検索・Web検索判定の改善」提案の
+うち、最優先項目（短い追質問での文脈引き継ぎ、Web検索の誤判定・誤検索）に対応したもの。
+残りの項目（Memory優先トリガー、current_topic保持、実用アドバイスのヒアリング強化、
+Web検索表示の正確性、ドメイン固有用語の精度）は次Ver以降で順次対応する。
+
+Ver2.73後の候補:
+
+```text
+Ver2.x: 「前に」「以前」「頼んでおいた」等でMemory検索を優先するトリガーの追加
+Ver2.x: current_topic（直前の話題）保持の一般化、follow-up検出の拡張
+Ver2.x: 実用アドバイス（筋トレ相談等）でのヒアリング強化
+Ver2.x: Web検索使用有無の表示精度の改善
 Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

@@ -764,19 +764,30 @@ class PersonalAI:
         持たないため、低信頼判定を待っても意味がないからです）。
         予算超過・キー未設定などでOpenAIが使えない場合は、検索できない旨を正直に伝えます
         （調べたふりはしません）。
+
+        Ver2.73: 実機テストで、「構成を教えてください」のような直前の話題を引き継ぐ
+        短い追質問が、文脈なしで判定・検索されたために「言葉の意味を検索する」という
+        見当違いの挙動になる事象が見つかった（実際には直前のゲーム武器の話の続きだった）。
+        直近の会話履歴を要否判定・検索クエリの両方に含めることで、文脈を踏まえた
+        判定・検索ができるようにする。
         """
+        conversation_context = self._build_recent_conversation_context()
+
         if not needs_web_search(
             user_input,
             ask_llm_func=getattr(self, "ask_llm_func", None),
             openai_client_factory=getattr(self, "openai_text_client_factory", None),
+            conversation_context=conversation_context,
         ):
             return None
 
         try:
             from ai.openai_client import ask_openai_with_web_search
 
+            search_query = self._build_context_aware_search_query(user_input, conversation_context)
+
             answer = ask_openai_with_web_search(
-                user_input,
+                search_query,
                 client_factory=getattr(self, "openai_web_search_client_factory", None),
             )
             return f"{answer}\n\n（Web検索の結果をもとに回答しました）"
@@ -786,6 +797,48 @@ class PersonalAI:
                 "（予算上限に達しているか、OpenAI接続が未設定の可能性があります）。\n"
                 "分かる範囲でよければ、通常の会話としてもう一度聞いてください。"
             )
+
+    def _build_recent_conversation_context(self, max_messages=6, max_chars_per_message=200):
+        """直近の会話履歴を、Web検索の要否判定・検索クエリ作成用の短い文脈テキストにします（Ver2.73）。
+
+        handle_user_input()は呼び出し時点で既にsave_user_message()により今回の発言を
+        保存済みのため、最後の1件（今回の発言そのもの）は除いて、それより前のやり取りだけを
+        文脈として使います。各発言はプロンプトが長くなりすぎないよう短く切り詰めます。
+        """
+        recent_messages = get_recent_messages(max_messages + 1)[:-1]
+
+        if not recent_messages:
+            return ""
+
+        lines = []
+
+        for message in recent_messages[-max_messages:]:
+            speaker = "ユーザー" if message.role == "user" else "AI"
+            content = " ".join(str(message.content or "").split())
+
+            if not content:
+                continue
+
+            if len(content) > max_chars_per_message:
+                content = f"{content[:max_chars_per_message]}..."
+
+            lines.append(f"{speaker}: {content}")
+
+        return "\n".join(lines)
+
+    def _build_context_aware_search_query(self, user_input, conversation_context):
+        """Web検索の実行時に、直前の会話文脈を踏まえた検索依頼文を作ります（Ver2.73）。
+
+        文脈がない場合はuser_inputをそのまま使い、挙動は変えません。
+        """
+        if not conversation_context:
+            return user_input
+
+        return (
+            f"これまでの会話:\n{conversation_context}\n\n"
+            "上記の文脈を踏まえたうえで、次の質問に検索を使って答えてください。\n"
+            f"質問: {user_input}"
+        )
 
     def build_capability_unavailable_response(self, capability_analysis):
         """必要な機能が未実装の場合に、できない理由を正直に返します。"""

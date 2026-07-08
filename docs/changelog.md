@@ -1,5 +1,31 @@
 # Changelog
 
+## Version 2.73
+
+開始内容:
+
+- 実機テストで見つかった、短い追質問（「構成を教えてください」）が直前の話題を無視して
+  辞書的なWeb検索結果（「構成」の単語の意味）で答えてしまう不具合を修正
+- 原因はVer2.68/2.71/2.72の`needs_web_search()`が`user_input`単体しか見ておらず、
+  `build_web_search_response_if_needed()`が実際にOpenAI Web検索へ渡すクエリも
+  会話履歴を含まない生の`user_input`だけだったこと。「わかばシューターのギア構成」の
+  話をしていた直後の「構成を教えてください」が、文脈なしで「言葉の意味を検索すべき質問」と
+  誤判定・誤検索されていた
+- `core/personal_ai.py`に`_build_recent_conversation_context()`を追加。直近の会話履歴
+  （今回すでに保存済みの自分自身の発言は除く、各発言は200文字に切り詰め）を短い文脈
+  テキストにする
+- `core/web_search_intent.py`の`needs_web_search()`/`_ask_llm_needs_web_search()`/
+  `_ask_openai_needs_web_search()`に`conversation_context`引数を追加し、LLMフォールバックの
+  判定プロンプトに直近の会話を含められるようにした。「直前の会話の続きとして、既に話していた
+  話題の詳細化・言い換えを求めているだけの場合は検索不要」という指示も追加した
+- `core/personal_ai.py`に`_build_context_aware_search_query()`を追加。Web検索を実際に
+  実行する際も、直前の会話文脈を含めた検索依頼文を組み立てるようにした（文脈がない場合は
+  従来通り`user_input`をそのまま使う）
+- キーワードによる高速判定（`EXPLICIT_SEARCH_PHRASES`等）は今まで通り即決し、
+  `conversation_context`の影響を受けない
+- `scripts/check_ver2730.py` を追加。実際のOpenAI API呼び出し・Qwen呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2730.py` を追加
+
 ## Version 2.72
 
 開始内容:
