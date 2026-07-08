@@ -158,17 +158,22 @@ class CapabilityManager:
             },
         }
 
-    def analyze(self, user_input, input_analysis=None, ask_llm_func=None):
+    def analyze(self, user_input, input_analysis=None, ask_llm_func=None, openai_client_factory=None):
         """入力に必要な能力と、今のPersonalAIで対応できるかを判定します。
 
         ここでは実行は行いません。
         「何が必要か」「何が足りないか」を整理して、未実装機能をできたふりしないための判断材料にします。
 
-        Ver2.68: 以下のキーワード判定にどれも一致しなかった場合のみ、ask_llm_funcが
-        渡されていればQwenに1語で分類させるハイブリッド判定を追加で試します
-        （confirmation_intent.pyと同じ考え方）。ask_llm_funcを渡さない場合や、
-        LLMの応答が既知のラベルに一致しない場合、呼び出しに失敗した場合は、
-        安全側に倒して従来通りlocal_conversationのままにします。
+        Ver2.68/2.71: 以下のキーワード判定にどれも一致しなかった場合のみ、4段階の
+        フォールバックで追加判定を試します（Qwenの自己申告確信度には一切頼らない設計、
+        docs/llm_intent_resolver_design.md参照）。
+        1. まずask_llm_funcが渡されていればQwenに1語で分類させる
+        2. Qwenの応答が既知のラベルにきれいに一致しなければ（呼び出し失敗・不一致・複数一致）、
+           OpenAIに同じ分類を依頼する
+        3. OpenAIの応答も一致しなければ、安全側に倒して従来通りlocal_conversationのままにする
+        ask_llm_funcを渡さない場合（デフォルト、既存のtest double含む）は、このハイブリッド
+        フォールバック自体を行わず、Qwen・OpenAIのどちらも呼び出しません（Ver2.68と同じ
+        既存動作を維持）。
         """
         text = str(user_input or "").strip()
         lowered_text = text.lower()
@@ -291,7 +296,7 @@ class CapabilityManager:
                 "",
             )
 
-        llm_capability = self._resolve_missing_capability_via_llm(text, ask_llm_func)
+        llm_capability = self._resolve_missing_capability_via_llm(text, ask_llm_func, openai_client_factory)
 
         if llm_capability is not None:
             tool_name, risk_level, reason, user_message = _MISSING_CAPABILITY_LLM_INFO[llm_capability]
@@ -519,18 +524,32 @@ class CapabilityManager:
     def _contains_any(self, text, keywords):
         return any(keyword in text for keyword in keywords)
 
-    def _resolve_missing_capability_via_llm(self, text, ask_llm_func):
-        """キーワードでどれにも一致しなかった入力を、Qwenに1語で分類させます（Ver2.68）。
+    def _resolve_missing_capability_via_llm(self, text, ask_llm_func, openai_client_factory=None):
+        """キーワードでどれにも一致しなかった入力を分類します（Ver2.68/2.71）。
 
-        ask_llm_funcが渡されない場合（デフォルト）は、暗黙にQwenを呼び出さずNoneを返し、
-        従来通りlocal_conversationにフォールバックします。既存のtest doubleやチェックは
-        ask_llm_funcを渡さないため、この変更による影響を受けません。
-        LLMの応答が既知のラベルのどれにも一致しない場合、複数一致する場合、呼び出しに
-        失敗した場合も、安全側に倒してNoneを返します（silent misroute防止）。
+        4段階フォールバックのうちの2〜3段目を担います（1段目のキーワード判定はanalyze()側）。
+        まずQwenに1語で分類させ、応答が既知のラベルにきれいに一致しなければ（呼び出し失敗・
+        不一致・複数一致）、OpenAIに同じ分類を依頼します。どちらも失敗すればNoneを返し、
+        呼び出し元は従来通りlocal_conversationにフォールバックします。
+        自己申告の確信度には一切頼らず、「応答が既知のラベルに形式的に一致するか」だけで
+        機械的に判定します（docs/llm_intent_resolver_design.md参照）。
+
+        ask_llm_funcが渡されない場合（デフォルト）は、このフォールバック自体を行わず
+        Noneを返します。既存のtest doubleやチェックはask_llm_funcを渡さないため、
+        この変更による影響を受けません。
         """
         if ask_llm_func is None or not text:
             return None
 
+        qwen_label = self._ask_llm_for_capability_label(text, ask_llm_func)
+
+        if qwen_label is not None:
+            return qwen_label
+
+        return self._ask_openai_for_capability_label(text, openai_client_factory)
+
+    def _ask_llm_for_capability_label(self, text, ask_llm_func):
+        """Qwen（またはask_llm_funcで注入された任意のLLM）に1語で分類させます。"""
         labels = ", ".join(_LLM_CAPABILITY_LABELS)
         prompt = (
             "次のユーザーの発言を読んで、必要そうな能力を1つだけ選んでください。\n"
@@ -545,6 +564,37 @@ class CapabilityManager:
         except Exception:
             return None
 
+        return self._parse_capability_label(response)
+
+    def _ask_openai_for_capability_label(self, text, openai_client_factory):
+        """Qwenでは判定できなかった入力について、OpenAIに同じ分類を依頼します（Ver2.71）。
+
+        予算超過・キー未設定などでOpenAIが使えない場合も、安全側に倒してNoneを返します
+        （呼び出し元がlocal_conversationにフォールバックします）。
+        """
+        from ai.openai_client import ask_openai_text
+
+        labels = ", ".join(_LLM_CAPABILITY_LABELS)
+        prompt = (
+            "次のユーザーの発言を読んで、必要そうな能力を1つだけ選んでください。\n"
+            f"選択肢: {labels}\n"
+            "どれにも当てはまらない、または通常の会話で答えられる場合は none と答えてください。\n"
+            "説明や記号は付けず、必ずこの中の1つの単語だけで答えてください。\n\n"
+            f"発言: {text}"
+        )
+
+        try:
+            response = ask_openai_text(
+                [{"role": "user", "content": prompt}],
+                feature="capability_classification_fallback",
+                client_factory=openai_client_factory,
+            )
+        except Exception:
+            return None
+
+        return self._parse_capability_label(response)
+
+    def _parse_capability_label(self, response):
         normalized = str(response or "").strip()
         matched_labels = [label for label in _MISSING_CAPABILITY_LLM_INFO if label in normalized]
 

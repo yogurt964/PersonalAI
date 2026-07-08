@@ -688,7 +688,10 @@ class PersonalAI:
         # 今のPersonalAIで対応できる入力かを先に判定します。
         # WebやPDFなど未実装の読み取りが必要な場合は、読んだふりをせずここで返答します。
         capability_analysis = self.capability_manager.analyze(
-            user_input, input_analysis, ask_llm_func=getattr(self, "ask_llm_func", None)
+            user_input,
+            input_analysis,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
+            openai_client_factory=getattr(self, "openai_text_client_factory", None),
         )
         self.last_capability_analysis = capability_analysis
 
@@ -762,7 +765,11 @@ class PersonalAI:
         予算超過・キー未設定などでOpenAIが使えない場合は、検索できない旨を正直に伝えます
         （調べたふりはしません）。
         """
-        if not needs_web_search(user_input, ask_llm_func=getattr(self, "ask_llm_func", None)):
+        if not needs_web_search(
+            user_input,
+            ask_llm_func=getattr(self, "ask_llm_func", None),
+            openai_client_factory=getattr(self, "openai_text_client_factory", None),
+        ):
             return None
 
         try:

@@ -205,7 +205,7 @@ def check_personal_ai_wires_ask_llm_func_through():
     )
     failures += check_true(
         "needs_web_search() call passes ask_llm_func",
-        'needs_web_search(user_input, ask_llm_func=getattr(self, "ask_llm_func", None))' in source,
+        "needs_web_search(" in source and 'ask_llm_func=getattr(self, "ask_llm_func", None)' in source,
     )
 
     return failures

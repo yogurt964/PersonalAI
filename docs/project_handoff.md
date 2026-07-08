@@ -6,7 +6,7 @@
 プロジェクト名: PersonalAI
 ローカルパス: C:\AIProject\PersonalAI
 GitHub: https://github.com/yogurt964/PersonalAI.git
-現在バージョン: Ver2.70
+現在バージョン: Ver2.71
 開発環境: Windows / VS Code / PowerShell / Python venv / Git / GitHub / Codex / Ollama Qwen
 ```
 
@@ -199,6 +199,7 @@ Ver2.67: Web検索/回答生成の分離可否を実APIで調査し、実現不�
 Ver2.68: Stage 2実装（ルーティング分類のハイブリッド化: capability_manager/web_search_intent）
 Ver2.69: 不使用コード削除（tool_request_builder.py/tool_flow.py、影響する8チェックを外科的修正）
 Ver2.70: 検証層B実装（通常会話の記憶操作捏造を検出し正直な注記を追加）
+Ver2.71: Stage 2フォールバックを4段階に拡張（キーワード→Qwen→OpenAI→安全な既定値）
 ```
 
 ## 現在の主要ファイル
@@ -1205,6 +1206,30 @@ scripts/check_ver2700.py を追加。
 Ver2.70後の候補:
 
 ```text
+Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
+Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
+```
+
+Ver2.71でStage 2フォールバックを4段階に拡張
+
+```text
+ユーザーとの議論で、Qwenの自己申告確信度は信頼できない（キャリブレーション問題）ことを
+確認した。そのためcapability_manager.py/web_search_intent.pyのLLMフォールバックを、
+「Qwenの応答が既知の形式にきれいに一致するか」という機械的な基準だけで次段階に進むかを
+判定する設計（自己評価には一切頼らない）に拡張した。
+Qwen→（不明瞭・失敗時のみ）OpenAI→（それも失敗時のみ）安全な既定値、の4段階
+（1段目は既存のキーワード判定）。personal_ai.pyからself.openai_text_client_factoryを
+両関数に渡すよう更新した。
+この設計は「形式が不正」なケースは検出できるが、「形式は正しいが中身が間違っている」
+Qwenの回答までは検出できない限界がある。95%以上の精度保証には、Qwenの分類精度を実測する
+ベンチマークが別途必要であることをユーザーと確認した。
+scripts/check_ver2710.py を追加。
+```
+
+Ver2.71後の候補:
+
+```text
+Ver2.x: Qwenの分類精度を実測するベンチマークの作成（95%基準を満たすか検証）
 Ver2.x: 検証層A（内容検証・グラウンディング確認）の実装検討
 Ver2.x: README用スクリーンショット/GIF追加（提出が近づいたタイミングで対応）
 ```

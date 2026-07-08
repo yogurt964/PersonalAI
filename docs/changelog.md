@@ -1,5 +1,30 @@
 # Changelog
 
+## Version 2.71
+
+開始内容:
+
+- Stage 2のルーティング分類フォールバックを、Qwen止まりから「Qwen→OpenAI→安全な既定値」の
+  4段階に拡張
+- ユーザーとの議論で、Qwenの自己申告確信度は信頼できない（キャリブレーション問題）ことを
+  確認した。そのため「Qwenの応答が既知のラベル・yes/noの形式にきれいに一致するか」という
+  機械的な基準だけで次段階に進むかどうかを判定する（自己評価には一切頼らない）設計にした
+- `core/capability_manager.py`の`_resolve_missing_capability_via_llm()`を、
+  `_ask_llm_for_capability_label()`（Qwen）→`_ask_openai_for_capability_label()`（OpenAI、
+  Qwenの応答が不明瞭・失敗の場合のみ）の2段に分割した
+- `core/web_search_intent.py`の`_needs_web_search_via_llm()`も同様に、
+  `_ask_llm_needs_web_search()`→`_ask_openai_needs_web_search()`の2段に分割した
+- どちらも、Qwenの応答が既知の形式にきれいに一致すればそこで確定し、OpenAIへは進まない
+  （無駄なOpenAI呼び出しを避ける）。Qwenの応答が不明瞭・呼び出し失敗の場合のみOpenAIに
+  同じ判定を依頼し、OpenAIも失敗すれば安全側の既定値（local_conversation / 検索不要）に倒す
+- `core/personal_ai.py`から両関数への呼び出しに、`self.openai_text_client_factory`を
+  渡すよう更新した（既存のテキストエスカレーションと同じ注入ポイントを再利用）
+- この設計は「応答が形式的に不正」なケースは検出できるが、「形式は正しいが中身が間違っている」
+  Qwenの回答までは検出できない限界がある。95%以上の精度保証には、実際にQwenの分類精度を
+  計測するベンチマークが別途必要であることをユーザーと確認した
+- `scripts/check_ver2710.py` を追加。実際のOpenAI API呼び出しは一切行わない
+- `scripts/run_ver2_checks.py` に `check_ver2710.py` を追加
+
 ## Version 2.70
 
 開始内容:
