@@ -119,6 +119,8 @@ def diagnose_pipeline(history, memories, question, model=None):
     print("質問:", question, flush=True)
     answer = ai.reply(question)
     print("\n検証後の分類:", json.dumps(asdict(ai.last_decision), ensure_ascii=False))
+    print("応答の役割:", ai.last_decision.response_action,
+          "/ 役割判定の代替使用:", ai.last_decision.action_fallback)
     print("編集処理:", "実行" if len(calls) == 3 else "対象外のため未実行")
     print("最終返答:", answer, flush=True)
     return 0
