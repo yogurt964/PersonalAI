@@ -124,6 +124,10 @@ class ConversationSession:
                     or data.get("memory") not in ("minimal", "normal", "detailed")):
                 raise ValueError("Invalid route")
             recall = data.get("recall_user_fact", False)
+            # Local models may quote JSON booleans even in JSON output mode.
+            # Never use bool(recall): bool("false") would incorrectly be True.
+            if isinstance(recall, str) and recall.strip().lower() in ("true", "false"):
+                recall = recall.strip().lower() == "true"
             evidence = data.get("evidence", [])
             if not isinstance(recall, bool) or not isinstance(evidence, list):
                 raise ValueError("Invalid recall route")
