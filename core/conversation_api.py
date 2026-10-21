@@ -65,8 +65,12 @@ def make_client():
 
 class ApiTrialSession:
     """Never reads legacy conversations/memories or saves trial conversations."""
-    def __init__(self, approved_budget, *, client_factory=None, policy_path=POLICY_PATH):
+    def __init__(self, approved_budget, *, client_factory=None, policy_path=POLICY_PATH,
+                 mode="fast", router=None):
         self.budget = validate_budget(approved_budget)
+        self.set_mode(mode)
+        self._router = router
+        self.last_choice = None
         self.spent = Decimal(0)
         self.history = []
         self.preference = ""
@@ -86,6 +90,19 @@ class ApiTrialSession:
             raise PreflightError("試用中の好みは2000文字以内にしてください。")
         self.preference = text
 
+    def set_mode(self, mode):
+        if mode not in ("auto", "fast", "deep"):
+            raise PreflightError("modeはauto / fast / deepです。")
+        self.mode = mode
+
+    def _choose_reasoning(self, history, user):
+        from core.conversation_reasoning import LocalReasoningRouter, ReasoningChoice
+        if self.mode != "auto":
+            return ReasoningChoice("manual", "manual", "high" if self.mode == "deep" else "low")
+        if self._router is None:
+            self._router = LocalReasoningRouter()
+        return self._router.classify(history, user)
+
     def reply(self, user):
         if self.failed:
             raise PreflightError("エラー後のセッションは停止しています。")
@@ -100,10 +117,12 @@ class ApiTrialSession:
         system += "\n\n" + self.capabilities
         if memory_context:
             system += "\n\n" + memory_context
+        self.last_choice = self._choose_reasoning(history, user)
         request = {
             "model": "gpt-6.1-sol", "instructions": system,
             "input": [*history, {"role": "user", "content": user}],
-            "reasoning": {"effort": "low"}, "max_output_tokens": MAX_OUTPUT_TOKENS,
+            "reasoning": {"effort": self.last_choice.effort},
+            "max_output_tokens": MAX_OUTPUT_TOKENS if self.last_choice.effort == "low" else 4096,
             "store": False, "service_tier": "default",
         }
         reserve = estimate_reserve(request)
@@ -157,6 +176,7 @@ class SavedApiSession(ApiTrialSession):
     def __init__(self, approved_budget, *, allow_saved_context=False, store=None, **kwargs):
         if allow_saved_context is not True:
             raise PreflightError("保存済みの会話履歴・長期記憶をAPIへ送る承認が必要です。")
+        kwargs.setdefault("mode", "fast")
         super().__init__(approved_budget, **kwargs)
         from core.conversation_session import LegacyStore
         self.store = store if store is not None else LegacyStore()
