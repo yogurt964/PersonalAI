@@ -192,6 +192,13 @@ MINIMAL_CHAT_PROMPT = """あなたは自然な日本語で話す会話相手で�
 返答本文だけを出してください。"""
 
 
+def minimal_messages(history, preferences, question):
+    system = (MINIMAL_CHAT_PROMPT + "\n\n【参考：ユーザーの会話の好み】\n"
+              + json.dumps(preferences, ensure_ascii=False))
+    return [{"role": "system", "content": system}, *history,
+            {"role": "user", "content": question}]
+
+
 def run_minimal_chat(client, selected_cases=None):
     """Compare a compact, single-call chat using only synthetic scenario data."""
     print("短い方針による1回生成の比較。架空データのみ。実DBは読み書きしません。", flush=True)
@@ -203,13 +210,7 @@ def run_minimal_chat(client, selected_cases=None):
         print(f"\n=== {name} ===", flush=True)
         print("確認点:", criterion, flush=True)
         print("仮の好み:", preferences or "登録なし", flush=True)
-        system = (MINIMAL_CHAT_PROMPT + "\n\n【参考：ユーザーの会話の好み】\n"
-                  + json.dumps(preferences, ensure_ascii=False))
-        messages = [
-            {"role": "system", "content": system},
-            *history,
-            {"role": "user", "content": question},
-        ]
+        messages = minimal_messages(history, preferences, question)
         print("質問:", question, flush=True)
         for think in (False, True):
             started = perf_counter()
