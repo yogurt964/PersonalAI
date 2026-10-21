@@ -285,6 +285,29 @@ class ConversationTests(unittest.TestCase):
         self.assertEqual(ai.last_decision.response_action, "answer")
         self.assertEqual(len(model.calls), 2)
 
+    def test_diagnostic_reasoning_probe_covers_all_stages_and_selects_cases(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from scripts.diagnose_conversation_context import run_adaptation_scenarios
+        models = []
+        def factory():
+            model = Model({"importance": "low", "complexity": "low", "memory": "normal",
+                           "response_action": "listen"})
+            models.append(model)
+            return model
+        output = StringIO()
+        with patch("sqlite3.connect", side_effect=AssertionError("DB must not open")):
+            with redirect_stdout(output):
+                run_adaptation_scenarios(factory, force_think=True, selected_cases=[2, 4])
+        self.assertEqual(len(models), 2)
+        for model in models:
+            self.assertEqual(len(model.calls), 3)
+            self.assertTrue(all(options["think"] for messages, options in model.calls))
+        self.assertEqual(output.getvalue().count("/ think=True /"), 6)
+        self.assertNotIn("=== 1:", output.getvalue())
+        self.assertNotIn("=== 3:", output.getvalue())
+        self.assertEqual(self.store.history(), [])
+
     def test_failed_edit_does_not_save_draft(self):
         class FailedEditor(Model):
             def __call__(self, messages, **kwargs):
