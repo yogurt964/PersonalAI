@@ -70,10 +70,10 @@ class Decision:
 
 
 class LocalModel:
-    def __init__(self):
+    def __init__(self, *, timeout=180):
         from ollama import Client
         # Deliberately local, irrespective of OLLAMA_HOST environment settings.
-        self.client = Client(host="http://127.0.0.1:11434", timeout=180, trust_env=False)
+        self.client = Client(host="http://127.0.0.1:11434", timeout=timeout, trust_env=False)
 
     def __call__(self, messages, *, think=False, json_mode=False):
         options = {"format": "json"} if json_mode else {}
