@@ -193,6 +193,27 @@ class ConversationTests(unittest.TestCase):
         self.assertEqual(payload["draft_reply"], draft)
         self.assertNotIn("過去のAIの話し方", str(model.calls[-1][0]))
 
+    def test_editor_gets_individual_preference_and_current_request(self):
+        from database.memory_manager import set_memory_active
+        for preference in ("会話では関心を示してほしい", "会話では質問を少なめにしてほしい"):
+            with self.subTest(preference=preference):
+                self.assertTrue(self.store.remember(preference))
+                self.store.save_turn("明日は忙しい", "明日は混みそうなの？")
+                model = Model()
+                current = "今日は質問せず聞いてほしい"
+                ConversationSession(model=model).reply(current)
+                messages = model.calls[-1][0]
+                self.assertIn(preference, messages[0]["content"])
+                payload = json.loads(messages[-1]["content"])
+                self.assertEqual(payload["user_message"], current)
+                self.assertTrue(payload["recent_reply_had_question"])
+                self.assertNotIn("明日は混みそうなの？", str(messages))
+                for memory in self.store.memories():
+                    set_memory_active(memory.id, False)
+                model = Model()
+                ConversationSession(model=model).reply("今日は楽だった")
+                self.assertNotIn(preference, model.calls[-1][0][0]["content"])
+
     def test_failed_edit_does_not_save_draft(self):
         class FailedEditor(Model):
             def __call__(self, messages, **kwargs):
