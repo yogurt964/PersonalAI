@@ -101,6 +101,8 @@ Claude Code should start from `CLAUDE.md`.
 
 ## Reporting
 
+At meaningful checkpoints, report completion even when no user action is needed, and leave room for questions and alignment. If the user cannot access their PC, finish implementation and offline checks without requesting immediate PC tests.
+
 Report behavior and results to the user, not long code diffs.
 Focus on what changed, what now works, checks run, commit hash, git status, and what the user should try.
 
