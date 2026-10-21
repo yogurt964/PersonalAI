@@ -214,6 +214,32 @@ class ConversationTests(unittest.TestCase):
                 ConversationSession(model=model).reply("今日は楽だった")
                 self.assertNotIn(preference, model.calls[-1][0][0]["content"])
 
+    def test_scene_suite_isolates_users_and_never_opens_real_database(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from scripts.diagnose_conversation_context import run_adaptation_scenarios
+        models = []
+        def factory():
+            model = Model()
+            models.append(model)
+            return model
+        with patch("sqlite3.connect", side_effect=AssertionError("DB must not open")):
+            with redirect_stdout(StringIO()):
+                self.assertEqual(run_adaptation_scenarios(factory), 0)
+        self.assertEqual(len(models), 6)
+        self.assertTrue(all(len(model.calls) == 3 for model in models))
+        interested = "会話では、私の話に関心を示す返しが好き。"
+        quiet = "会話では、こちらから求めない限り質問は控えめにしてほしい。"
+        self.assertNotIn(interested, str(models[0].calls))
+        self.assertNotIn(quiet, str(models[0].calls))
+        self.assertIn(interested, str(models[1].calls))
+        self.assertNotIn(quiet, str(models[1].calls))
+        self.assertIn(quiet, str(models[2].calls))
+        self.assertNotIn(interested, str(models[2].calls))
+        payload = json.loads(models[4].calls[-1][0][-1]["content"])
+        self.assertTrue(payload["recent_reply_had_question"])
+        self.assertEqual(self.store.history(), [])
+
     def test_failed_edit_does_not_save_draft(self):
         class FailedEditor(Model):
             def __call__(self, messages, **kwargs):
