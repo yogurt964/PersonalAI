@@ -1,5 +1,14 @@
 # Project Handoff
 
+## 会話優先プロトタイプ（2026-10-22）
+
+既存Ver2.75とは別の試作名「会話版Ver0.1」を追加。
+`conversation_app.py` から起動する。仕様・再利用箇所・検証・制限は
+`docs/conversation_v01.md`。日本語の人格・会話方針は
+`config/conversation_policy.md`。既存 `app.py` の動作は変更していない。
+会話版はローカルQwenの推論切替と既存DBの履歴・記憶を使う。
+実機での会話品質・速度確認は未実施。
+
 ## プロジェクト概要
 
 ```text
