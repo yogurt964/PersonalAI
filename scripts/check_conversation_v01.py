@@ -308,6 +308,35 @@ class ConversationTests(unittest.TestCase):
         self.assertNotIn("=== 3:", output.getvalue())
         self.assertEqual(self.store.history(), [])
 
+    def test_minimal_comparison_preserves_roles_and_varies_only_thinking_per_case(self):
+        from contextlib import redirect_stdout
+        from io import StringIO
+        from types import SimpleNamespace
+        from scripts.diagnose_conversation_context import run_minimal_chat
+        class Client:
+            def __init__(self): self.calls = []
+            def chat(self, **kwargs):
+                self.calls.append(kwargs)
+                return SimpleNamespace(message=SimpleNamespace(content="試験の返答"))
+        client = Client()
+        with patch("sqlite3.connect", side_effect=AssertionError("DB must not open")):
+            with redirect_stdout(StringIO()):
+                run_minimal_chat(client, selected_cases=[2, 4])
+        self.assertEqual(len(client.calls), 4)
+        for offset in (0, 2):
+            fast, deep = client.calls[offset:offset + 2]
+            self.assertFalse(fast["think"])
+            self.assertTrue(deep["think"])
+            self.assertEqual(fast["messages"], deep["messages"])
+            self.assertEqual(fast["options"], deep["options"])
+            self.assertEqual([m["role"] for m in fast["messages"]],
+                             ["system", "user", "assistant", "user"])
+            self.assertIn("私の話に関心を示す返しが好き", fast["messages"][0]["content"])
+            self.assertNotIn("draft_reply", str(fast["messages"]))
+        self.assertNotIn("質問せずに聞いて", str(client.calls[0]["messages"]))
+        self.assertIn("質問せずに聞いて", client.calls[2]["messages"][-1]["content"])
+        self.assertEqual(self.store.history(), [])
+
     def test_failed_edit_does_not_save_draft(self):
         class FailedEditor(Model):
             def __call__(self, messages, **kwargs):
