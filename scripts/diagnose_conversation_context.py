@@ -183,6 +183,45 @@ def adaptation_scenarios():
            [], [interested], "3×4はいくつ？答えだけ教えて。")
 
 
+MINIMAL_CHAT_PROMPT = """あなたは自然な日本語で話す会話相手です。
+今の発言を、それまでの会話の続きとして受け止めて返してください。
+ユーザーの好みを参考にし、今の希望を優先してください。
+関心を示す返しが好きなら、話題に沿う具体的な関心を示してください。
+質問は自然なときに1つまで。聞いてほしいだけなら質問せず受け止めてください。
+知らない事情を作らず、同じ言葉の繰り返しや、頼まれていない助言・締めの言葉を避けてください。
+返答本文だけを出してください。"""
+
+
+def run_minimal_chat(client, selected_cases=None):
+    """Compare a compact, single-call chat using only synthetic scenario data."""
+    print("短い方針による1回生成の比較。架空データのみ。実DBは読み書きしません。", flush=True)
+    print("分類・編集・通常の長い会話方針を通さず、think=False/Trueを比較します。", flush=True)
+    print("これは構成全体の比較であり、単一要因の原因特定ではありません。", flush=True)
+    for index, (name, criterion, history, preferences, question) in enumerate(adaptation_scenarios(), 1):
+        if selected_cases is not None and index not in selected_cases:
+            continue
+        print(f"\n=== {name} ===", flush=True)
+        print("確認点:", criterion, flush=True)
+        print("仮の好み:", preferences or "登録なし", flush=True)
+        system = (MINIMAL_CHAT_PROMPT + "\n\n【参考：ユーザーの会話の好み】\n"
+                  + json.dumps(preferences, ensure_ascii=False))
+        messages = [
+            {"role": "system", "content": system},
+            *history,
+            {"role": "user", "content": question},
+        ]
+        print("質問:", question, flush=True)
+        for think in (False, True):
+            started = perf_counter()
+            result = client.chat(model="qwen3:8b", messages=messages, think=think,
+                                 options={"seed": 42, "num_ctx": 4096})
+            print(f"\n1回生成 / think={think} / 秒数={perf_counter() - started:.2f}", flush=True)
+            print("返答:", result.message.content, flush=True)
+            print("入力トークン数:", getattr(result, "prompt_eval_count", None),
+                  "/ 推論文字数:", len(getattr(result.message, "thinking", "") or ""), flush=True)
+    return 0
+
+
 class ReasoningProbe:
     """Diagnostic-only override; leave production routing and saving untouched."""
     force_think = True
@@ -224,10 +263,12 @@ def main():
     parser.add_argument("--question", default="俺が疲れた理由覚えてる？")
     parser.add_argument("--cases", nargs="+", choices=list("ABCDE"), default=list("ADE"))
     parser.add_argument("--scenario-cases", nargs="+", type=int, choices=range(1, 7),
-                        help="--scenariosで実行する条件の番号（省略時は全6件）")
+                        help="--scenarios/--minimal-chatで実行する条件の番号（省略時は全6件）")
     parser.add_argument("--scenario-reasoning", choices=("default", "all"), default="default",
                         help="--scenarios限定。allは診断の全呼び出しをthink=Trueにする")
     modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--minimal-chat", action="store_true",
+                       help="架空の会話で短い方針による1回生成をthink=False/Trueで比較")
     modes.add_argument("--scenarios", action="store_true",
                        help="実DBを使わず、架空のユーザー・場面6件をまとめて比較")
     modes.add_argument("--compare-style", action="store_true",
@@ -235,8 +276,14 @@ def main():
     modes.add_argument("--pipeline", action="store_true",
                         help="実際の分類・生成・編集を保存せずに追跡する")
     args = parser.parse_args()
-    if not args.scenarios and (args.scenario_cases is not None or args.scenario_reasoning != "default"):
-        parser.error("--scenario-casesと--scenario-reasoningは--scenariosと併用してください")
+    if args.scenario_cases is not None and not (args.scenarios or args.minimal_chat):
+        parser.error("--scenario-casesは--scenariosか--minimal-chatと併用してください")
+    if args.scenario_reasoning != "default" and not args.scenarios:
+        parser.error("--scenario-reasoningは--scenariosと併用してください")
+    if args.minimal_chat:
+        from ollama import Client
+        client = Client(host="http://127.0.0.1:11434", timeout=180, trust_env=False)
+        return run_minimal_chat(client, selected_cases=args.scenario_cases)
     if args.scenarios:
         return run_adaptation_scenarios(
             force_think=args.scenario_reasoning == "all", selected_cases=args.scenario_cases)
