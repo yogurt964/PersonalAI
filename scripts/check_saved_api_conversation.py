@@ -39,7 +39,7 @@ class SavedConversationTests(unittest.TestCase):
 
     def session(self, client):
         return SavedApiSession("0.25", allow_saved_context=True, store=self.store,
-                               client_factory=lambda: client)
+                               client_factory=lambda: client, mode="fast")
 
     def test_consent_and_preview_gate_database_and_credentials(self):
         store = Mock()
