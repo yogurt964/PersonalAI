@@ -75,10 +75,10 @@ class ConversationTests(unittest.TestCase):
         self.assertTrue(self.store.remember("好きな色は青"))
         model = Model({"importance": "low", "complexity": "low", "memory": "detailed"})
         ConversationSession(model=model).reply("好きな色を覚えてる？")
-        self.assertIn("好きな色は青", model.calls[-1][0][2]["content"])
+        self.assertIn("好きな色は青", model.calls[-1][0][0]["content"])
         set_memory_active(self.store.memories()[0].id, False)
         ConversationSession(model=model).reply("覚えてる？")
-        self.assertNotIn("好きな色は青", model.calls[-1][0][2]["content"])
+        self.assertNotIn("好きな色は青", model.calls[-1][0][0]["content"])
 
     def test_manual_override_and_policy_reload(self):
         policy = Path(self.tmp.name) / "policy.md"
@@ -89,8 +89,24 @@ class ConversationTests(unittest.TestCase):
         self.assertTrue(model.calls[-1][1]["think"])
         policy.write_text("詳しく答える", encoding="utf-8")
         ai.reply("こんにちは", mode="fast")
-        self.assertEqual(model.calls[-1][0][0]["content"], "詳しく答える")
+        self.assertIn("詳しく答える", model.calls[-1][0][0]["content"])
+        self.assertNotIn("短く答える", model.calls[-1][0][0]["content"])
         self.assertFalse(model.calls[-1][1]["think"])
+
+    def test_single_system_preserves_policy_memory_and_boundaries(self):
+        from core.conversation_session import BOUNDARY
+        model = Model()
+        self.store.save_turn("バイトが忙しかった", "どんなバイトだったの？")
+        ai = ConversationSession(model=model)
+        ai.reply("疲れた理由を覚えてる？")
+        messages = model.calls[-1][0]
+        systems = [m for m in messages if m["role"] == "system"]
+        self.assertEqual(len(systems), 1)
+        self.assertIn(BOUNDARY, systems[0]["content"])
+        self.assertIn(ai.policy_path.read_text(encoding="utf-8"), systems[0]["content"])
+        self.assertIn("【長期記憶】", systems[0]["content"])
+        self.assertEqual(messages[-1]["content"], "疲れた理由を覚えてる？")
+        self.assertEqual(messages[1]["content"], "バイトが忙しかった")
 
     def test_context_limits_and_invalid_input(self):
         history = [{"role": "user", "content": "a" * 1000}] * 100
