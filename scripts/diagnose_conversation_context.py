@@ -109,7 +109,8 @@ def diagnose_pipeline(history, memories, question, model=None):
         calls.append(label)
         started = perf_counter()
         output = underlying(messages, **kwargs)
-        print(f"\n{label} / think={kwargs.get('think')} / "
+        effective_think = bool(kwargs.get("think") or getattr(underlying, "force_think", False))
+        print(f"\n{label} / think={effective_think} / "
               f"秒数={perf_counter() - started:.2f}", flush=True)
         print(output, flush=True)
         return output
@@ -182,13 +183,27 @@ def adaptation_scenarios():
            [], [interested], "3×4はいくつ？答えだけ教えて。")
 
 
-def run_adaptation_scenarios(model_factory=None):
+class ReasoningProbe:
+    """Diagnostic-only override; leave production routing and saving untouched."""
+    force_think = True
+
+    def __init__(self, model):
+        self.model = model
+
+    def __call__(self, messages, **kwargs):
+        return self.model(messages, **{**kwargs, "think": True})
+
+
+def run_adaptation_scenarios(model_factory=None, *, force_think=False, selected_cases=None):
     factory = model_factory if model_factory is not None else LocalModel
     print("場面別の比較：架空の会話・好みだけを使用。実DBは読み書きしません。", flush=True)
     print("共通の適応ルールと個人の好みを分けて確認します。品質の合否は自動判定しません。", flush=True)
     policy = POLICY_PATH.read_text(encoding="utf-8")
     print("方針SHA256:", hashlib.sha256(policy.encode()).hexdigest()[:12], flush=True)
-    for name, criterion, history, preferences, question in adaptation_scenarios():
+    print("推論設定:", "診断中の全呼び出しをthink=True" if force_think else "通常のauto判定", flush=True)
+    for index, (name, criterion, history, preferences, question) in enumerate(adaptation_scenarios(), 1):
+        if selected_cases is not None and index not in selected_cases:
+            continue
         print(f"\n=== {name} ===", flush=True)
         print("確認点:", criterion, flush=True)
         print("仮の好み:", preferences or "登録なし", flush=True)
@@ -197,7 +212,10 @@ def run_adaptation_scenarios(model_factory=None):
             importance=5, confidence=100, created_at="", updated_at="",
         ) for content in preferences]
         # A new session and store per case; generated replies never carry over.
-        diagnose_pipeline(history, memories, question, model=factory())
+        model = factory()
+        if force_think:
+            model = ReasoningProbe(model)
+        diagnose_pipeline(history, memories, question, model=model)
     return 0
 
 
@@ -205,6 +223,10 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--question", default="俺が疲れた理由覚えてる？")
     parser.add_argument("--cases", nargs="+", choices=list("ABCDE"), default=list("ADE"))
+    parser.add_argument("--scenario-cases", nargs="+", type=int, choices=range(1, 7),
+                        help="--scenariosで実行する条件の番号（省略時は全6件）")
+    parser.add_argument("--scenario-reasoning", choices=("default", "all"), default="default",
+                        help="--scenarios限定。allは診断の全呼び出しをthink=Trueにする")
     modes = parser.add_mutually_exclusive_group()
     modes.add_argument("--scenarios", action="store_true",
                        help="実DBを使わず、架空のユーザー・場面6件をまとめて比較")
@@ -213,8 +235,11 @@ def main():
     modes.add_argument("--pipeline", action="store_true",
                         help="実際の分類・生成・編集を保存せずに追跡する")
     args = parser.parse_args()
+    if not args.scenarios and (args.scenario_cases is not None or args.scenario_reasoning != "default"):
+        parser.error("--scenario-casesと--scenario-reasoningは--scenariosと併用してください")
     if args.scenarios:
-        return run_adaptation_scenarios()
+        return run_adaptation_scenarios(
+            force_think=args.scenario_reasoning == "all", selected_cases=args.scenario_cases)
     history, memories = read_snapshot(ROOT / "data" / "personal_ai.db")
     policy = POLICY_PATH.read_text(encoding="utf-8")
     from ollama import Client
