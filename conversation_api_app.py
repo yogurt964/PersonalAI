@@ -11,6 +11,7 @@ def main(argv=None):
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--allow-saved-context", action="store_true")
     parser.add_argument("--approved-budget-usd")
+    parser.add_argument("--mode", choices=("auto", "fast", "deep"), default="fast")
     args = parser.parse_args(argv)
     if not args.execute:
         print("API会話版の確認画面。API呼び出しやDBへのアクセスは行いません。")
@@ -19,7 +20,8 @@ def main(argv=None):
         print("会話の成功した入力・返答は既存DBへ保存し、/rememberで明示した長期記憶を保存します。")
         return 0
     try:
-        ai = SavedApiSession(args.approved_budget_usd, allow_saved_context=args.allow_saved_context)
+        ai = SavedApiSession(args.approved_budget_usd, allow_saved_context=args.allow_saved_context,
+                             mode=args.mode)
     except PreflightError as error:
         print(error)
         return 1
@@ -28,6 +30,7 @@ def main(argv=None):
         print("既存DBが見つかりません。DBは作成・初期化していません。")
         return 1
     print("PersonalAI API会話版0.1候補 / gpt-6.1-sol / 終了: /exit / 予算: /budget")
+    print(f"推論: {ai.mode} / 切替: /mode auto|fast|deep / 直前の判定: /route")
     print("保存済みの会話履歴・長期記憶と新しい会話をOpenAI APIへ送信します。")
     print("記憶保存: /remember 内容 / 一覧: /memories / 今回の好み: /preference 内容")
     print(f"今回予算: ${ai.budget:.2f}（見積額で制御。API側の厳密な請求上限ではありません）")
@@ -42,7 +45,19 @@ def main(argv=None):
                 print(f"使用額の見積: ${ai.spent:.4f} / 残り: ${ai.remaining:.4f}")
                 continue
             try:
-                if user.startswith("/preference "):
+                if user.startswith("/mode "):
+                    ai.set_mode(user[len("/mode "):].strip())
+                    print(f"推論: {ai.mode}")
+                elif user == "/route":
+                    if ai.last_choice is None:
+                        print("まだ応答していません。")
+                    else:
+                        route = ai.last_choice
+                        print(f"importance={route.importance} / complexity={route.complexity} / "
+                              f"effort={route.effort} / fallback={route.fallback}")
+                        if route.error_kind:
+                            print(f"ローカル分類のエラー: {route.error_kind}。mediumを選択しました。")
+                elif user.startswith("/preference "):
                     ai.set_preference(user[len("/preference "):])
                     print("この起動中の好みを設定しました。次の発言からAPIにも渡します。")
                 elif user.startswith("/remember "):
@@ -55,7 +70,7 @@ def main(argv=None):
                     if not memories:
                         print("有効な記憶はありません。")
                 elif user.startswith("/"):
-                    print("コマンド: /exit /budget /remember 内容 /memories /preference 内容")
+                    print("コマンド: /exit /budget /mode auto|fast|deep /route /remember 内容 /memories /preference 内容")
                 else:
                     print("PersonalAI > " + ai.reply(user))
             except PreflightError as error:
