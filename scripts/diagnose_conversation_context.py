@@ -17,7 +17,8 @@ ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT))
 
 from ai.memory_context import build_memory_context
-from core.conversation_session import BOUNDARY, POLICY_PATH, bounded_history
+from core.conversation_session import (BOUNDARY, POLICY_PATH, bounded_history,
+                                       ConversationSession, LocalModel)
 
 
 def read_snapshot(path):
@@ -84,10 +85,51 @@ def cases_basic(history, memories, policy, question):
     ]
 
 
+def diagnose_pipeline(history, memories, question, model=None):
+    """Run the actual reply path with a read-only snapshot and a no-op saver."""
+    from dataclasses import asdict
+
+    class SnapshotStore:
+        def history(self):
+            return history
+
+        def memories(self):
+            return memories
+
+        def save_turn(self, user, assistant):
+            # No database service is called, even after a successful answer.
+            pass
+
+    underlying = model if model is not None else LocalModel()
+    calls = []
+
+    def traced(messages, **kwargs):
+        label = ("分類の生出力" if kwargs.get("json_mode") else
+                 "編集前の返答" if len(calls) == 1 else "編集後の返答")
+        calls.append(label)
+        started = perf_counter()
+        output = underlying(messages, **kwargs)
+        print(f"\n{label} / think={kwargs.get('think')} / "
+              f"秒数={perf_counter() - started:.2f}", flush=True)
+        print(output, flush=True)
+        return output
+
+    ai = ConversationSession(store=SnapshotStore(), model=traced)
+    print("実際の会話処理をautoモードで診断します。", flush=True)
+    print("質問:", question, flush=True)
+    answer = ai.reply(question)
+    print("\n検証後の分類:", json.dumps(asdict(ai.last_decision), ensure_ascii=False))
+    print("編集処理:", "実行" if len(calls) == 3 else "対象外のため未実行")
+    print("最終返答:", answer, flush=True)
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--question", default="俺が疲れた理由覚えてる？")
     parser.add_argument("--cases", nargs="+", choices=list("ABCDE"), default=list("ADE"))
+    parser.add_argument("--pipeline", action="store_true",
+                        help="実際の分類・生成・編集を保存せずに追跡する")
     args = parser.parse_args()
     history, memories = read_snapshot(ROOT / "data" / "personal_ai.db")
     policy = POLICY_PATH.read_text(encoding="utf-8")
@@ -96,6 +138,8 @@ def main():
     print("ローカル診断：DBは読み取り専用。診断の返答は保存しません。", flush=True)
     print(f"履歴={len(history)}件 / 長期記憶={len(memories)}件 / "
           f"方針SHA256={hashlib.sha256(policy.encode()).hexdigest()[:12]}")
+    if args.pipeline:
+        return diagnose_pipeline(history, memories, args.question)
     print(f"共通条件: think=True / seed=42 / memory=detailed / 質問={args.question}")
     for name, messages in cases(history, memories, policy, args.question):
         if name[0] not in args.cases:
