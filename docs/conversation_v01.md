@@ -190,3 +190,40 @@ JSON真偽値に加え、文字列のtrue/falseのみ明示的に正規化する
 
 各条件でthink=False/Trueを1回ずつ比較する。通常の長い会話方針・役割分類・編集を通さない構成全体の比較であり、特定の要因を単独で切り分ける実験ではない。同一条件内ではmessages・seed・num_ctxを揃える。実DBは読み書きせず、通常アプリの処理も変更しない。
 この短い方針は能力制約や記憶確認等を網羅する製品用の方針ではなく、日常会話の診断専用。結果を見てから簡素化する範囲やモデル評価を判断する。
+
+### 短い1回生成の実機結果とAPI比較の準備（有料実行は未承認）
+
+短い構成の条件2では、think=Falseが「張り切らないと」と促し、think=Trueが手伝いの申し出になった。条件4はthink=Falseで「今日はおやすみ」と未知の事情を補い、think=Trueで相談への誘いに戻った。この比較でも求める自然さ・適応精度に達していない。同じモデルへの指示調整は区切り、モデル間の差を評価する。
+
+`compare_conversation_engines.py` を追加。既存のキー取得処理と架空の6条件を再利用し、ローカルの短い1回生成と同じ会話方針・履歴・好みをOpenAI APIの2候補へ渡す。候補は低コスト側の `gpt-6-luna` と、複雑な仕事向けの `gpt-6.1-sol`。自然な日本語会話でどちらが適するかは実測して判断する。Responses API、reasoning=low、通常の処理枠、各条件1リクエスト、合計12リクエスト。モデル差の診断専用であり、通常会話や自動エスカレーションには接続しない。
+
+事前表示（無料・キー不要）:
+
+```powershell
+.\venv\Scripts\python.exe scripts\compare_conversation_engines.py
+```
+
+送信予定の架空データ・モデル・出力上限・予算用の見積額を表示する。実DBやユーザーのファイル・会話・長期記憶は読まない。実行時も診断結果やAPI使用額を実DBへ記録しない。
+
+有料実行はユーザーが今回予算と架空データの送信を承認した後だけ行う。
+
+```powershell
+# 承認後のみ実行。0.50は今回の実験予算で、月間予算の設定ではない。
+.\venv\Scripts\python.exe scripts\compare_conversation_engines.py --execute --approved-budget-usd 0.50
+```
+
+- 実行前に全リクエストの見積額が今回予算以下か確認する。今回予算の指定なし、非正数・非有限値、0.50 USD超、見積額不足の場合はAPIクライアントを作らない。
+- 2026-10-22確認の公式料金に対し安全側の単価と入力トークンの余裕を用い、出力上限2048トークン（推論含む）で計算。全6条件×2モデルの見積額は約0.332 USD。これはトークナイザーによる厳密な計数やAPI側の請求上限ではなく、実請求額は使用量・料金で変動する。将来再実行する前には単価を確認する。
+- 公式APIエンドポイントだけを使い、キーは既存の `get_api_key()` で取得する。値を表示しない。SDKの自動再試行を無効にし、失敗・未完了・空回答時は停止する。APIキーをこのチャットに貼り付ける必要はない。
+- `store=False`、ツール呼び出しなし。store=FalseはAPIの応答状態保存を無効にする指定であり、ゼロデータ保持の契約を意味しない。
+- 上記の予算は1回の実行に対する診断用で、既存の月間利用額管理とは別。再実行分は別途費用がかかる。
+
+オフライン確認: `python -B scripts/check_conversation_engine_comparison.py`。事前表示・予算拒否でキー/APIに触れないこと、同じ入力の受け渡し、出力上限、失敗・未完了時の停止をfake clientで検証する。SDK/API実機の接続とモデル品質は未確認。
+
+参照（2026-10-22）:
+- https://developers.openai.com/api/docs/models/gpt-6-luna
+- https://developers.openai.com/api/docs/models/gpt-6.1-sol
+- https://developers.openai.com/api/docs/pricing
+- https://developers.openai.com/api/docs/guides/text
+- https://developers.openai.com/api/docs/guides/reasoning
+- https://developers.openai.com/api/docs/guides/migrate-to-responses
