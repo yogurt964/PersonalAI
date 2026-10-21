@@ -119,11 +119,17 @@ class ConversationSession:
         decision = self.decide(history, user)
         self.last_decision = decision
         think = decision.think if mode == "auto" else mode == "deep"
+        # Keep all instructions together; do not depend on a model template's
+        # handling of multiple consecutive system messages.
+        memory_context = build_memory_context(
+            self.store.memories(), memory_usage=decision.memory)
+        system_prompt = "\n\n".join((
+            BOUNDARY,
+            memory_context,
+            "【今回の返答に適用する会話方針】\n" + policy,
+        ))
         messages = [
-            {"role": "system", "content": policy},
-            {"role": "system", "content": BOUNDARY},
-            {"role": "system", "content": build_memory_context(
-                self.store.memories(), memory_usage=decision.memory)},
+            {"role": "system", "content": system_prompt},
             *history,
             {"role": "user", "content": user},
         ]
