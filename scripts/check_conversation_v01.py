@@ -108,6 +108,30 @@ class ConversationTests(unittest.TestCase):
         self.assertEqual(messages[-1]["content"], "疲れた理由を覚えてる？")
         self.assertEqual(messages[1]["content"], "バイトが忙しかった")
 
+    def test_recall_uses_only_verified_user_evidence(self):
+        self.store.save_turn("バイトが忙しかった", "睡眠不足だったんだね")
+        model = Model({"importance": "low", "complexity": "low", "memory": "detailed",
+                       "recall_user_fact": True,
+                       "evidence": ["睡眠不足だったんだね", "架空の発言", "バイトが忙しかった"]})
+        ai = ConversationSession(model=model)
+        ai.reply("疲れた理由覚えてる？")
+        self.assertEqual(ai.last_decision.evidence, ("バイトが忙しかった",))
+        messages = model.calls[-1][0]
+        self.assertEqual([m["role"] for m in messages], ["system", "user"])
+        self.assertIn("バイトが忙しかった", messages[0]["content"])
+        self.assertNotIn("睡眠不足だったんだね", messages[0]["content"])
+        self.assertNotIn("架空の発言", messages[0]["content"])
+
+    def test_recall_without_evidence_does_not_replay_assistant(self):
+        self.store.save_turn("こんにちは", "あなたはパン屋で働いている")
+        model = Model({"importance": "low", "complexity": "low", "memory": "detailed",
+                       "recall_user_fact": True, "evidence": []})
+        ai = ConversationSession(model=model)
+        ai.reply("俺のバイト覚えてる？")
+        self.assertEqual(ai.last_decision.evidence, ())
+        self.assertNotIn("パン屋", str(model.calls[-1][0]))
+        self.assertIn("根拠が不足", model.calls[-1][0][0]["content"])
+
     def test_context_limits_and_invalid_input(self):
         history = [{"role": "user", "content": "a" * 1000}] * 100
         self.assertEqual(len(bounded_history(history)), 16)
