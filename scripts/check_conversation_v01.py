@@ -240,6 +240,51 @@ class ConversationTests(unittest.TestCase):
         self.assertTrue(payload["recent_reply_had_question"])
         self.assertEqual(self.store.history(), [])
 
+    def test_response_action_is_used_by_generator_and_editor(self):
+        from core.conversation_session import RESPONSE_ACTIONS
+        for action in ("ask", "react", "listen", "answer", "close"):
+            with self.subTest(action=action):
+                model = Model({"importance": "low", "complexity": "low", "memory": "normal",
+                               "response_action": action})
+                ai = ConversationSession(model=model)
+                ai.reply("今の話の続き")
+                self.assertEqual(ai.last_decision.response_action, action)
+                self.assertFalse(ai.last_decision.action_fallback)
+                for messages, options in model.calls[1:]:
+                    self.assertIn(RESPONSE_ACTIONS[action], messages[0]["content"])
+
+    def test_planner_gets_active_preference_even_before_minimal_memory_decision(self):
+        from database.memory_manager import set_memory_active
+        preference = "会話では関心を示す返しが好き"
+        self.store.remember(preference)
+        model = Model({"importance": "low", "complexity": "low", "memory": "minimal",
+                       "response_action": "answer"})
+        ConversationSession(model=model).reply("3×4は？答えだけ")
+        self.assertIn(preference, model.calls[0][0][0]["content"])
+        self.assertNotIn(preference, model.calls[1][0][0]["content"])
+        set_memory_active(self.store.memories()[0].id, False)
+        model = Model()
+        ConversationSession(model=model).reply("こんにちは")
+        self.assertNotIn(preference, str(model.calls))
+
+    def test_invalid_action_preserves_valid_route_and_recall_overrides_ask(self):
+        for action in (None, "unknown", [], 1):
+            with self.subTest(action=action):
+                model = Model({"importance": "low", "complexity": "low", "memory": "normal",
+                               "response_action": action})
+                ai = ConversationSession(model=model)
+                ai.reply("今日は楽だった")
+                self.assertFalse(ai.last_decision.fallback)
+                self.assertFalse(ai.last_decision.think)
+                self.assertTrue(ai.last_decision.action_fallback)
+                self.assertEqual(ai.last_decision.response_action, "respond")
+        model = Model({"importance": "low", "complexity": "low", "memory": "detailed",
+                       "recall_user_fact": True, "evidence": [], "response_action": "ask"})
+        ai = ConversationSession(model=model)
+        ai.reply("疲れた理由覚えてる？")
+        self.assertEqual(ai.last_decision.response_action, "answer")
+        self.assertEqual(len(model.calls), 2)
+
     def test_failed_edit_does_not_save_draft(self):
         class FailedEditor(Model):
             def __call__(self, messages, **kwargs):
