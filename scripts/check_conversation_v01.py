@@ -48,7 +48,7 @@ class ConversationTests(unittest.TestCase):
         first.reply("AIの設計を一緒に考えたい")
         model = Model()
         ConversationSession(model=model).reply("それの続き")
-        for messages, options in model.calls:
+        for messages, options in model.calls[:2]:
             self.assertTrue(any(m["content"] == "AIの設計を一緒に考えたい" for m in messages))
         self.assertEqual(len(self.store.history()), 4)
         self.assertFalse(model.calls[-1][1]["think"])
@@ -107,10 +107,10 @@ class ConversationTests(unittest.TestCase):
         self.assertTrue(self.store.remember("好きな色は青"))
         model = Model({"importance": "low", "complexity": "low", "memory": "detailed"})
         ConversationSession(model=model).reply("好きな色を覚えてる？")
-        self.assertIn("好きな色は青", model.calls[-1][0][0]["content"])
+        self.assertIn("好きな色は青", model.calls[1][0][0]["content"])
         set_memory_active(self.store.memories()[0].id, False)
         ConversationSession(model=model).reply("覚えてる？")
-        self.assertNotIn("好きな色は青", model.calls[-1][0][0]["content"])
+        self.assertNotIn("好きな色は青", model.calls[-2][0][0]["content"])
 
     def test_manual_override_and_policy_reload(self):
         policy = Path(self.tmp.name) / "policy.md"
@@ -131,7 +131,7 @@ class ConversationTests(unittest.TestCase):
         self.store.save_turn("バイトが忙しかった", "どんなバイトだったの？")
         ai = ConversationSession(model=model)
         ai.reply("疲れた理由を覚えてる？")
-        messages = model.calls[-1][0]
+        messages = model.calls[1][0]
         systems = [m for m in messages if m["role"] == "system"]
         self.assertEqual(len(systems), 1)
         self.assertIn(BOUNDARY, systems[0]["content"])
@@ -181,6 +181,17 @@ class ConversationTests(unittest.TestCase):
         self.assertEqual(json.loads(edit_messages[-1]["content"])["draft_reply"], draft)
         self.assertEqual(self.store.history()[-1]["content"], final)
         self.assertNotEqual(final, draft)
+
+    def test_paraphrase_without_closing_is_edited_with_user_context(self):
+        self.store.save_turn("今日は昨日より楽だった", "過去のAIの話し方")
+        draft = "明日はまた忙しそうなんだね。"
+        model = Model(answer=draft)
+        ConversationSession(model=model).reply("でも明日は忙しそうなんだよな")
+        self.assertEqual(len(model.calls), 3)
+        payload = json.loads(model.calls[-1][0][-1]["content"])
+        self.assertEqual(payload["user_context"], ["今日は昨日より楽だった"])
+        self.assertEqual(payload["draft_reply"], draft)
+        self.assertNotIn("過去のAIの話し方", str(model.calls[-1][0]))
 
     def test_failed_edit_does_not_save_draft(self):
         class FailedEditor(Model):
