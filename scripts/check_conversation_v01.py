@@ -132,6 +132,41 @@ class ConversationTests(unittest.TestCase):
         self.assertNotIn("パン屋", str(model.calls[-1][0]))
         self.assertIn("根拠が不足", model.calls[-1][0][0]["content"])
 
+    def test_closing_edit_is_independent_and_only_final_answer_is_saved(self):
+        self.store.save_turn("バイトが忙しかった", "過去の定型返答")
+        draft = "昨日より楽だったんだね。無理せず、しっかり休んでね。"
+        class EditorModel(Model):
+            def __call__(self, messages, **kwargs):
+                result = super().__call__(messages, **kwargs)
+                return "お、今日は少し余裕あったんだね。" if len(self.calls) == 3 else result
+        model = EditorModel(answer=draft)
+        ai = ConversationSession(model=model)
+        final = ai.reply("今日は昨日より楽だった")
+        self.assertEqual(len(model.calls), 3)
+        edit_messages = model.calls[-1][0]
+        self.assertEqual(len(edit_messages), 2)
+        self.assertNotIn("過去の定型返答", str(edit_messages))
+        self.assertEqual(json.loads(edit_messages[-1]["content"])["draft_reply"], draft)
+        self.assertEqual(self.store.history()[-1]["content"], final)
+        self.assertNotEqual(final, draft)
+
+    def test_failed_edit_does_not_save_draft(self):
+        class FailedEditor(Model):
+            def __call__(self, messages, **kwargs):
+                result = super().__call__(messages, **kwargs)
+                if len(self.calls) == 3:
+                    raise ConnectionError("editor offline")
+                return result
+        with self.assertRaises(ConnectionError):
+            ConversationSession(model=FailedEditor(answer="何かあったら話してね")).reply("今日は楽だった")
+        self.assertEqual(self.store.history(), [])
+
+    def test_high_importance_answer_skips_casual_edit(self):
+        model = Model({"importance": "high", "complexity": "low", "memory": "normal"},
+                      answer="無理せず休んでください")
+        ConversationSession(model=model).reply("体調について相談したい")
+        self.assertEqual(len(model.calls), 2)
+
     def test_context_limits_and_invalid_input(self):
         history = [{"role": "user", "content": "a" * 1000}] * 100
         self.assertEqual(len(bounded_history(history)), 16)
