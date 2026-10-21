@@ -65,6 +65,38 @@ class ConversationTests(unittest.TestCase):
         self.assertTrue(ai.last_decision.fallback)
         self.assertTrue(model.calls[-1][1]["think"])
 
+    def test_quoted_false_from_live_trace_still_runs_editor(self):
+        model = Model({"importance": "low", "complexity": "low", "memory": "normal",
+                       "recall_user_fact": "false",
+                       "evidence": ["バイトが忙しかったんだよね。"]},
+                      answer="昨日より楽だったんだね。何かあったら話してね。")
+        self.store.save_turn("バイトが忙しかったんだよね。", "お疲れ様")
+        ai = ConversationSession(model=model)
+        ai.reply("今日は昨日より楽だった")
+        self.assertFalse(ai.last_decision.fallback)
+        self.assertFalse(ai.last_decision.think)
+        self.assertIs(ai.last_decision.recall_user_fact, False)
+        self.assertEqual(len(model.calls), 3)
+        self.assertFalse(model.calls[1][1]["think"])
+
+    def test_quoted_true_preserves_recall_and_invalid_values_fall_back(self):
+        history = [{"role": "user", "content": "バイトが忙しかった"}]
+        for value in (True, "true", " TRUE "):
+            with self.subTest(value=value):
+                route = {"importance": "low", "complexity": "low", "memory": "detailed",
+                         "recall_user_fact": value, "evidence": [history[0]["content"]]}
+                decision = ConversationSession(model=Model(route)).decide(history, "覚えてる？")
+                self.assertFalse(decision.fallback)
+                self.assertIs(decision.recall_user_fact, True)
+                self.assertEqual(decision.evidence, (history[0]["content"],))
+        for value in ("no", "", None, 0, 1, [], {}):
+            with self.subTest(invalid=value):
+                route = {"importance": "low", "complexity": "low", "memory": "normal",
+                         "recall_user_fact": value, "evidence": []}
+                decision = ConversationSession(model=Model(route)).decide(history, "続き")
+                self.assertTrue(decision.fallback)
+                self.assertTrue(decision.think)
+
     def test_empty_answer_does_not_save_partial_turn(self):
         with self.assertRaises(ValueError):
             ConversationSession(model=Model(answer=" ")).reply("こんにちは")
