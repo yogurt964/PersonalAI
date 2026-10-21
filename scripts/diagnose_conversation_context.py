@@ -156,16 +156,63 @@ def compare_style(history, policy, question, client):
     return 0
 
 
+def adaptation_scenarios():
+    """Synthetic, isolated users and scenes; never use the real user's DB."""
+    history = [
+        {"role": "user", "content": "今日は昨日より楽だった"},
+        {"role": "assistant", "content": "今日は少し余裕あったんだね。"},
+    ]
+    question = "でも明日は忙しそうなんだよな"
+    interested = "会話では、私の話に関心を示す返しが好き。"
+    quiet = "会話では、こちらから求めない限り質問は控えめにしてほしい。"
+    yield "1: 好み未登録", "登録なしでも場面に沿って反応する。復唱・締めだけにしない。", history, [], question
+    yield "2: 関心を好むユーザー", "具体的な関心が伝わる。知らない事情を決めつけない。", history, [interested], question
+    yield "3: 質問控えめのユーザー", "質問を増やさず、話題への反応を返す。", history, [quiet], question
+    yield ("4: 現在の希望を優先", "関心を好む人でも、質問せず受け止める。",
+           history, [interested], "明日は忙しそうなんだよな。今日は質問せずに聞いててほしい。")
+    after_question = history + [
+        {"role": "user", "content": question},
+        {"role": "assistant", "content": "明日は混みそうなの？"},
+    ]
+    yield ("5: 質問への返答", "既に聞いたことを聞き直さず、質問を重ねすぎない。",
+           after_question, [interested], "うん、予約が多いらしい")
+    yield ("6: 答えだけ欲しい場面", "好みに関係なく、計算結果12だけを答える。",
+           [], [interested], "3×4はいくつ？答えだけ教えて。")
+
+
+def run_adaptation_scenarios(model_factory=None):
+    factory = model_factory if model_factory is not None else LocalModel
+    print("場面別の比較：架空の会話・好みだけを使用。実DBは読み書きしません。", flush=True)
+    print("共通の適応ルールと個人の好みを分けて確認します。品質の合否は自動判定しません。", flush=True)
+    policy = POLICY_PATH.read_text(encoding="utf-8")
+    print("方針SHA256:", hashlib.sha256(policy.encode()).hexdigest()[:12], flush=True)
+    for name, criterion, history, preferences, question in adaptation_scenarios():
+        print(f"\n=== {name} ===", flush=True)
+        print("確認点:", criterion, flush=True)
+        print("仮の好み:", preferences or "登録なし", flush=True)
+        memories = [SimpleNamespace(
+            content=content, is_active=True, category="preference", scope="user",
+            importance=5, confidence=100, created_at="", updated_at="",
+        ) for content in preferences]
+        # A new session and store per case; generated replies never carry over.
+        diagnose_pipeline(history, memories, question, model=factory())
+    return 0
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--question", default="俺が疲れた理由覚えてる？")
     parser.add_argument("--cases", nargs="+", choices=list("ABCDE"), default=list("ADE"))
     modes = parser.add_mutually_exclusive_group()
+    modes.add_argument("--scenarios", action="store_true",
+                       help="実DBを使わず、架空のユーザー・場面6件をまとめて比較")
     modes.add_argument("--compare-style", action="store_true",
                        help="返答案を渡さない新規生成をthink=False/Trueで比較")
     modes.add_argument("--pipeline", action="store_true",
                         help="実際の分類・生成・編集を保存せずに追跡する")
     args = parser.parse_args()
+    if args.scenarios:
+        return run_adaptation_scenarios()
     history, memories = read_snapshot(ROOT / "data" / "personal_ai.db")
     policy = POLICY_PATH.read_text(encoding="utf-8")
     from ollama import Client
