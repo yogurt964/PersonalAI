@@ -9,22 +9,10 @@ from time import perf_counter
 sys.path.insert(0, str(Path(__file__).resolve().parents[1]))
 from scripts.diagnose_conversation_context import adaptation_scenarios, minimal_messages
 
-# Conservative short-context rate allowances, USD per million tokens. These
-# exceed or match the official standard-rate pages reviewed on 2026-10-22.
-# Refresh before future experiments; this is not an account billing limit.
-# https://developers.openai.com/api/docs/pricing
-# https://developers.openai.com/api/docs/models/gpt-6-luna
-# https://developers.openai.com/api/docs/models/gpt-6.1-sol
-RATE_ALLOWANCES = {
-    "gpt-6-luna": (Decimal("0.20"), Decimal("1.00")),
-    "gpt-6.1-sol": (Decimal("4.00"), Decimal("20.00")),
-}
-MAX_OUTPUT_TOKENS = 2048
-MAX_RUN_BUDGET = Decimal("0.50")
-
-
-class PreflightError(ValueError):
-    """Only these local, fixed messages are safe to show verbatim."""
+from core.conversation_api import (
+    RATE_ALLOWANCES, MAX_OUTPUT_TOKENS, PreflightError,
+    validate_budget, estimate_reserve, make_client,
+)
 
 
 def make_plan(selected_cases=None):
@@ -33,15 +21,9 @@ def make_plan(selected_cases=None):
         if selected_cases is not None and index not in selected_cases:
             continue
         messages = minimal_messages(history, preferences, question)
-        # UTF-8 bytes plus generous framing allowance: an estimate, not a
-        # tokenizer or a provider-side hard spend limit.
-        input_allowance = (sum(len(m["content"].encode("utf-8")) for m in messages)
-                           + 256 * len(messages) + 1024)
-        for model, (input_rate, output_rate) in RATE_ALLOWANCES.items():
-            reserve = (input_allowance * input_rate + MAX_OUTPUT_TOKENS * output_rate) / 1_000_000
+        for model in RATE_ALLOWANCES:
             plan.append({
                 "case": index, "name": name, "criterion": criterion,
-                "reserve_usd": str(reserve),
                 "request": {
                     "model": model,
                     "instructions": messages[0]["content"],
@@ -52,19 +34,8 @@ def make_plan(selected_cases=None):
                     "service_tier": "default",
                 },
             })
+            plan[-1]["reserve_usd"] = str(estimate_reserve(plan[-1]["request"]))
     return plan
-
-
-def make_client():
-    # Reuse the existing key loader. Do not load .env or print credentials.
-    from ai.openai_client import get_api_key
-    from openai import OpenAI
-    import httpx
-    return OpenAI(
-        api_key=get_api_key(), base_url="https://api.openai.com/v1",
-        timeout=90, max_retries=0,
-        http_client=httpx.Client(trust_env=False, follow_redirects=False),
-    )
 
 
 def run_comparison(*, execute=False, approved_budget=None, selected_cases=None, client_factory=None):
@@ -78,9 +49,7 @@ def run_comparison(*, execute=False, approved_budget=None, selected_cases=None, 
         return 0
     if approved_budget is None:
         raise PreflightError("実行には承認済みの今回予算を指定してください。")
-    budget = Decimal(str(approved_budget))
-    if not budget.is_finite() or not Decimal(0) < budget <= MAX_RUN_BUDGET:
-        raise PreflightError("今回予算は0より大きく0.50 USD以下で指定してください。")
+    budget = validate_budget(approved_budget)
     if total_reserve > budget:
         raise PreflightError("実行前の見積額が今回予算を超えるため、APIを呼びません。")
     # Only construct a credential-bearing client after preflight has passed.
