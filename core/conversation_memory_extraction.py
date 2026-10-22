@@ -23,6 +23,11 @@ decisionはユーザーが実際に決めたことだけ。AIの未採用の提�
 タグは述べられた話題だけ。所有者・許可・保存先・重要度は決定しません。
 要点は短く、原則一つの事実・希望・目的ごとに分けます。最大8候補。
 各候補に根拠のsource_idと、その発言からの短い正確なquoteを付けてください。
+「それ」「その案」などを具体化する場合は、指す内容がある発言と現在の発言の両方を根拠に含めます。
+AIの案を未決定として残す場合も、案を述べたAI発言と未決定を述べたユーザー発言を両方引用します。
+decisionにはユーザーの採用・決定を示す引用が必須です。AI発言だけでは決定にしません。
+user_factとtemporary_preferenceの根拠はユーザー発言のみです。具体化にAI発言が必要なら、
+その種類へ無理に分類せず、未決定ならopen_questionにするなど、意味に合う分類を使ってください。
 source_idは整数。quoteは前後の否定や条件を切り捨てない範囲にしてください。
 必ず以下の形式のJSONだけを返します。キーを追加しないでください。
 {"candidates":[{"key":"短い識別名","kind":"user_fact","content":"要点",
@@ -123,6 +128,8 @@ def parse_proposals(raw, turn):
                 raise ValueError("quote not in original source")
             refs.append(source.ref)
             evidence.append(EvidenceQuote(source_id, quote["quote"]))
+        if item["kind"] == "decision" and not any(ref.role == "user" for ref in refs):
+            raise ValueError("decision requires a user source")
         note = StateNote(item["key"], item["kind"], item["content"],
                          tuple(refs), tuple(item["tags"]))
         result.append(MemoryProposal(note, tuple(evidence)))
