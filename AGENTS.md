@@ -103,6 +103,8 @@ Claude Code should start from `CLAUDE.md`.
 
 At meaningful checkpoints, report completion even when no user action is needed, and leave room for questions and alignment. If the user cannot access their PC, finish implementation and offline checks without requesting immediate PC tests.
 
+When discussing an existing idea, state what was already known, what this turn adds or changes, and what remains unimplemented. Do not present a previously agreed feature as a newly discovered requirement. If prior knowledge cannot be verified, say so.
+
 Report behavior and results to the user, not long code diffs.
 Focus on what changed, what now works, checks run, commit hash, git status, and what the user should try.
 
