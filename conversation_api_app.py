@@ -10,6 +10,8 @@ def main(argv=None):
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--execute", action="store_true")
     parser.add_argument("--allow-saved-context", action="store_true")
+    parser.add_argument("--enable-short-memory", action="store_true",
+                        help="短期記憶の別DB保存・復元と明示操作による抽出を有効化")
     parser.add_argument("--approved-budget-usd")
     parser.add_argument("--mode", choices=("auto", "fast", "deep"), default="fast")
     args = parser.parse_args(argv)
@@ -18,6 +20,10 @@ def main(argv=None):
         print("実行時に送るもの: 現在の入力、直近20件・16000文字以内の履歴、有効な長期記憶の上位20件以内。")
         print("会話方針と、この起動中に設定した好みも送ります。実行前に送信範囲と今回予算を承認してください。")
         print("会話の成功した入力・返答は既存DBへ保存し、/rememberで明示した長期記憶を保存します。")
+        if args.enable_short_memory:
+            print("短期記憶: data/conversation_memory.sqlite3に採用済み要点・出典ID・利用統計を保存します。")
+            print("採用済み要点もAPIへ送信します。/extract-memoryだけが追加抽出を呼び、今回予算を共有します。")
+            print("未採用候補は終了時に破棄。その場限りの希望は再起動時に解除します。")
         return 0
     try:
         ai = SavedApiSession(args.approved_budget_usd, allow_saved_context=args.allow_saved_context,
@@ -29,10 +35,24 @@ def main(argv=None):
     if not Path("data/personal_ai.db").is_file():
         print("既存DBが見つかりません。DBは作成・初期化していません。")
         return 1
+    if args.enable_short_memory:
+        try:
+            from core.conversation_memory_workspace import MemoryWorkspace
+            from core.conversation_api_memory import MemoryApiSession
+            workspace = MemoryWorkspace("data/conversation_memory.sqlite3", "data/personal_ai.db")
+            ai = MemoryApiSession(args.approved_budget_usd, allow_saved_context=True,
+                                  store=ai.store, mode=args.mode, workspace=workspace)
+        except Exception as error:
+            print(f"短期記憶の読込を停止しました（{type(error).__name__}）。既存データの初期化・自動修復はしていません。")
+            return 1
     print("PersonalAI API会話版0.1候補 / gpt-6.1-sol / 終了: /exit / 予算: /budget")
     print(f"推論: {ai.mode} / 切替: /mode auto|fast|deep / 直前の判定: /route")
     print("保存済みの会話履歴・長期記憶と新しい会話をOpenAI APIへ送信します。")
     print("記憶保存: /remember 内容 / 一覧: /memories / 今回の好み: /preference 内容")
+    if args.enable_short_memory:
+        print("短期記憶を有効にしました。採用済み要点と利用統計を保存・復元し、要点もAPIへ送信します。")
+        print("/extract-memory: 追加抽出（今回予算を使用） /accept-memory 番号: 確認して採用")
+        print("/short-memory: 一覧 /memory-usage: 利用統計 /end-topic: 一時希望を解除")
     print(f"今回予算: ${ai.budget:.2f}（見積額で制御。API側の厳密な請求上限ではありません）")
     try:
         while True:
@@ -45,6 +65,11 @@ def main(argv=None):
                 print(f"使用額の見積: ${ai.spent:.4f} / 残り: ${ai.remaining:.4f}")
                 continue
             try:
+                if args.enable_short_memory and user.startswith("/"):
+                    output = ai.memory_command(user)
+                    if output is not None:
+                        print(output)
+                        continue
                 if user.startswith("/mode "):
                     ai.set_mode(user[len("/mode "):].strip())
                     print(f"推論: {ai.mode}")
@@ -71,10 +96,16 @@ def main(argv=None):
                         print("有効な記憶はありません。")
                 elif user.startswith("/"):
                     print("コマンド: /exit /budget /mode auto|fast|deep /route /remember 内容 /memories /preference 内容")
+                    if args.enable_short_memory:
+                        print("短期記憶: /extract-memory /accept-memory 番号 /short-memory /memory-usage /end-topic")
                 else:
                     print("PersonalAI > " + ai.reply(user))
+                    if args.enable_short_memory and ai.memory_warning:
+                        print(ai.memory_warning)
             except PreflightError as error:
                 print(error)
+                if ai.failed:
+                    break
                 if user.startswith("/"):
                     continue
                 break
