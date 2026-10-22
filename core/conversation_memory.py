@@ -164,6 +164,14 @@ class ShortTermMemory:
     def __init__(self, scope, dataset_id):
         self._snapshot = ShortTermSnapshot(scope, dataset_id)
 
+    @classmethod
+    def from_snapshot(cls, snapshot):
+        if not isinstance(snapshot, ShortTermSnapshot):
+            raise ValueError("validated snapshot required")
+        memory = cls(snapshot.scope, snapshot.dataset_id)
+        memory._snapshot = snapshot
+        return memory
+
     @property
     def snapshot(self):
         return self._snapshot
