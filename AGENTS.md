@@ -103,6 +103,8 @@ Claude Code should start from `CLAUDE.md`.
 
 At meaningful checkpoints, report completion even when no user action is needed, and leave room for questions and alignment. If the user cannot access their PC, finish implementation and offline checks without requesting immediate PC tests.
 
+Use larger, end-to-end checkpoints: complete a usable flow including persistence, restoration, application integration and relevant checks before the final report. Do not stop for a final report after each small module or test change. During work give brief progress updates; pause earlier only for a necessary user decision, access or operation.
+
 When discussing an existing idea, state what was already known, what this turn adds or changes, and what remains unimplemented. Do not present a previously agreed feature as a newly discovered requirement. If prior knowledge cannot be verified, say so.
 
 Report behavior and results to the user, not long code diffs.
