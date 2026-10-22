@@ -70,6 +70,35 @@ class ExtractionTests(unittest.TestCase):
                 self.assertEqual(result.status, "invalid_response")
                 self.assertEqual(result.proposals, ())
 
+    def test_unadopted_proposal_preserves_both_speakers(self):
+        result, _ = self.run_extraction([self.candidate(
+            content="週末に出かける案は未決定",
+            evidence=[{"source_id": 2, "quote": "週末に出かける案もあるよ。"},
+                      {"source_id": 3, "quote": "まだ予定は決めていない。"}])])
+        self.assertEqual(result.status, "proposed")
+        self.assertEqual([r.role for r in result.proposals[0].note.source_refs],
+                         ["assistant", "user"])
+        self.assertTrue(result.requires_review)
+
+    def test_assistant_only_decision_rejects_whole_batch(self):
+        result, _ = self.run_extraction([self.candidate(), self.candidate(
+            key="decision", kind="decision",
+            evidence=[{"source_id": 2, "quote": "週末に出かける案もあるよ。"}])])
+        self.assertEqual(result.status, "invalid_response")
+        self.assertEqual(result.proposals, ())
+
+    def test_user_quote_alone_does_not_prove_adoption(self):
+        result, _ = self.run_extraction([self.candidate(kind="decision")])
+        self.assertEqual(result.status, "proposed")
+        self.assertTrue(result.requires_review)
+        self.assertEqual(self.memory.snapshot.notes, ())
+
+    def test_missing_antecedent_remains_a_semantic_review_issue(self):
+        result, _ = self.run_extraction([self.candidate(content="週末に出かける案は未決定")])
+        self.assertEqual(result.status, "proposed")
+        self.assertTrue(result.requires_review)
+        self.assertEqual(len(result.proposals[0].note.source_refs), 1)
+
     def test_extra_authority_fields_and_duplicate_candidate_keys_are_rejected(self):
         for items in ([self.candidate(owner_id="other")],
                       [self.candidate(delete=True)],
