@@ -1,5 +1,8 @@
 # MIGRATION.md
 
+> **現在の入口（2026-11-22〜）**: Claude Code は `CLAUDE.md` と `docs/current_status.md` だけを通常読む。
+> 本書は移行時の引継書（歴史的資料）。「17. 開発・検証コマンド」「18. Claude Code開始時の手順」にある全ファイル読込・全check実行の指示は、現在は `CLAUDE.md` の Read first / Checks に従う。
+
 ## 1. このドキュメントの目的
 
 このドキュメントは、PersonalAI開発を新しいAIエージェント環境へ移行するための引継書である。

@@ -1,5 +1,7 @@
 # Check Workflow
 
+> **現在の運用（2026-11-22〜）**: checkの実行範囲は `CLAUDE.md` の Checks に従う（通常は関連checkを優先し、全体は区切り・重要変更時）。本書は各checkの一覧・用途の参照資料として使う。
+
 ## 目的
 
 このドキュメントは、PersonalAIのVer1.x / Ver2.x開発で、どのcheckをいつ実行するかを整理するための運用メモである。

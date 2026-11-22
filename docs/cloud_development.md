@@ -18,11 +18,12 @@
 | 区分 | 本数 | 対象 |
 |---|---|---|
 | クラウドでそのまま通る | 89 | DB不要の fake テスト |
-| 空スキーマDBがあれば通る | 20 | `check_ver013/015/016/017/018/019/022/023/230/240/250/280/2380/2420/2430/2470/2490/2500`, `list_memories`, `show_memory_context` |
+| 空スキーマDBがあれば通る | 30 | `check_ver013/015/016/017/018/019/022/023/230/240/250/280/2110/2130/2160/2170/2180/2190/2200/2290/2310/2320/2380/2420/2430/2470/2490/2500`, `list_memories`, `show_memory_context` |
 | Ollama必須（cloud-unverified） | 3 | `check_ver2530`, `check_ver2610`, `benchmark_capability_classification` |
 | 本番DB必須（cloud-unverified） | 1 | `diagnose_conversation_context` |
-| DB書き込み検知でNG（要ローカル確認） | 12 | `check_ver2110/2130/2160/2170/2180/2190/2200/2290/2310/2320/2330/2360` |
-| Windowsパス前提でLinuxではNG | 3 | `check_ver2370/2410/2480`（スペース入りパス抽出がドライブレター形式のみ対応） |
+| Windowsパス前提でLinuxではNG | 5 | `check_ver2330/2360/2370/2410/2480`（スペース入りパス抽出がドライブレター形式のみ対応） |
+
+注意: DBを使う check は、DBファイルの更新時刻で「DBに書き込まない」ことを検査するものがある。複数の check を並列実行して同じDBを共有すると誤ってNGになるため、逐次実行する（2026-11-22 に並列実行で12本の誤検知を確認し、逐次実行で訂正）。
 | 対象外 | 4 | `manage_memory_status`（引数必須）, `run_ver1_checks` / `run_ver2_checks` / `run_pre_v1_checks`（上記NGを含むため常に失敗） |
 
 そのため、クラウドでは `run_ver2_checks.py` の結果で合否判断しない。変更に関係する個別 check を実行する。
@@ -30,8 +31,8 @@
 ## ローカルPCが必要な作業
 
 - Ollama / Qwen を使う動作確認・check
-- 本番DB（`data/personal_ai.db`）を使う確認、DB書き込み系 check（上表の12本）
-- Windowsパス前提の check（上表の3本）と `run_ver2_checks.py` の最終確認
+- 本番DB（`data/personal_ai.db`）を使う確認
+- Windowsパス前提の check（上表の5本）と `run_ver2_checks.py` の最終確認
 - OpenAI API の実接続（月額上限の合意後）
 
 ## クラウドからの開発手順
