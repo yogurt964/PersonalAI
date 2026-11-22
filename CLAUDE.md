@@ -149,6 +149,19 @@ SQLite disk I/O error or timeout may occur in normal runs.
 Do not delete or initialize the DB.
 If elevated rerun succeeds, treat it as a known environment issue.
 
+## Cloud sessions (claude.ai/code, mobile)
+
+Cloud sessions run on a Linux VM cloned from GitHub (`CLAUDE_CODE_REMOTE=true`).
+The user's `~/.claude/CLAUDE.md`, hooks, and local venv are NOT available there, so:
+
+- Respond in Japanese (technical terms/identifiers in English).
+- Use `python3` instead of `venv\Scripts\python.exe`. Install deps with `pip install -r requirements.txt` only when needed.
+- `data/personal_ai.db`, DB backups, `.env`, API keys, and personal data do not exist in the repo and must never be added or committed.
+- Ollama / local models are unavailable. Prefer fake tests. Checks that need the real DB or Ollama may fail: report them as "cloud-unverified", not as code failures, and leave them for a local run.
+- Do not call the OpenAI API from cloud sessions unless the user explicitly agrees.
+- Work on the current feature branch and push there. Do not push to `main`.
+- Record progress in docs so the work can be resumed from the local PC.
+
 ## Git rules
 
 Allowed without confirmation:
