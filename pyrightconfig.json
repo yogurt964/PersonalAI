@@ -1,0 +1,20 @@
+{
+  "venvPath": ".",
+  "venv": "venv",
+  "pythonVersion": "3.10",
+  "typeCheckingMode": "basic",
+  "exclude": ["venv", "legacy", "data", "**/__pycache__"],
+  "reportUnusedExpression": "none",
+  "executionEnvironments": [
+    {
+      "root": "scripts",
+      "extraPaths": ["."],
+      "reportAttributeAccessIssue": "none",
+      "reportOptionalMemberAccess": "none",
+      "reportOptionalSubscript": "none",
+      "reportOptionalOperand": "none",
+      "reportArgumentType": "none"
+    },
+    { "root": "." }
+  ]
+}
