@@ -141,6 +141,8 @@ dry-runは原則不要。
 
 Memory Candidate、Reader結果のMemory保存、PC操作、外部API接続などは、段階的にdry-runから進める。
 
+> **現在の運用（2026-11-22〜）**: 読み込む資料とcheckの範囲は `CLAUDE.md` の Read first / Checks に従う。通常は変更箇所に関連するcheckを優先し、`run_ver2_checks.py` はリリース前・重要な変更時に実行する。下記および「Claude Code / Cursor移行方針」の読込順は当時の記録。
+
 ## テスト方針
 
 自動チェックは最低限行う。

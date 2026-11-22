@@ -1,5 +1,14 @@
 # Changelog
 
+## Docs: Claude Code startup reading reduction (2026-11-22)
+
+- `docs/current_status.md` を追加。現在の主題・確定事項・未解決事項・次の作業を100行以内で管理し、Verごとに上書き更新する。
+- `CLAUDE.md` の Read first を `CLAUDE.md` + `docs/current_status.md` のみに変更し、詳細資料は作業別の参照表から必要時だけ読む方式にした。安全・確認ルールは維持。
+- checkは関連checkを優先し、`run_ver2_checks.py` はリリース前・共通コア変更・重要変更時に実行する方針を明記。
+- `AGENTS.md`、`MIGRATION.md`、`docs/claude_code_start.md`、`docs/development_workflow.md`、`docs/check_workflow.md` に現在の入口を示す注意書きを追加（本文・履歴は変更なし）。
+- `docs/cloud_development.md` のテスト分類を訂正。前回「DB書き込み検知でNG」とした12本は並列実行による誤検知で、逐次実行では10本が通過、2本はWindowsパス前提のNGだった。
+- 読込量の削減は文字数のみ実測、トークン数は推定（`docs/current_status.md` 参照）。ローカルのSessionStart hookによる追加読込は未確認。
+
 ## Conversation prototype 0.1 (2026-10-22)
 
 - 既存Ver2.75上に会話専用CLI `conversation_app.py` を追加。

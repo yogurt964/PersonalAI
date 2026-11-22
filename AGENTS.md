@@ -1,5 +1,7 @@
 # AGENTS.md
 
+> **Current entry point (2026-11-22+)**: Claude Code reads only `CLAUDE.md` and `docs/current_status.md` by default. The "Read First" list below is historical (Codex era); open those docs only when the task needs them. `CLAUDE.md` takes precedence on conflicts.
+
 ## Project
 
 This project is PersonalAI.

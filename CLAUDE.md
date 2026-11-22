@@ -2,139 +2,75 @@
 
 ## Project
 
-PersonalAI is a local personal AI assistant project.
-
-It uses Python, SQLite, Ollama/Qwen, long-term memory, Web Reader, Memory Candidate, confirmation flows, ToolRunner, and PermissionManager.
-
-The project is also intended as a job-hunting portfolio.
+PersonalAI is a local personal AI assistant (Python, SQLite, Ollama/Qwen, OpenAI API trial, long-term memory, Readers, Memory Candidate, confirmation flows, ToolRunner, PermissionManager).
+It is also a job-hunting portfolio.
 
 ## Read first
 
-Read these files before making substantial changes:
+Normally read only:
 
-1. CLAUDE.md
-2. AGENTS.md
-3. MIGRATION.md
-4. README.md
-5. docs/claude_code_start.md
-6. docs/development_workflow.md
-7. docs/project_handoff.md
-8. docs/check_workflow.md
-9. docs/changelog.md
+1. `CLAUDE.md` (this file)
+2. `docs/current_status.md` (current focus, decisions, open issues, next work)
 
-## Current development mode
+Do NOT read other docs by default. Open them only when the task needs them, and prefer the relevant section (grep / heading search) over the whole file.
 
-The project is moving from Codex-based development to Claude Code-centered development.
+| Need | Read |
+|---|---|
+| Conversation v0.1 spec / history | `docs/conversation_v01.md` |
+| Memory / thinking design | `docs/memory_thinking_architecture.md`, `docs/memory.md` |
+| Which checks exist | `docs/check_workflow.md` (relevant section only) |
+| Cloud session details | `docs/cloud_development.md` |
+| Past versions | `docs/changelog.md` — top entries or grep only |
+| Implemented features / file map | `docs/project_handoff.md` — relevant section only |
+| Safety / permission design | `docs/permission_manager.md`, `docs/tool_permission_design.md` |
+| Product vision, portfolio | `docs/final_product_vision.md`, `README.md`, `docs/portfolio_readme_policy.md` |
+| Migration background (historical) | `MIGRATION.md`, `AGENTS.md`, `docs/claude_code_start.md` |
 
-Claude Code should work autonomously per version.
-
-Do not ask the user to review code diffs for normal reversible changes.
-Report behavior, checks, commit hash, git status, and user-facing verification points.
+If an older doc tells you to read many files or run all checks first, this file takes precedence.
 
 ## User preferences
 
-The user prefers:
+Action once the goal is clear, proactive suggestions, concrete implementation over repeated clarification, copy-pasteable commands, reports on what became possible, practical behavior tests, portfolio value and usability.
 
-- action-oriented development once the goal is clear
-- proactive suggestions before the user has to point out missing requirements
-- concrete implementation over repeated clarification
-- copy-pasteable commands when user action is needed
-- reports focused on what became possible, checks, and what to verify
-- practical behavior tests over internal implementation details
-- portfolio value and usability
+## Autonomous development
 
-## Autonomous development rules
+Work autonomously per version. Do not ask the user to review diffs for normal reversible changes.
+Report behavior, checks, commit hash, git status, and user-facing verification points.
 
-For normal reversible development, Claude Code may proceed without asking:
-
-- code edits
-- docs updates
-- test/check additions
-- small refactors
-- fake tests
-- git add
-- git commit
-- git push
-- fix commits
-- updating version docs
-- updating check scripts
-
-Claude Code should:
-
-1. understand the goal
-2. inspect relevant files
-3. implement
-4. run targeted checks
-5. run broader checks when appropriate
-6. fix failures
-7. commit
-8. push
-9. report in the required format
+Without asking: code/docs/check edits, small refactors, fake tests, git add, git commit, git push, fix commits.
+Flow: understand goal → inspect relevant files → implement → targeted checks → broader checks when appropriate → fix → commit → push → report.
 
 ## Confirmation rules
 
-Ask the user before fatal or hard-to-recover operations:
+Ask before fatal or hard-to-recover operations:
 
-- PC-breaking operations
-- OS / registry / driver / PATH major changes
-- large unexpected costs
-- paid contracts / purchases / subscriptions
+- PC-breaking operations; OS / registry / driver / PATH major changes
+- large unexpected costs; paid contracts / purchases / subscriptions
 - API key setup or external transmission of private data
-- deleting data/personal_ai.db
-- DB initialization
-- destructive DB schema changes
-- physical Memory deletion
+- deleting `data/personal_ai.db`, DB initialization, destructive DB schema changes, physical Memory deletion
 - mass file deletion
-- reset --hard
-- force push
-- rebase
-- Git history rewrite
+- reset --hard, force push, rebase, Git history rewrite, operations that may lose work
 - weakening PermissionManager or major safety checks
-
-Normal reversible mistakes and minor rework do not require confirmation.
 
 ## Cost rules
 
-Avoid wasting API usage or Claude Code quota.
+Avoid wasting API usage or Claude Code quota: do not blindly retry, read logs first, do not repeat broad checks without changing the cause, and do not load docs you do not need.
+Task/answer accuracy is the top priority — do not starve quality to save cost.
 
-Do not blindly retry failing commands.
-Read logs before retrying.
-Do not run large loops or broad checks repeatedly without changing the cause.
+OpenAI runs on a monthly budget cap, not per-call confirmation:
 
-The user is willing to pay when it clearly improves development speed, AI performance, quality, stability, or portfolio value.
-Task/answer accuracy is the top priority — do not starve quality just to save cost.
+- agree the cap with the user before the first real connection; within it, routine OpenAI calls do not need per-call confirmation
+- ask again when nearing/exceeding the cap or to raise it
+- API key setup/changes always require confirmation
+- external transmission of private/confidential data always requires confirmation, independent of the cap
 
-OpenAI usage specifically runs on a monthly budget cap, not per-call confirmation:
-
-- before first real OpenAI connection, agree a monthly cap with the user (requires confirmation)
-- within that cap, routine OpenAI calls do not need per-call confirmation
-- ask the user again only when nearing/exceeding the cap, or to raise it
-- API key setup/changes always require confirmation regardless of the cap
-- external transmission of private/confidential data always requires confirmation, independent of the cap (this is a data-leak risk, not a cost one)
-
-For any other paid usage, new API integration, or external transmission not covered by an agreed cap:
-
-- explain cost risk
-- explain expected benefit
-- explain cheaper alternative
-- ask the user
-
-## Failure handling
-
-On failure:
-
-1. read the log
-2. identify likely cause
-3. make a small fix
-4. rerun only necessary checks first
-5. avoid infinite retries
-6. do not delete or initialize the DB
-7. do not remove safety checks just to pass tests
-8. report honestly
+Other paid usage / new API integration / external transmission: explain cost risk, benefit, cheaper alternative, then ask.
 
 ## Checks
 
-Use:
+Default: run the checks related to the changed code (version check, related `scripts/check_*.py`; see `docs/current_status.md`), plus `git diff --check` and `git status`.
+
+Run the full suite (`scripts/run_ver2_checks.py`) before release/merge, for changes to shared core paths (PersonalAI, router, ToolRunner, PermissionManager, DB layer), or when targeted checks cannot cover the risk. Never skip verification that quality requires.
 
 ```powershell
 venv\Scripts\python.exe -B scripts\check_verXXXX.py
@@ -143,44 +79,26 @@ git diff --check
 git status
 ```
 
-CRLF warnings are acceptable.
+CRLF warnings are acceptable. SQLite disk I/O error or timeout may occur: do not delete or initialize the DB; if an elevated rerun succeeds, treat it as a known environment issue.
 
-SQLite disk I/O error or timeout may occur in normal runs.
-Do not delete or initialize the DB.
-If elevated rerun succeeds, treat it as a known environment issue.
+## Failure handling
+
+Read the log → identify the cause → small fix → rerun only the necessary checks first. No infinite retries, no DB deletion/initialization, no removing safety checks to pass tests. Report honestly.
+
+## Keeping docs current
+
+At the end of each version, overwrite `docs/current_status.md` (≤100 lines: focus, confirmed facts, open/unverified items, next work, base commit) in the same commit, and add history to `docs/changelog.md`. Never mark unverified progress as confirmed.
 
 ## Cloud sessions (claude.ai/code, mobile)
 
-Cloud sessions run on a Linux VM cloned from GitHub (`CLAUDE_CODE_REMOTE=true`).
-The user's `~/.claude/CLAUDE.md`, hooks, and local venv are NOT available there, so:
+Linux VM cloned from GitHub (`CLAUDE_CODE_REMOTE=true`); `~/.claude/CLAUDE.md`, hooks and the local venv are not available.
 
 - Respond in Japanese (technical terms/identifiers in English).
-- Use `python3` instead of `venv\Scripts\python.exe`. Install deps with `pip install -r requirements.txt` only when needed.
-- `data/personal_ai.db`, DB backups, `.env`, API keys, and personal data do not exist in the repo and must never be added or committed.
-- Ollama / local models are unavailable. Prefer fake tests. Checks that need the real DB or Ollama may fail: report them as "cloud-unverified", not as code failures, and leave them for a local run.
-- Do not call the OpenAI API from cloud sessions unless the user explicitly agrees.
-- Work on the current feature branch and push there. Do not push to `main`.
-- Record progress in docs so the work can be resumed from the local PC.
-
-## Git rules
-
-Allowed without confirmation:
-
-- git status
-- git log
-- git diff
-- git add
-- git commit
-- git push
-- normal fix commits
-
-Require confirmation:
-
-- reset --hard
-- force push
-- rebase
-- history rewrite
-- operations that may lose work
+- Use `python3`; install deps (`pip install -r requirements.txt`) into a venv only when needed.
+- `data/personal_ai.db`, DB backups, `.env`, API keys and personal data are not in the repo and must never be added or committed.
+- Ollama / local models are unavailable. Prefer fake tests; report checks needing the real DB or Ollama as "cloud-unverified" and leave them for a local run (classification: `docs/cloud_development.md`).
+- Do not call the OpenAI API unless the user explicitly agrees.
+- Push only to the current feature branch, never to `main`. Record progress in docs so work can resume locally.
 
 ## Report format
 
@@ -198,10 +116,4 @@ Require confirmation:
 
 ## Next version policy
 
-After each version, propose the next best version proactively.
-
-If the next step is obvious and safe, prepare a concrete plan.
-
-Do not start a new version automatically in the same report unless the user explicitly asked for continuous multi-version work.
-
-For now, prefer one version per user instruction to avoid wasted usage and runaway loops.
+After each version, propose the next best version (with a concrete plan if obvious and safe). Do not start it automatically unless the user asked for continuous multi-version work.

@@ -1,5 +1,8 @@
 # Claude Code Start Guide for PersonalAI
 
+> **現在の入口（2026-11-22〜）**: Claude Code は `CLAUDE.md` と `docs/current_status.md` だけを通常読む。
+> 本書は Ver2.23〜2.24 時点の一回限りの開始ガイド（歴史的資料）。下記の「最初に読むファイル」と開始時の `run_ver2_checks.py` 実行は現在の手順ではない。
+
 ## 1. このドキュメントの目的
 
 このドキュメントは、Claude CodeがPersonalAI開発を引き継ぐための開始手順書である。
